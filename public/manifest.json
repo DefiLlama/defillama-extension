@@ -1,0 +1,15 @@
+{
+  "name": "DefiLlama",
+  "description": "issa llama whirl!",
+  "author": "DefiLlama Team",
+  "version": "0.0.2.1",
+  "manifest_version": 3,
+  "offline_enabled": true,
+  "icons": {
+    "128": "./icons/defillama-logo-128.png"
+  },
+  "chrome_url_overrides": {
+    "newtab": "./index.html"
+  },
+  "permissions": ["topSites", "storage"]
+}

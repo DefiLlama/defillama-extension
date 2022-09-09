@@ -1,0 +1,32 @@
+{
+  "name": "defillama-extension",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^2.0.9",
+    "@chakra-ui/react": "2.2.9",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "@headlessui/react": "^1.7.0",
+    "@tanstack/react-query": "^4.2.3",
+    "downshift": "^6.1.9",
+    "framer-motion": "^7.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.196",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.1.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.1.0"
+  }
+}
