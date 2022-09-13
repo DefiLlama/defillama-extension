@@ -19,9 +19,6 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { DEFAULT_SEARCH_ENGINES, SearchEngine, usePersistentState } from "./utils";
-import { CustomSelect } from "./CustomSelect";
-import { Option } from "./Option";
-import { useState } from "react";
 
 export const SettingsModal = (props: {
   settingsModal: {
@@ -33,10 +30,9 @@ export const SettingsModal = (props: {
     getButtonProps: (props?: any) => any;
     getDisclosureProps: (props?: any) => any;
   };
-  searchEngine: SearchEngine;
-  setSearchEngine: React.Dispatch<React.SetStateAction<SearchEngine>>;
 }) => {
-  const { settingsModal, searchEngine, setSearchEngine } = props;
+  const { settingsModal } = props;
+  const [searchEngine, setSearchEngine] = usePersistentState<SearchEngine>("searchEngine", DEFAULT_SEARCH_ENGINES[0]);
 
   return (
     <Modal onClose={settingsModal.onClose} isOpen={settingsModal.isOpen} isCentered>
