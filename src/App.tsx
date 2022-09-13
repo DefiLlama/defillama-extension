@@ -14,14 +14,14 @@ import {
 } from "@chakra-ui/react";
 import { FiSettings, FiSun, FiMoon } from "react-icons/fi";
 import logo from "./assets/defillama-logo.png";
-import { DEFAULT_SEARCH_ENGINES, getIsMac, SearchEngine, useLocalStorage, useTopSites } from "./utils";
+import { DEFAULT_SEARCH_ENGINES, getIsMac, SearchEngine, usePersistentState, useTopSites } from "./utils";
 import { SearchBox } from "./SearchBox";
 import { TopSiteBlock } from "./TopSiteBlock";
 import { SettingsModal } from "./SettingsModal";
 
 function App() {
   const isMac = useMemo(() => getIsMac(), []);
-  const [searchEngine, setSearchEngine] = useLocalStorage<SearchEngine>("searchEngine", DEFAULT_SEARCH_ENGINES[0]);
+  const [searchEngine, setSearchEngine] = usePersistentState<SearchEngine>("searchEngine", DEFAULT_SEARCH_ENGINES[0]);
 
   const { colorMode, toggleColorMode } = useColorMode();
   const topSites = useTopSites();

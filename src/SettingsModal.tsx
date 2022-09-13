@@ -18,7 +18,7 @@ import {
   FormLabel,
   Icon,
 } from "@chakra-ui/react";
-import { DEFAULT_SEARCH_ENGINES, SearchEngine, useLocalStorage } from "./utils";
+import { DEFAULT_SEARCH_ENGINES, SearchEngine, usePersistentState } from "./utils";
 import { CustomSelect } from "./CustomSelect";
 import { Option } from "./Option";
 import { useState } from "react";
