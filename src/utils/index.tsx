@@ -39,6 +39,40 @@ export const useProtocols = () => {
   });
 };
 
+/**
+ * State synced with local storage. Updates itself when local storage changes based on event listener.
+ *
+ * @param key a string key to store the value under
+ * @param defaultValue the initial value to set the state to
+ * @returns a tuple of the state and a function to update the state
+ */
+export const usePersistentState = <T,>(key: string, defaultValue: T): [T, (value: T) => void] => {
+  const [state, setState] = useState<T>(() => {
+    const value = localStorage?.getItem(key);
+    if (value) {
+      return JSON.parse(value);
+    }
+    return defaultValue;
+  });
+
+  useEffect(() => {
+    const listener = (e: StorageEvent) => {
+      if (e.key === key) {
+        setState(JSON.parse(e.newValue ?? "null"));
+      }
+    };
+    window.addEventListener("storage", listener);
+    return () => window.removeEventListener("storage", listener);
+  }, [key]);
+
+  const setPersistentState = (value: T) => {
+    localStorage.setItem(key, JSON.stringify(value));
+    setState(value);
+  };
+
+  return [state, setPersistentState];
+};
+
 export function useLocalStorage<T>(key: string, initialValue: T) {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
