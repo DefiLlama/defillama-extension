@@ -39,43 +39,53 @@ export const useProtocols = () => {
   });
 };
 
-export function useLocalStorage<T>(key: string, initialValue: T) {
-  // State to store our value
-  // Pass initial state function to useState so logic is only executed once
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === "undefined") {
-      return initialValue;
+/**
+ * State synced with local storage. Updates itself when local storage changes based on event listener.
+ *
+ * @param key a string key to store the value under
+ * @param defaultValue the initial value to set the state to
+ * @returns a tuple of the state and a function to update the state
+ */
+export const usePersistentState = <T,>(key: string, defaultValue: T): [T, (value: T) => void] => {
+  const [state, setState] = useState<T>(() => {
+    const value = localStorage?.getItem(key);
+    if (value) {
+      return JSON.parse(value);
     }
-    try {
-      // Get from local storage by key
-      const item = window.localStorage.getItem(key);
-      // Parse stored json or if none return initialValue
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      // If error also return initialValue
-      console.log(error);
-      return initialValue;
-    }
+    return defaultValue;
   });
-  // Return a wrapped version of useState's setter function that ...
-  // ... persists the new value to localStorage.
-  const setValue = (value: T | ((val: T) => T)) => {
-    try {
-      // Allow value to be a function so we have same API as useState
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      // Save state
-      setStoredValue(valueToStore);
-      // Save to local storage
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+
+  useEffect(() => {
+    const localTabListener = () => {
+      const value = localStorage?.getItem(key);
+      const _value = JSON.parse(value ?? "null");
+      const _state = JSON.stringify(state);
+      if (_value !== _state) {
+        setState(_value);
       }
-    } catch (error) {
-      // A more advanced implementation would handle the error case
-      console.log(error);
-    }
+    };
+    window.addEventListener("set_persistent_state", localTabListener);
+    return () => window.removeEventListener("set_persistent_state", localTabListener);
+  }, [key]);
+
+  useEffect(() => {
+    const crossTabListener = (e: StorageEvent) => {
+      if (e.key === key) {
+        setState(JSON.parse(e.newValue ?? "null"));
+      }
+    };
+    window.addEventListener("storage", crossTabListener);
+    return () => window.removeEventListener("storage", crossTabListener);
+  }, [key]);
+
+  const setPersistentState = (value: T) => {
+    localStorage.setItem(key, JSON.stringify(value));
+    window.dispatchEvent(new Event("set_persistent_state"));
+    setState(value);
   };
-  return [storedValue, setValue] as const;
-}
+
+  return [state, setPersistentState];
+};
 
 export type SearchEngine = {
   name: string;

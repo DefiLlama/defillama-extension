@@ -16,7 +16,7 @@ import {
 import { Combobox } from "@headlessui/react";
 import { FiSearch } from "react-icons/fi";
 
-import { DEFAULT_SEARCH_ENGINES, getIsMac, Protocol, SearchEngine, useLocalStorage, useProtocols } from "./utils";
+import { DEFAULT_SEARCH_ENGINES, getIsMac, Protocol, SearchEngine, usePersistentState, useProtocols } from "./utils";
 
 export const SearchBox = (props: {
   searchBar: React.MutableRefObject<HTMLInputElement>;
@@ -24,8 +24,6 @@ export const SearchBox = (props: {
   setSearchInput: React.Dispatch<React.SetStateAction<string>>;
   searchBarFocused: boolean;
   setSearchBarFocused: React.Dispatch<React.SetStateAction<boolean>>;
-  searchEngine: SearchEngine;
-  setSearchEngine: React.Dispatch<React.SetStateAction<SearchEngine>>;
 }) => {
   const { data } = useProtocols();
   const isMac = useMemo(() => getIsMac(), []);
@@ -35,12 +33,14 @@ export const SearchBox = (props: {
   const onSearchBarFocus = () => setSearchBarFocused(true);
   const onSearchBarBlur = () => setSearchBarFocused(false);
 
+  const [searchEngine] = usePersistentState<SearchEngine>("searchEngine", DEFAULT_SEARCH_ENGINES[0]);
+
   const [selectedProtocol, setSelectedProtocol] = useState<Protocol>(null);
   const filteredProtocols = useMemo(() => {
     const _searchEngine: Protocol = {
-      name: `Search for ${searchInput} on ${props.searchEngine.name}...`,
-      url: encodeURI(props.searchEngine.url + searchInput),
-      logo: props.searchEngine.logo,
+      name: `Search for ${searchInput} on ${searchEngine.name}...`,
+      url: encodeURI(searchEngine.url + searchInput),
+      logo: searchEngine.logo,
       category: "FALLBACK",
     };
     if (!searchInput || !data) return [_searchEngine];

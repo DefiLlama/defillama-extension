@@ -14,14 +14,13 @@ import {
 } from "@chakra-ui/react";
 import { FiSettings, FiSun, FiMoon } from "react-icons/fi";
 import logo from "./assets/defillama-logo.png";
-import { DEFAULT_SEARCH_ENGINES, getIsMac, SearchEngine, useLocalStorage, useTopSites } from "./utils";
+import { DEFAULT_SEARCH_ENGINES, getIsMac, SearchEngine, usePersistentState, useTopSites } from "./utils";
 import { SearchBox } from "./SearchBox";
 import { TopSiteBlock } from "./TopSiteBlock";
 import { SettingsModal } from "./SettingsModal";
 
 function App() {
   const isMac = useMemo(() => getIsMac(), []);
-  const [searchEngine, setSearchEngine] = useLocalStorage<SearchEngine>("searchEngine", DEFAULT_SEARCH_ENGINES[0]);
 
   const { colorMode, toggleColorMode } = useColorMode();
   const topSites = useTopSites();
@@ -66,8 +65,6 @@ function App() {
               setSearchInput={setSearchInput}
               searchBarFocused={searchBarFocused}
               setSearchBarFocused={setSearchBarFocused}
-              searchEngine={searchEngine}
-              setSearchEngine={setSearchEngine}
             />
             <SimpleGrid columns={[3, 4, 5]} spacing="1">
               {topSites.slice(0, 10).map(({ title, url }, i) => (
@@ -87,7 +84,7 @@ function App() {
           />
         </HStack>
       </VStack>
-      <SettingsModal settingsModal={settingsModal} searchEngine={searchEngine} setSearchEngine={setSearchEngine} />
+      <SettingsModal settingsModal={settingsModal} />
     </>
   );
 }
