@@ -56,17 +56,31 @@ export const usePersistentState = <T,>(key: string, defaultValue: T): [T, (value
   });
 
   useEffect(() => {
-    const listener = (e: StorageEvent) => {
+    const localTabListener = () => {
+      const value = localStorage?.getItem(key);
+      const _value = JSON.parse(value ?? "null");
+      const _state = JSON.stringify(state);
+      if (_value !== _state) {
+        setState(_value);
+      }
+    };
+    window.addEventListener("set_persistent_state", localTabListener);
+    return () => window.removeEventListener("set_persistent_state", localTabListener);
+  }, [key]);
+
+  useEffect(() => {
+    const crossTabListener = (e: StorageEvent) => {
       if (e.key === key) {
         setState(JSON.parse(e.newValue ?? "null"));
       }
     };
-    window.addEventListener("storage", listener);
-    return () => window.removeEventListener("storage", listener);
+    window.addEventListener("storage", crossTabListener);
+    return () => window.removeEventListener("storage", crossTabListener);
   }, [key]);
 
   const setPersistentState = (value: T) => {
     localStorage.setItem(key, JSON.stringify(value));
+    window.dispatchEvent(new Event("set_persistent_state"));
     setState(value);
   };
 
