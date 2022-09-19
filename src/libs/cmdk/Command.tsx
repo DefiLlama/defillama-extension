@@ -1,15 +1,30 @@
 import * as React from "react";
+import { CommandProps, Context, Store, State } from "./types";
 import {
-  CommandProps,
-  Context,
-  Store,
-  State
-} from "./types";
-import { useLazyRef, useAsRef, useScheduleLayoutEffect, useLayoutEffect, defaultFilter, findNextSibling, findPreviousSibling, mergeRefs } from "./index";
+  useLazyRef,
+  useAsRef,
+  useScheduleLayoutEffect,
+  useLayoutEffect,
+  defaultFilter,
+  findNextSibling,
+  findPreviousSibling,
+  mergeRefs,
+} from "./index";
 import { StoreContext, CommandContext } from "./contexts";
-import { LIST_SELECTOR, VALUE_ATTR, GROUP_ITEMS_SELECTOR, GROUP_SELECTOR, GROUP_HEADING_SELECTOR, ITEM_SELECTOR, VALID_ITEM_SELECTOR, SELECT_EVENT, srOnlyStyles } from "./constants";
+import {
+  LIST_SELECTOR,
+  VALUE_ATTR,
+  GROUP_ITEMS_SELECTOR,
+  GROUP_SELECTOR,
+  GROUP_HEADING_SELECTOR,
+  ITEM_SELECTOR,
+  VALID_ITEM_SELECTOR,
+  SELECT_EVENT,
+  srOnlyStyles,
+} from "./constants";
+import * as Chakra from "@chakra-ui/react";
 
-export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, forwardedRef) => {
+export const Command = Chakra.forwardRef<CommandProps, "div">((props, forwardedRef) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const state = useLazyRef<State>(() => ({
     /** Value of the search query. */
@@ -58,8 +73,7 @@ export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, fo
         return state.current;
       },
       setState: (key, value, opts) => {
-        if (Object.is(state.current[key], value))
-          return;
+        if (Object.is(state.current[key], value)) return;
         state.current[key] = value;
 
         if (key === "search") {
@@ -168,7 +182,7 @@ export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, fo
       inputId,
       labelId,
     }),
-    []
+    [],
   );
 
   function score(value: string) {
@@ -178,10 +192,12 @@ export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, fo
 
   /** Sorts items by score, and groups by highest item score. */
   function sort() {
-    if (!ref.current ||
+    if (
+      !ref.current ||
       !state.current.search ||
       // Explicitly false, because true | undefined is the default
-      propsRef.current.shouldFilter === false) {
+      propsRef.current.shouldFilter === false
+    ) {
       return;
     }
 
@@ -240,9 +256,11 @@ export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, fo
 
   /** Filters the current items. */
   function filterItems() {
-    if (!state.current.search ||
+    if (
+      !state.current.search ||
       // Explicitly false, because true | undefined is the default
-      propsRef.current.shouldFilter === false) {
+      propsRef.current.shouldFilter === false
+    ) {
       state.current.filtered.count = allItems.current.size;
       // Do nothing, each item will know to show itself because search is empty
       return;
@@ -257,8 +275,7 @@ export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, fo
       const value = ids.current.get(id);
       const rank = score(value);
       state.current.filtered.items.set(id, rank);
-      if (rank > 0)
-        itemCount++;
+      if (rank > 0) itemCount++;
     }
 
     // Check which groups have at least 1 item shown
@@ -301,8 +318,7 @@ export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, fo
   function updateSelectedToIndex(index: number) {
     const items = getValidItems();
     const item = items[index];
-    if (item)
-      store.setState("value", item.getAttribute(VALUE_ATTR));
+    if (item) store.setState("value", item.getAttribute(VALUE_ATTR));
   }
 
   function updateSelectedByChange(change: 1 | -1) {
@@ -312,8 +328,7 @@ export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, fo
 
     // Get item at this index
     const newSelected = items[index + change];
-    if (newSelected)
-      store.setState("value", newSelected.getAttribute(VALUE_ATTR));
+    if (newSelected) store.setState("value", newSelected.getAttribute(VALUE_ATTR));
   }
 
   function updateSelectedToGroup(change: 1 | -1) {
@@ -366,10 +381,10 @@ export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, fo
   };
 
   return (
-    <div
+    <Chakra.Box
+      w="full"
       ref={mergeRefs([ref, forwardedRef])}
       {...etc}
-      cmdk-root=""
       onKeyDown={(e) => {
         etc.onKeyDown?.(e);
 
@@ -424,18 +439,9 @@ export const Command = React.forwardRef<HTMLDivElement, CommandProps>((props, fo
         }
       }}
     >
-      <label
-        cmdk-label=""
-        htmlFor={context.inputId}
-        id={context.labelId}
-        // Screen reader only
-        style={srOnlyStyles}
-      >
-        {label}
-      </label>
       <StoreContext.Provider value={store}>
         <CommandContext.Provider value={context}>{children}</CommandContext.Provider>
       </StoreContext.Provider>
-    </div>
+    </Chakra.Box>
   );
 });

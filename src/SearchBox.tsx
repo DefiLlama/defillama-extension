@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import {
   IconButton,
   Input,
@@ -12,24 +12,25 @@ import {
   VStack,
   useColorMode,
   Image,
+  useEventListener,
 } from "@chakra-ui/react";
 import { Combobox } from "@headlessui/react";
 import { FiSearch } from "react-icons/fi";
 
+import { Command } from "./libs/cmdk";
+
 import { DEFAULT_SEARCH_ENGINES, getIsMac, Protocol, SearchEngine, usePersistentState, useProtocols } from "./utils";
 
-export const SearchBox = (props: {
-  searchBar: React.MutableRefObject<HTMLInputElement>;
-  searchInput: string;
-  setSearchInput: React.Dispatch<React.SetStateAction<string>>;
-  searchBarFocused: boolean;
-  setSearchBarFocused: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
-  const { data } = useProtocols();
+export const SearchBox = () => {
   const isMac = useMemo(() => getIsMac(), []);
   const { colorMode } = useColorMode();
 
-  const { searchBar, searchInput, setSearchInput, searchBarFocused, setSearchBarFocused } = props;
+  const { data } = useProtocols();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef(null);
+  const [searchBarFocused, setSearchBarFocused] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+
   const onSearchBarFocus = () => setSearchBarFocused(true);
   const onSearchBarBlur = () => setSearchBarFocused(false);
 
@@ -50,81 +51,145 @@ export const SearchBox = (props: {
     ];
   }, [searchInput, data]);
 
+  useEventListener("keydown", (event) => {
+    const hotkey = isMac ? "metaKey" : "ctrlKey";
+    if (event?.key?.toLowerCase() === "k" && event[hotkey]) {
+      event.preventDefault();
+      inputRef.current?.focus();
+    }
+  });
+
   return (
-    <Combobox
-      value={selectedProtocol}
-      onChange={(protocol: Protocol) => {
-        setSelectedProtocol(protocol);
-        window.location.assign(protocol.url);
-      }}
-    >
-      {({ open }) => (
-        <>
-          <InputGroup size="lg" my="16">
-            <Combobox.Input
-              as={Fragment}
-              onChange={(event) => setSearchInput(event.target.value)}
-              displayValue={(protocol: Protocol) => protocol?.name ?? ""}
-            >
-              <Input
-                placeholder="Search..."
-                ref={searchBar}
-                onFocus={onSearchBarFocus}
-                onBlur={onSearchBarBlur}
-                autoComplete="off"
-              />
-            </Combobox.Input>
-            <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
-              <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
-              <Tooltip hasArrow label="Search" openDelay={300}>
-                <IconButton
-                  aria-label="Search"
-                  icon={<FiSearch />}
-                  colorScheme="gray"
-                  variant="ghost"
-                  size="md"
-                  mr="1"
-                  ml="2"
-                />
-              </Tooltip>
-            </InputRightElement>
-          </InputGroup>
-          {(!searchInput || !open) && <div style={{ width: "100%", marginTop: "-0.5rem" }} />}
-          {searchInput && open && (
-            <Combobox.Options as="div" static={true} style={{ width: "100%", marginTop: "-0.5rem" }}>
-              <VStack
-                w={["sm", "md", "lg", "xl"]}
-                p="4"
-                borderRadius="md"
-                spacing="4"
-                borderWidth={2}
-                position="absolute"
-                bgColor={colorMode === "light" ? "white" : "gray.800"}
-              >
-                {filteredProtocols.map((protocol, i) => (
-                  <Combobox.Option
-                    as="div"
-                    key={protocol.name + protocol.url}
-                    value={protocol}
-                    style={{ width: "100%" }}
-                  >
-                    {({ active, selected }) => (
-                      <HStack w="full" cursor="pointer" opacity={!active && 0.4}>
-                        <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
-                        <Text fontWeight="medium" fontSize="md">
-                          {protocol.name}
-                        </Text>
-                      </HStack>
-                    )}
-                  </Combobox.Option>
-                ))}
-              </VStack>
-            </Combobox.Options>
-          )}
-          {/* </PopoverContent>
-      </Popover> */}
-        </>
-      )}
-    </Combobox>
+    <Command value={searchInput} onValueChange={(v) => setSearchInput(v)}>
+      {/* <div cmdk-raycast-top-shine="" /> */}
+      <InputGroup size="lg">
+        <Command.Input ref={inputRef} autoFocus placeholder="Search for apps and commands..." />
+        <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
+          <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
+          <Tooltip hasArrow label="Search" openDelay={300}>
+            <IconButton
+              aria-label="Search"
+              icon={<FiSearch />}
+              colorScheme="gray"
+              variant="ghost"
+              size="md"
+              mr="1"
+              ml="2"
+            />
+          </Tooltip>
+        </InputRightElement>
+      </InputGroup>
+      <Command.List ref={listRef}>
+        <Command.Empty>No results found.</Command.Empty>
+        <Command.Group heading="Suggestions"></Command.Group>
+        <Command.Group heading="Search on">
+          {/* <Item isCommand value="Clipboard History">
+            <Logo>
+              <ClipboardIcon />
+            </Logo>
+            Clipboard History
+          </Item>
+          <Item isCommand value="Import Extension">
+            <HammerIcon />
+            Import Extension
+          </Item>
+          <Item isCommand value="Manage Extensions">
+            <HammerIcon />
+            Manage Extensions
+          </Item> */}
+        </Command.Group>
+      </Command.List>
+
+      {/* <div cmdk-raycast-footer="">
+        {theme === "dark" ? <RaycastDarkIcon /> : <RaycastLightIcon />}
+
+        <button cmdk-raycast-open-trigger="">
+          Open Application
+          <kbd>↵</kbd>
+        </button>
+
+        <hr />
+
+        <SubCommand listRef={listRef} selectedValue={value} inputRef={inputRef} />
+      </div> */}
+    </Command>
   );
+
+  // return (
+  //   <Combobox
+  //     value={selectedProtocol}
+  //     onChange={(protocol: Protocol) => {
+  //       setSelectedProtocol(protocol);
+  //       window.location.assign(protocol.url);
+  //     }}
+  //   >
+  //     {({ open }) => (
+  //       <>
+  //         <InputGroup size="lg" my="16">
+  //           <Combobox.Input
+  //             as={Fragment}
+  //             onChange={(event) => setSearchInput(event.target.value)}
+  //             displayValue={(protocol: Protocol) => protocol?.name ?? ""}
+  //           >
+  //             <Input
+  //               placeholder="Search..."
+  //               ref={searchBar}
+  //               onFocus={onSearchBarFocus}
+  //               onBlur={onSearchBarBlur}
+  //               autoComplete="off"
+  //             />
+  //           </Combobox.Input>
+  //           <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
+  //             <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
+  //             <Tooltip hasArrow label="Search" openDelay={300}>
+  //               <IconButton
+  //                 aria-label="Search"
+  //                 icon={<FiSearch />}
+  //                 colorScheme="gray"
+  //                 variant="ghost"
+  //                 size="md"
+  //                 mr="1"
+  //                 ml="2"
+  //               />
+  //             </Tooltip>
+  //           </InputRightElement>
+  //         </InputGroup>
+  //         {(!searchInput || !open) && <div style={{ width: "100%", marginTop: "-0.5rem" }} />}
+  //         {searchInput && open && (
+  //           <Combobox.Options as="div" static={true} style={{ width: "100%", marginTop: "-0.5rem" }}>
+  //             <VStack
+  //               w={["sm", "md", "lg", "xl"]}
+  //               p="4"
+  //               borderRadius="md"
+  //               spacing="4"
+  //               borderWidth={2}
+  //               position="absolute"
+  //               bgColor={colorMode === "light" ? "white" : "gray.800"}
+  //             >
+  //               {filteredProtocols.map((protocol, i) => (
+  //                 <Combobox.Option
+  //                   as="div"
+  //                   key={protocol.name + protocol.url}
+  //                   value={protocol}
+  //                   style={{ width: "100%" }}
+  //                 >
+  //                   {({ active, selected }) => (
+  //                     <HStack w="full" cursor="pointer" opacity={!active && 0.4}>
+  //                       <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
+  //                       <Text fontWeight="medium" fontSize="md">
+  //                         {protocol.name}
+  //                       </Text>
+  //                     </HStack>
+  //                   )}
+  //                 </Combobox.Option>
+  //               ))}
+  //             </VStack>
+  //           </Combobox.Options>
+  //         )}
+  //         {/* </PopoverContent>
+  //     </Popover> */}
+  //       </>
+  //     )}
+  //   </Combobox>
+  // );
 };

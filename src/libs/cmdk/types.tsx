@@ -1,7 +1,8 @@
 import * as RadixDialog from "@radix-ui/react-dialog";
 import * as React from "react";
+import * as Chakra from "@chakra-ui/react";
 
-type Children = { children?: React.ReactNode; };
+type Children = { children?: React.ReactNode };
 type DivProps = React.HTMLAttributes<HTMLDivElement>;
 export type LoadingProps = Children & {
   /** Estimated progress of loading asynchronous options. */
@@ -33,7 +34,7 @@ export type GroupProps = Children &
     /** If no heading is provided, you must provie a value that is unique for this group. */
     value?: string;
   };
-export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type"> & {
+export type InputProps = Omit<Chakra.InputProps, "value" | "onChange" | "type"> & {
   /**
    * Optional controlled state for the value of the search input.
    */
@@ -44,7 +45,7 @@ export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "valu
   onValueChange?: (search: string) => void;
 };
 export type CommandProps = Children &
-  DivProps & {
+  Chakra.BoxProps & {
     /**
      * Accessible label for this command menu. Not shown visibly.
      */
@@ -83,7 +84,7 @@ export type Context = {
 export type State = {
   search: string;
   value: string;
-  filtered: { count: number; items: Map<string, number>; groups: Set<string>; };
+  filtered: { count: number; items: Map<string, number>; groups: Set<string> };
 };
 export type Store = {
   subscribe: (callback: () => void) => () => void;

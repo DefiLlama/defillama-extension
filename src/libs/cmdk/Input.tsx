@@ -2,12 +2,13 @@ import * as React from "react";
 import { InputProps } from "./types";
 import { useCmdk } from "./index";
 import { useStore, useCommand } from "./contexts";
+import * as Chakra from "@chakra-ui/react";
 
 /**
  * Command menu input.
  * All props are forwarded to the underyling `input` element.
  */
-export const Input = React.forwardRef<HTMLInputElement, InputProps>((props, forwardedRef) => {
+export const Input = Chakra.forwardRef<InputProps, "input">((props, forwardedRef) => {
   const { onValueChange, ...etc } = props;
   const isControlled = props.value != null;
   const store = useStore();
@@ -21,7 +22,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>((props, forw
   }, [props.value]);
 
   return (
-    <input
+    <Chakra.Input
       ref={forwardedRef}
       {...etc}
       cmdk-input=""
@@ -42,6 +43,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>((props, forw
         }
 
         onValueChange?.(e.target.value);
-      }} />
+      }}
+    />
   );
 });
