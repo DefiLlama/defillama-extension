@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Center,
   IconButton,
@@ -14,30 +14,15 @@ import {
 } from "@chakra-ui/react";
 import { FiSettings, FiSun, FiMoon } from "react-icons/fi";
 import logo from "./assets/defillama-logo.png";
-import { DEFAULT_SEARCH_ENGINES, getIsMac, SearchEngine, usePersistentState, useTopSites } from "./utils";
+import { getIsMac, useTopSites } from "./utils";
 import { SearchBox } from "./SearchBox";
 import { TopSiteBlock } from "./TopSiteBlock";
 import { SettingsModal } from "./SettingsModal";
 
 function App() {
-  const isMac = useMemo(() => getIsMac(), []);
-
   const { colorMode, toggleColorMode } = useColorMode();
   const topSites = useTopSites();
-  const searchBar = useRef<HTMLInputElement>(null);
-  const [searchBarFocused, setSearchBarFocused] = useState(false);
-
   const settingsModal = useDisclosure();
-
-  useEventListener("keydown", (event) => {
-    const hotkey = isMac ? "metaKey" : "ctrlKey";
-    if (event?.key?.toLowerCase() === "k" && event[hotkey]) {
-      event.preventDefault();
-      searchBar.current?.focus();
-    }
-  });
-
-  const [searchInput, setSearchInput] = useState("");
 
   return (
     <>
@@ -59,13 +44,7 @@ function App() {
                 <Image src={logo} boxSize="24" alt="DefiLlama Logo" mb="8" />
               </Link>
             </Tooltip>
-            <SearchBox
-              searchBar={searchBar}
-              searchInput={searchInput}
-              setSearchInput={setSearchInput}
-              searchBarFocused={searchBarFocused}
-              setSearchBarFocused={setSearchBarFocused}
-            />
+            <SearchBox />
             <SimpleGrid columns={[3, 4, 5]} spacing="1">
               {topSites.slice(0, 10).map(({ title, url }, i) => (
                 <TopSiteBlock title={title} url={url} key={title + url + i} />
