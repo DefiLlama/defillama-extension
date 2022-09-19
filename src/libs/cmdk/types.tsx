@@ -8,15 +8,15 @@ export type LoadingProps = Children & {
   /** Estimated progress of loading asynchronous options. */
   progress?: number;
 };
-export type EmptyProps = Children & DivProps & {};
-export type SeparatorProps = DivProps & {
+export type EmptyProps = Children & Chakra.BoxProps & {};
+export type SeparatorProps = Chakra.BoxProps & {
   /** Whether this separator should always be rendered. Useful if you disable automatic filtering. */
   alwaysRender?: boolean;
 };
 export type DialogProps = RadixDialog.DialogProps & CommandProps;
-export type ListProps = Children & DivProps & {};
+export type ListProps = Children & Chakra.BoxProps & {};
 export type ItemProps = Children &
-  Omit<DivProps, "disabled" | "onSelect" | "value"> & {
+  Omit<Chakra.BoxProps, "disabled" | "onSelect" | "value"> & {
     /** Whether this item is currently disabled. */
     disabled?: boolean;
     /** Event handler for when this item is selected, either via click or keyboard selection. */
@@ -28,7 +28,7 @@ export type ItemProps = Children &
     value?: string;
   };
 export type GroupProps = Children &
-  Omit<DivProps, "heading" | "value"> & {
+  Omit<Chakra.BoxProps, "heading" | "value"> & {
     /** Optional heading to render for this group. */
     heading?: React.ReactNode;
     /** If no heading is provided, you must provie a value that is unique for this group. */

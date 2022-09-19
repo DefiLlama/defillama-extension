@@ -2,12 +2,13 @@ import * as React from "react";
 import { ListProps } from "./types";
 import { mergeRefs } from "./index";
 import { useCommand } from "./contexts";
+import * as Chakra from "@chakra-ui/react";
 
 /**
  * Contains `Item`, `Group`, and `Separator`.
  * Use the `--cmdk-list-height` CSS variable to animate height based on the number of results.
  */
-export const List = React.forwardRef<HTMLDivElement, ListProps>((props, forwardedRef) => {
+export const List = Chakra.forwardRef<ListProps, "div">((props, forwardedRef) => {
   const { children, ...etc } = props;
   const ref = React.useRef<HTMLDivElement>(null);
   const height = React.useRef<HTMLDivElement>(null);
@@ -27,7 +28,7 @@ export const List = React.forwardRef<HTMLDivElement, ListProps>((props, forwarde
   }, []);
 
   return (
-    <div
+    <Chakra.Box
       ref={mergeRefs([ref, forwardedRef])}
       {...etc}
       cmdk-list=""
@@ -36,9 +37,9 @@ export const List = React.forwardRef<HTMLDivElement, ListProps>((props, forwarde
       id={context.listId}
       aria-labelledby={context.inputId}
     >
-      <div ref={height} cmdk-list-sizer="">
+      <Chakra.Box ref={height} cmdk-list-sizer="">
         {children}
-      </div>
-    </div>
+      </Chakra.Box>
+    </Chakra.Box>
   );
 });

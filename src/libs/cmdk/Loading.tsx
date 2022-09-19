@@ -1,14 +1,15 @@
 import * as React from "react";
 import { LoadingProps } from "./types";
+import * as Chakra from "@chakra-ui/react";
 
 /**
  * You should conditionally render this with `progress` while loading asynchronous items.
  */
-export const Loading = React.forwardRef<HTMLDivElement, LoadingProps>((props, forwardedRef) => {
+export const Loading = Chakra.forwardRef<LoadingProps, "div">((props, forwardedRef) => {
   const { progress, children, ...etc } = props;
 
   return (
-    <div
+    <Chakra.Box
       ref={forwardedRef}
       {...etc}
       cmdk-loading=""
@@ -18,7 +19,7 @@ export const Loading = React.forwardRef<HTMLDivElement, LoadingProps>((props, fo
       aria-valuemax={100}
       aria-label="Loading..."
     >
-      <div aria-hidden>{children}</div>
-    </div>
+      <Chakra.Box aria-hidden>{children}</Chakra.Box>
+    </Chakra.Box>
   );
 });

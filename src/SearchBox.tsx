@@ -86,7 +86,9 @@ export const SearchBox = () => {
       </InputGroup>
       <Command.List ref={listRef}>
         <Command.Empty>No results found.</Command.Empty>
-        <Command.Group heading="Suggestions"></Command.Group>
+        <Command.Group heading="Suggestions">
+          <Command.Item>hello</Command.Item>
+        </Command.Group>
         <Command.Group heading="Search on">
           {/* <Item isCommand value="Clipboard History">
             <Logo>
