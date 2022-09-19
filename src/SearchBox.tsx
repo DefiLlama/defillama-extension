@@ -40,6 +40,8 @@ export const SearchBox = () => {
   const [searchEngine] = usePersistentState<SearchEngine>("searchEngine", DEFAULT_SEARCH_ENGINES[0]);
   const [optionKeys, setOptionKeys] = useState<string[]>([]);
 
+  const hasNoProtocols = useMemo(() => optionKeys.length === 1, [optionKeys]);
+
   useEffect(() => {
     if (!data) return;
     if (input.length === 0) {
@@ -58,12 +60,12 @@ export const SearchBox = () => {
     const top5 = scoredList.slice(0, 5);
 
     if (top5.length > 0) {
-      if (top5.find((x) => selectedKey === x.name) === undefined) {
+      if (top5.find((x) => selectedKey === x.name) === undefined && selectedKey !== "search_engine") {
         setSelectedKey(top5[0].name);
       }
     }
 
-    setOptionKeys(top5.map((x) => x.name));
+    setOptionKeys([...top5.map((x) => x.name), "search_engine"]);
   }, [input, data, selectedKey]);
 
   useEffect(() => {
@@ -71,19 +73,15 @@ export const SearchBox = () => {
     console.log("optionKeys", optionKeys);
   });
 
-  const filteredProtocols = useMemo(() => {
-    const _searchEngine: Protocol = {
+  const _searchEngine = useMemo(
+    () => ({
       name: `Search for ${input} on ${searchEngine.name}...`,
       url: encodeURI(searchEngine.url + input),
       logo: searchEngine.logo,
-      category: "FALLBACK",
-    };
-    if (!input || !data) return [_searchEngine];
-    return [
-      ...data.filter((protocol) => protocol.name.toLowerCase().includes(input.toLowerCase())).slice(0, 5),
-      _searchEngine,
-    ];
-  }, [input, data]);
+      category: "Search Engines",
+    }),
+    [input, searchEngine],
+  );
 
   useEventListener("keydown", (event) => {
     const hotkey = isMac ? "metaKey" : "ctrlKey";
@@ -91,34 +89,119 @@ export const SearchBox = () => {
       event.preventDefault();
       inputRef.current?.focus();
     }
+
+    if (!searchBarFocused) {
+      return;
+    }
+
+    if (event?.key?.toLowerCase() === "escape") {
+      event.preventDefault();
+      inputRef.current?.blur();
+    }
+
+    if (event?.key?.toLowerCase() === "arrowdown") {
+      event.preventDefault();
+      const currentIndex = optionKeys.indexOf(selectedKey);
+      const nextIndex = currentIndex + 1;
+      if (nextIndex < optionKeys.length) {
+        setSelectedKey(optionKeys[nextIndex]);
+      }
+    }
+
+    if (event?.key?.toLowerCase() === "arrowup") {
+      event.preventDefault();
+      const currentIndex = optionKeys.indexOf(selectedKey);
+      const nextIndex = currentIndex - 1;
+      if (nextIndex >= 0) {
+        setSelectedKey(optionKeys[nextIndex]);
+      }
+    }
+
+    if (event?.key?.toLowerCase() === "enter") {
+      event.preventDefault();
+      if (hasNoProtocols || selectedKey === "search_engine") {
+        location.href = _searchEngine.url;
+      } else {
+        const protocol = data?.find((x) => x.name === selectedKey);
+        if (protocol) {
+          location.href = protocol.url;
+        }
+      }
+    }
   });
 
   return (
-    <InputGroup size="lg" my="16">
-      <Input
-        placeholder="Search..."
-        ref={inputRef}
-        onFocus={onSearchBarFocus}
-        onBlur={onSearchBarBlur}
-        autoComplete="off"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-      />
-      <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
-        <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
-        <Tooltip hasArrow label="Search" openDelay={300}>
-          <IconButton
-            aria-label="Search"
-            icon={<FiSearch />}
-            colorScheme="gray"
-            variant="ghost"
-            size="md"
-            mr="1"
-            ml="2"
-          />
-        </Tooltip>
-      </InputRightElement>
-    </InputGroup>
+    <>
+      <InputGroup size="lg" my="16">
+        <Input
+          placeholder="Search..."
+          ref={inputRef}
+          onFocus={onSearchBarFocus}
+          onBlur={onSearchBarBlur}
+          autoComplete="off"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
+          <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
+          <Tooltip hasArrow label="Search" openDelay={300}>
+            <IconButton
+              aria-label="Search"
+              icon={<FiSearch />}
+              colorScheme="gray"
+              variant="ghost"
+              size="md"
+              mr="1"
+              ml="2"
+            />
+          </Tooltip>
+        </InputRightElement>
+      </InputGroup>
+      <VStack
+        w={["sm", "md", "lg", "xl"]}
+        p="4"
+        borderRadius="md"
+        spacing="4"
+        borderWidth={2}
+        position="absolute"
+        bgColor={colorMode === "light" ? "white" : "gray.800"}
+      >
+        {optionKeys.map((optionKey, i) => {
+          if (optionKey === "search_engine") {
+            return (
+              <HStack
+                key={optionKey}
+                w="full"
+                borderRadius="md"
+                opacity={!hasNoProtocols && !(selectedKey === optionKey) && 0.4}
+                onMouseEnter={() => setSelectedKey(optionKey)}
+              >
+                <Image boxSize="6" borderRadius="sm" src={_searchEngine.logo} />
+                <Text fontWeight="medium" fontSize="md">
+                  {_searchEngine.name}
+                </Text>
+              </HStack>
+            );
+          }
+
+          const protocol = data?.find((x) => x.name === optionKey);
+          return (
+            <HStack
+              key={optionKey}
+              w="full"
+              borderRadius="md"
+              opacity={!(selectedKey === optionKey) && 0.4}
+              onMouseEnter={() => setSelectedKey(optionKey)}
+            >
+              <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
+              <Text fontWeight="medium" fontSize="md">
+                {protocol.name}
+              </Text>
+            </HStack>
+          );
+        })}
+      </VStack>
+    </>
   );
 
   // return (
