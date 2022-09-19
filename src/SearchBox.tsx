@@ -30,7 +30,7 @@ export const SearchBox = () => {
 
   const [searchBarFocused, setSearchBarFocused] = useState(false);
   const onSearchBarFocus = () => setSearchBarFocused(true);
-  const onSearchBarBlur = () => setSearchBarFocused(false);
+  const onSearchBarBlur = () => setTimeout(() => setSearchBarFocused(false), 100);
 
   const [input, setInput] = useState("");
   const [selectedKey, setSelectedKey] = useState("");
@@ -66,11 +66,6 @@ export const SearchBox = () => {
 
     setOptionKeys([...topOptions.map((x) => x.name), "search_engine"]);
   }, [input, data, selectedKey]);
-
-  useEffect(() => {
-    console.log("selectedKey", selectedKey);
-    console.log("optionKeys", optionKeys);
-  });
 
   const _searchEngine = useMemo(
     () => ({
@@ -169,6 +164,7 @@ export const SearchBox = () => {
                     opacity={!hasNoProtocols && !(selectedKey === optionKey) && 0.4}
                     onMouseEnter={() => setSelectedKey(optionKey)}
                     cursor="pointer"
+                    onClick={() => (location.href = _searchEngine.url)}
                   >
                     <Image boxSize="6" borderRadius="sm" src={_searchEngine.logo} />
                     <Text fontWeight="medium" fontSize="md">
@@ -188,6 +184,7 @@ export const SearchBox = () => {
                   onMouseEnter={() => setSelectedKey(optionKey)}
                   justifyContent="space-between"
                   cursor="pointer"
+                  onClick={() => (location.href = protocol?.url)}
                 >
                   <HStack>
                     <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
