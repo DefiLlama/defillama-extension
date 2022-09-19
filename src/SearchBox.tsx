@@ -1,9 +1,7 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  IconButton,
   InputGroup,
   InputRightElement,
-  Tooltip,
   Kbd,
   Fade,
   HStack,
@@ -13,13 +11,13 @@ import {
   Image,
   useEventListener,
   Input,
+  Box,
+  InputLeftElement,
+  Icon,
 } from "@chakra-ui/react";
-// import { Combobox } from "@headlessui/react";
 import { FiSearch } from "react-icons/fi";
 
-import { Command } from "./libs/cmdk";
-
-import { DEFAULT_SEARCH_ENGINES, getIsMac, Protocol, SearchEngine, usePersistentState, useProtocols } from "./utils";
+import { DEFAULT_SEARCH_ENGINES, getIsMac, SearchEngine, usePersistentState, useProtocols } from "./utils";
 import fuzzyScore from "./libs/fuzzyScore";
 
 export const SearchBox = () => {
@@ -28,7 +26,6 @@ export const SearchBox = () => {
 
   const { data } = useProtocols();
   const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef(null);
 
   const [searchBarFocused, setSearchBarFocused] = useState(false);
   const onSearchBarFocus = () => setSearchBarFocused(true);
@@ -57,15 +54,15 @@ export const SearchBox = () => {
       })
       .filter((x) => x.score > 0);
     scoredList.sort((a, b) => b.score - a.score);
-    const top5 = scoredList.slice(0, 5);
+    const topOptions = scoredList.slice(0, 5);
 
-    if (top5.length > 0) {
-      if (top5.find((x) => selectedKey === x.name) === undefined && selectedKey !== "search_engine") {
-        setSelectedKey(top5[0].name);
+    if (topOptions.length > 0) {
+      if (topOptions.find((x) => selectedKey === x.name) === undefined && selectedKey !== "search_engine") {
+        setSelectedKey(topOptions[0].name);
       }
     }
 
-    setOptionKeys([...top5.map((x) => x.name), "search_engine"]);
+    setOptionKeys([...topOptions.map((x) => x.name), "search_engine"]);
   }, [input, data, selectedKey]);
 
   useEffect(() => {
@@ -131,8 +128,8 @@ export const SearchBox = () => {
   });
 
   return (
-    <>
-      <InputGroup size="lg" my="16">
+    <VStack w="full">
+      <InputGroup size="lg" my="0.5">
         <Input
           placeholder="Search..."
           ref={inputRef}
@@ -142,159 +139,61 @@ export const SearchBox = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
-        <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
+        <InputRightElement w="20" justifyContent="flex-end" userSelect="none" mx="4">
           <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
-          <Tooltip hasArrow label="Search" openDelay={300}>
-            <IconButton
-              aria-label="Search"
-              icon={<FiSearch />}
-              colorScheme="gray"
-              variant="ghost"
-              size="md"
-              mr="1"
-              ml="2"
-            />
-          </Tooltip>
         </InputRightElement>
+        <InputLeftElement>
+          <Icon as={FiSearch} opacity={searchBarFocused ? 0.8 : 0.4} />
+        </InputLeftElement>
       </InputGroup>
-      <VStack
-        w={["sm", "md", "lg", "xl"]}
-        p="4"
-        borderRadius="md"
-        spacing="4"
-        borderWidth={2}
-        position="absolute"
-        bgColor={colorMode === "light" ? "white" : "gray.800"}
-      >
-        {optionKeys.map((optionKey, i) => {
-          if (optionKey === "search_engine") {
-            return (
-              <HStack
-                key={optionKey}
-                w="full"
-                borderRadius="md"
-                opacity={!hasNoProtocols && !(selectedKey === optionKey) && 0.4}
-                onMouseEnter={() => setSelectedKey(optionKey)}
-              >
-                <Image boxSize="6" borderRadius="sm" src={_searchEngine.logo} />
-                <Text fontWeight="medium" fontSize="md">
-                  {_searchEngine.name}
-                </Text>
-              </HStack>
-            );
-          }
+      <Box w="full">
+        {searchBarFocused && input && (
+          <VStack
+            w={["sm", "md", "lg", "xl"]}
+            p="4"
+            borderRadius="md"
+            spacing="4"
+            borderWidth={2}
+            position="absolute"
+            bgColor={colorMode === "light" ? "white" : "gray.800"}
+          >
+            {optionKeys.map((optionKey, i) => {
+              if (optionKey === "search_engine") {
+                return (
+                  <HStack
+                    key={optionKey}
+                    w="full"
+                    borderRadius="md"
+                    opacity={!hasNoProtocols && !(selectedKey === optionKey) && 0.4}
+                    onMouseEnter={() => setSelectedKey(optionKey)}
+                  >
+                    <Image boxSize="6" borderRadius="sm" src={_searchEngine.logo} />
+                    <Text fontWeight="medium" fontSize="md">
+                      {_searchEngine.name}
+                    </Text>
+                  </HStack>
+                );
+              }
 
-          const protocol = data?.find((x) => x.name === optionKey);
-          return (
-            <HStack
-              key={optionKey}
-              w="full"
-              borderRadius="md"
-              opacity={!(selectedKey === optionKey) && 0.4}
-              onMouseEnter={() => setSelectedKey(optionKey)}
-            >
-              <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
-              <Text fontWeight="medium" fontSize="md">
-                {protocol.name}
-              </Text>
-            </HStack>
-          );
-        })}
-      </VStack>
-    </>
-  );
-
-  // return (
-  //   <Combobox
-  //     value={selectedProtocol}
-  //     onChange={(protocol: Protocol) => {
-  //       setSelectedProtocol(protocol);
-  //       window.location.assign(protocol.url);
-  //     }}
-  //   >
-  //     {({ open }) => (
-  //       <>
-  //         <InputGroup size="lg" my="16">
-  //           <Combobox.Input
-  //             as={Fragment}
-  //             onChange={(event) => setSearchInput(event.target.value)}
-  //             displayValue={(protocol: Protocol) => protocol?.name ?? ""}
-  //           >
-  //             <Input
-  //               placeholder="Search..."
-  //               ref={searchBar}
-  //               onFocus={onSearchBarFocus}
-  //               onBlur={onSearchBarBlur}
-  //               autoComplete="off"
-  //             />
-  //           </Combobox.Input>
-  //           <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
-  //             <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
-  //             <Tooltip hasArrow label="Search" openDelay={300}>
-  //               <IconButton
-  //                 aria-label="Search"
-  //                 icon={<FiSearch />}
-  //                 colorScheme="gray"
-  //                 variant="ghost"
-  //                 size="md"
-  //                 mr="1"
-  //                 ml="2"
-  //               />
-  //             </Tooltip>
-  //           </InputRightElement>
-  //         </InputGroup>
-  //         {(!searchInput || !open) && <div style={{ width: "100%", marginTop: "-0.5rem" }} />}
-  //         {searchInput && open && (
-  //           <Combobox.Options as="div" static={true} style={{ width: "100%", marginTop: "-0.5rem" }}>
-  //             <VStack
-  //               w={["sm", "md", "lg", "xl"]}
-  //               p="4"
-  //               borderRadius="md"
-  //               spacing="4"
-  //               borderWidth={2}
-  //               position="absolute"
-  //               bgColor={colorMode === "light" ? "white" : "gray.800"}
-  //             >
-  //               {filteredProtocols.map((protocol, i) => (
-  //                 <Combobox.Option
-  //                   as="div"
-  //                   key={protocol.name + protocol.url}
-  //                   value={protocol}
-  //                   style={{ width: "100%" }}
-  //                 >
-  //                   {({ active, selected }) => (
-  //                     <HStack w="full" cursor="pointer" opacity={!active && 0.4}>
-  //                       <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
-  //                       <Text fontWeight="medium" fontSize="md">
-  //                         {protocol.name}
-  //                       </Text>
-  //                     </HStack>
-  //                   )}
-  //                 </Combobox.Option>
-  //               ))}
-  //             </VStack>
-  //           </Combobox.Options>
-  //         )}
-  //         {/* </PopoverContent>
-  //     </Popover> */}
-  //       </>
-  //     )}
-  //   </Combobox>
-  // );
-};
-
-const Item = ({
-  value,
-  children,
-  onSelect = () => {},
-}: {
-  children: React.ReactNode;
-  value: string;
-  onSelect?: (value: string) => void;
-}) => {
-  return (
-    <Command.Item value={value} onSelect={onSelect}>
-      {children}
-    </Command.Item>
+              const protocol = data?.find((x) => x.name === optionKey);
+              return (
+                <HStack
+                  key={optionKey}
+                  w="full"
+                  borderRadius="md"
+                  opacity={!(selectedKey === optionKey) && 0.4}
+                  onMouseEnter={() => setSelectedKey(optionKey)}
+                >
+                  <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
+                  <Text fontWeight="medium" fontSize="md">
+                    {protocol.name}
+                  </Text>
+                </HStack>
+              );
+            })}
+          </VStack>
+        )}
+      </Box>
+    </VStack>
   );
 };
