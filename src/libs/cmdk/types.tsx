@@ -8,7 +8,7 @@ export type LoadingProps = Children & {
   /** Estimated progress of loading asynchronous options. */
   progress?: number;
 };
-export type EmptyProps = Children & Chakra.BoxProps & {};
+export type EmptyProps = Children & DivProps & {};
 export type SeparatorProps = Chakra.BoxProps & {
   /** Whether this separator should always be rendered. Useful if you disable automatic filtering. */
   alwaysRender?: boolean;

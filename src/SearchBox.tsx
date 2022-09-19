@@ -87,9 +87,30 @@ export const SearchBox = () => {
       <Command.List ref={listRef}>
         <Command.Empty>No results found.</Command.Empty>
         <Command.Group heading="Suggestions">
-          <Command.Item>hello</Command.Item>
+          {filteredProtocols.map((protocol) => (
+            <Item value={protocol.name} key={protocol.name + protocol.url}>
+              <HStack
+                w="full"
+                cursor="pointer"
+                // opacity={!active && 0.4}
+              >
+                <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
+                <Text fontWeight="medium" fontSize="md">
+                  {protocol.name}
+                </Text>
+              </HStack>
+            </Item>
+          ))}
         </Command.Group>
         <Command.Group heading="Search on">
+          {/* <Item value={searchEngine.name}>
+            <HStack spacing="2">
+              <Image src={searchEngine.logo} alt={searchEngine.name} borderRadius="sm" boxSize="6" />
+              <Text>
+                Search for {searchInput} on {searchEngine.name}...
+              </Text>
+            </HStack>
+          </Item> */}
           {/* <Item isCommand value="Clipboard History">
             <Logo>
               <ClipboardIcon />
@@ -199,4 +220,20 @@ export const SearchBox = () => {
   //     )}
   //   </Combobox>
   // );
+};
+
+const Item = ({
+  value,
+  children,
+  onSelect = () => {},
+}: {
+  children: React.ReactNode;
+  value: string;
+  onSelect?: (value: string) => void;
+}) => {
+  return (
+    <Command.Item value={value} onSelect={onSelect}>
+      {children}
+    </Command.Item>
+  );
 };
