@@ -14,6 +14,7 @@ import {
   Box,
   InputLeftElement,
   Icon,
+  Badge,
 } from "@chakra-ui/react";
 import { FiSearch } from "react-icons/fi";
 
@@ -35,6 +36,7 @@ export const SearchBox = () => {
   const [selectedKey, setSelectedKey] = useState("");
 
   const [searchEngine] = usePersistentState<SearchEngine>("searchEngine", DEFAULT_SEARCH_ENGINES[0]);
+  const [searchResultsCount] = usePersistentState<number>("searchResultsCount", 5);
   const [optionKeys, setOptionKeys] = useState<string[]>([]);
 
   const hasNoProtocols = useMemo(() => optionKeys.length === 1, [optionKeys]);
@@ -54,7 +56,7 @@ export const SearchBox = () => {
       })
       .filter((x) => x.score > 0);
     scoredList.sort((a, b) => b.score - a.score);
-    const topOptions = scoredList.slice(0, 5);
+    const topOptions = scoredList.slice(0, searchResultsCount);
 
     if (topOptions.length > 0) {
       if (topOptions.find((x) => selectedKey === x.name) === undefined && selectedKey !== "search_engine") {
@@ -157,7 +159,7 @@ export const SearchBox = () => {
             position="absolute"
             bgColor={colorMode === "light" ? "white" : "gray.800"}
           >
-            {optionKeys.map((optionKey, i) => {
+            {optionKeys.map((optionKey) => {
               if (optionKey === "search_engine") {
                 return (
                   <HStack
@@ -166,6 +168,7 @@ export const SearchBox = () => {
                     borderRadius="md"
                     opacity={!hasNoProtocols && !(selectedKey === optionKey) && 0.4}
                     onMouseEnter={() => setSelectedKey(optionKey)}
+                    cursor="pointer"
                   >
                     <Image boxSize="6" borderRadius="sm" src={_searchEngine.logo} />
                     <Text fontWeight="medium" fontSize="md">
@@ -183,11 +186,16 @@ export const SearchBox = () => {
                   borderRadius="md"
                   opacity={!(selectedKey === optionKey) && 0.4}
                   onMouseEnter={() => setSelectedKey(optionKey)}
+                  justifyContent="space-between"
+                  cursor="pointer"
                 >
-                  <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
-                  <Text fontWeight="medium" fontSize="md">
-                    {protocol.name}
-                  </Text>
+                  <HStack>
+                    <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
+                    <Text fontWeight="medium" fontSize="md">
+                      {protocol.name}
+                    </Text>
+                  </HStack>
+                  <Badge>{protocol.category}</Badge>
                 </HStack>
               );
             })}
