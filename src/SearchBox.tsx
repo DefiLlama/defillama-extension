@@ -15,6 +15,7 @@ import {
   InputLeftElement,
   Icon,
   Badge,
+  Collapse,
 } from "@chakra-ui/react";
 import { FiSearch } from "react-icons/fi";
 
@@ -30,7 +31,8 @@ export const SearchBox = () => {
 
   const [searchBarFocused, setSearchBarFocused] = useState(false);
   const onSearchBarFocus = () => setSearchBarFocused(true);
-  const onSearchBarBlur = () => setTimeout(() => setSearchBarFocused(false), 100);
+  // const onSearchBarBlur = () => setTimeout(() => setSearchBarFocused(false), 100);
+  const onSearchBarBlur = () => setSearchBarFocused(false);
 
   const [input, setInput] = useState("");
   const [selectedKey, setSelectedKey] = useState("");
@@ -144,7 +146,7 @@ export const SearchBox = () => {
         </InputLeftElement>
       </InputGroup>
       <Box w="full">
-        {searchBarFocused && input && (
+        <Collapse in={searchBarFocused && !!input} animateOpacity>
           <VStack
             w={["sm", "md", "lg", "xl"]}
             p="4"
@@ -197,7 +199,7 @@ export const SearchBox = () => {
               );
             })}
           </VStack>
-        )}
+        </Collapse>
       </Box>
     </VStack>
   );
