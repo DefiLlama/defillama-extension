@@ -15,7 +15,7 @@ import { CommandProps, State } from "./types";
 import { useStore, useCommand } from "./contexts";
 import { VALUE_ATTR } from "./constants";
 
-export const defaultFilter: CommandProps["filter"] = (value, search) => fuzzyScore(value, search);
+export const defaultFilter: CommandProps["_filter"] = (value, search) => fuzzyScore(value, search);
 
 const pkg = Object.assign(Command, {
   List: List,

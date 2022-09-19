@@ -58,9 +58,8 @@ export type CommandProps = Children &
     /**
      * Custom filter function for whether each command menu item should matches the given search query.
      * It should return a number between 0 and 1, with 1 being the best match and 0 being hidden entirely.
-     * By default, uses the `command-score` library.
      */
-    filter?: (value: string, search: string) => number;
+    _filter?: (value: string, search: string) => number;
     /**
      * Optional controlled state of the selected command menu item.
      */
@@ -74,7 +73,7 @@ export type Context = {
   value: (id: string, value: string) => void;
   item: (id: string, groupId: string) => () => void;
   group: (id: string) => () => void;
-  filter: () => boolean;
+  _filter: () => boolean;
   label: string;
   // Ids
   listId: string;

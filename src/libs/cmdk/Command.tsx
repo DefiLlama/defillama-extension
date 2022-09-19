@@ -45,7 +45,7 @@ export const Command = Chakra.forwardRef<CommandProps, "div">((props, forwardedR
   const ids = useLazyRef<Map<string, string>>(() => new Map()); // id → value
   const listeners = useLazyRef<Set<() => void>>(() => new Set()); // [...rerenders]
   const propsRef = useAsRef(props);
-  const { label, children, value, onValueChange, filter, shouldFilter, ...etc } = props;
+  const { label, children, value, onValueChange, _filter, shouldFilter, ...etc } = props;
 
   const listId = React.useId();
   const labelId = React.useId();
@@ -174,7 +174,7 @@ export const Command = Chakra.forwardRef<CommandProps, "div">((props, forwardedR
           allGroups.current.delete(id);
         };
       },
-      filter: () => {
+      _filter: () => {
         return propsRef.current.shouldFilter;
       },
       label: label || props["aria-label"],
@@ -186,8 +186,8 @@ export const Command = Chakra.forwardRef<CommandProps, "div">((props, forwardedR
   );
 
   function score(value: string) {
-    const filter = propsRef.current?.filter ?? defaultFilter;
-    return value ? filter(value, state.current.search) : 0;
+    const _filter = propsRef.current?._filter ?? defaultFilter;
+    return value ? _filter(value, state.current.search) : 0;
   }
 
   /** Sorts items by score, and groups by highest item score. */

@@ -1,7 +1,6 @@
 import { Fragment, useMemo, useRef, useState } from "react";
 import {
   IconButton,
-  Input,
   InputGroup,
   InputRightElement,
   Tooltip,
@@ -14,7 +13,7 @@ import {
   Image,
   useEventListener,
 } from "@chakra-ui/react";
-import { Combobox } from "@headlessui/react";
+// import { Combobox } from "@headlessui/react";
 import { FiSearch } from "react-icons/fi";
 
 import { Command } from "./libs/cmdk";
@@ -63,7 +62,13 @@ export const SearchBox = () => {
     <Command value={searchInput} onValueChange={(v) => setSearchInput(v)}>
       {/* <div cmdk-raycast-top-shine="" /> */}
       <InputGroup size="lg">
-        <Command.Input ref={inputRef} autoFocus placeholder="Search for apps and commands..." />
+        <Command.Input
+          ref={inputRef}
+          autoFocus
+          placeholder="Search..."
+          onFocus={onSearchBarFocus}
+          onBlur={onSearchBarBlur}
+        />
         <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
           <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
           <Tooltip hasArrow label="Search" openDelay={300}>

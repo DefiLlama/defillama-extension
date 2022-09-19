@@ -24,7 +24,7 @@ export const Item = React.forwardRef<HTMLDivElement, ItemProps>((props, forwarde
 
   const store = useStore();
   const selected = useCmdk((state) => state.value && state.value === value.current);
-  const render = useCmdk((state) => context.filter() === false ? true : !state.search ? true : state.filtered.items.get(id) > 0
+  const render = useCmdk((state) => context._filter() === false ? true : !state.search ? true : state.filtered.items.get(id) > 0
   );
 
   React.useEffect(() => {
