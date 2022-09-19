@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   IconButton,
   InputGroup,
@@ -12,6 +12,7 @@ import {
   useColorMode,
   Image,
   useEventListener,
+  Input,
 } from "@chakra-ui/react";
 // import { Combobox } from "@headlessui/react";
 import { FiSearch } from "react-icons/fi";
@@ -19,6 +20,7 @@ import { FiSearch } from "react-icons/fi";
 import { Command } from "./libs/cmdk";
 
 import { DEFAULT_SEARCH_ENGINES, getIsMac, Protocol, SearchEngine, usePersistentState, useProtocols } from "./utils";
+import fuzzyScore from "./libs/fuzzyScore";
 
 export const SearchBox = () => {
   const isMac = useMemo(() => getIsMac(), []);
@@ -27,28 +29,61 @@ export const SearchBox = () => {
   const { data } = useProtocols();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef(null);
-  const [searchBarFocused, setSearchBarFocused] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
 
+  const [searchBarFocused, setSearchBarFocused] = useState(false);
   const onSearchBarFocus = () => setSearchBarFocused(true);
   const onSearchBarBlur = () => setSearchBarFocused(false);
 
-  const [searchEngine] = usePersistentState<SearchEngine>("searchEngine", DEFAULT_SEARCH_ENGINES[0]);
+  const [input, setInput] = useState("");
+  const [selectedKey, setSelectedKey] = useState("");
 
-  const [selectedProtocol, setSelectedProtocol] = useState<Protocol>(null);
+  const [searchEngine] = usePersistentState<SearchEngine>("searchEngine", DEFAULT_SEARCH_ENGINES[0]);
+  const [optionKeys, setOptionKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!data) return;
+    if (input.length === 0) {
+      setOptionKeys([]);
+      setSelectedKey("");
+      return;
+    }
+
+    const scoredList = data
+      .map((x) => {
+        const score = fuzzyScore(x.name, input);
+        return { score, ...x };
+      })
+      .filter((x) => x.score > 0);
+    scoredList.sort((a, b) => b.score - a.score);
+    const top5 = scoredList.slice(0, 5);
+
+    if (top5.length > 0) {
+      if (top5.find((x) => selectedKey === x.name) === undefined) {
+        setSelectedKey(top5[0].name);
+      }
+    }
+
+    setOptionKeys(top5.map((x) => x.name));
+  }, [input, data, selectedKey]);
+
+  useEffect(() => {
+    console.log("selectedKey", selectedKey);
+    console.log("optionKeys", optionKeys);
+  });
+
   const filteredProtocols = useMemo(() => {
     const _searchEngine: Protocol = {
-      name: `Search for ${searchInput} on ${searchEngine.name}...`,
-      url: encodeURI(searchEngine.url + searchInput),
+      name: `Search for ${input} on ${searchEngine.name}...`,
+      url: encodeURI(searchEngine.url + input),
       logo: searchEngine.logo,
       category: "FALLBACK",
     };
-    if (!searchInput || !data) return [_searchEngine];
+    if (!input || !data) return [_searchEngine];
     return [
-      ...data.filter((protocol) => protocol.name.toLowerCase().includes(searchInput.toLowerCase())).slice(0, 5),
+      ...data.filter((protocol) => protocol.name.toLowerCase().includes(input.toLowerCase())).slice(0, 5),
       _searchEngine,
     ];
-  }, [searchInput, data]);
+  }, [input, data]);
 
   useEventListener("keydown", (event) => {
     const hotkey = isMac ? "metaKey" : "ctrlKey";
@@ -59,88 +94,31 @@ export const SearchBox = () => {
   });
 
   return (
-    <Command value={searchInput} onValueChange={(v) => setSearchInput(v)}>
-      {/* <div cmdk-raycast-top-shine="" /> */}
-      <InputGroup size="lg">
-        <Command.Input
-          ref={inputRef}
-          autoFocus
-          placeholder="Search..."
-          onFocus={onSearchBarFocus}
-          onBlur={onSearchBarBlur}
-        />
-        <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
-          <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
-          <Tooltip hasArrow label="Search" openDelay={300}>
-            <IconButton
-              aria-label="Search"
-              icon={<FiSearch />}
-              colorScheme="gray"
-              variant="ghost"
-              size="md"
-              mr="1"
-              ml="2"
-            />
-          </Tooltip>
-        </InputRightElement>
-      </InputGroup>
-      <Command.List ref={listRef}>
-        <Command.Empty>No results found.</Command.Empty>
-        <Command.Group heading="Suggestions">
-          {filteredProtocols.map((protocol) => (
-            <Item value={protocol.name} key={protocol.name + protocol.url}>
-              <HStack
-                w="full"
-                cursor="pointer"
-                // opacity={!active && 0.4}
-              >
-                <Image boxSize="6" borderRadius="sm" src={protocol.logo} />
-                <Text fontWeight="medium" fontSize="md">
-                  {protocol.name}
-                </Text>
-              </HStack>
-            </Item>
-          ))}
-        </Command.Group>
-        <Command.Group heading="Search on">
-          {/* <Item value={searchEngine.name}>
-            <HStack spacing="2">
-              <Image src={searchEngine.logo} alt={searchEngine.name} borderRadius="sm" boxSize="6" />
-              <Text>
-                Search for {searchInput} on {searchEngine.name}...
-              </Text>
-            </HStack>
-          </Item> */}
-          {/* <Item isCommand value="Clipboard History">
-            <Logo>
-              <ClipboardIcon />
-            </Logo>
-            Clipboard History
-          </Item>
-          <Item isCommand value="Import Extension">
-            <HammerIcon />
-            Import Extension
-          </Item>
-          <Item isCommand value="Manage Extensions">
-            <HammerIcon />
-            Manage Extensions
-          </Item> */}
-        </Command.Group>
-      </Command.List>
-
-      {/* <div cmdk-raycast-footer="">
-        {theme === "dark" ? <RaycastDarkIcon /> : <RaycastLightIcon />}
-
-        <button cmdk-raycast-open-trigger="">
-          Open Application
-          <kbd>↵</kbd>
-        </button>
-
-        <hr />
-
-        <SubCommand listRef={listRef} selectedValue={value} inputRef={inputRef} />
-      </div> */}
-    </Command>
+    <InputGroup size="lg" my="16">
+      <Input
+        placeholder="Search..."
+        ref={inputRef}
+        onFocus={onSearchBarFocus}
+        onBlur={onSearchBarBlur}
+        autoComplete="off"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      />
+      <InputRightElement w="20" justifyContent="flex-end" userSelect="none">
+        <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
+        <Tooltip hasArrow label="Search" openDelay={300}>
+          <IconButton
+            aria-label="Search"
+            icon={<FiSearch />}
+            colorScheme="gray"
+            variant="ghost"
+            size="md"
+            mr="1"
+            ml="2"
+          />
+        </Tooltip>
+      </InputRightElement>
+    </InputGroup>
   );
 
   // return (
