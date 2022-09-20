@@ -18,7 +18,6 @@
     "paths": {
       "@src/*": ["src/*"],
       "@assets/*": ["src/assets/*"],
-      "@libs/*": ["src/libs/*"],
       "@pages/*": ["src/pages/*"]
     }
   },

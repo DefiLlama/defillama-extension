@@ -3,8 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { topSitesMock } from "./mockData";
 import { PROTOCOLS_API } from "./constants";
 
-export const getIsMac = () => /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform);
-
 export const useTopSites = () => {
   const [topSites, setTopSites] = useState<chrome.topSites.MostVisitedURL[]>([]);
   useEffect(() => {
@@ -86,32 +84,3 @@ export const usePersistentState = <T,>(key: string, defaultValue: T): [T, (value
 
   return [state, setPersistentState];
 };
-
-export type SearchEngine = {
-  name: string;
-  logo: string;
-  url: string;
-};
-
-export const DEFAULT_SEARCH_ENGINES: SearchEngine[] = [
-  {
-    name: "DuckDuckGo",
-    logo: "https://duckduckgo.com/favicon.ico",
-    url: "https://duckduckgo.com/?q=",
-  },
-  {
-    name: "Google",
-    logo: "https://www.google.com/favicon.ico",
-    url: "https://www.google.com/search?q=",
-  },
-  {
-    name: "Brave",
-    logo: "https://icons.duckduckgo.com/ip3/brave.com.ico",
-    url: "https://search.brave.com/search?q=",
-  },
-  {
-    name: "Bing",
-    logo: "https://www.bing.com/favicon.ico",
-    url: "https://www.bing.com/search?q=",
-  },
-];
