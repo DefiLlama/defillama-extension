@@ -21,9 +21,10 @@ export default defineConfig({
       assets: "assets",
       browser: process.env.TARGET,
       webExtConfig: {
-        firefox: "firefox",
+        chromiumBinary: process.env.CHROMIUM_BINARY,
       },
       verbose: true,
+      additionalInputs: [resolve(__dirname, "src/newtab/index.html")],
     }),
   ],
   // server: {
