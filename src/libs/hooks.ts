@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { topSitesMock } from "./mockData";
+import { topSitesMock } from "./mock-data";
 import { PROTOCOLS_API } from "./constants";
 
 export const useTopSites = () => {

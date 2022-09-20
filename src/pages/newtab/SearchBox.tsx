@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { FiSearch } from "react-icons/fi";
 
-import fuzzyScore from "@src/libs/fuzzyScore";
+import fuzzyScore from "@src/libs/fuzzy-score";
 import { getIsMac } from "@src/libs/helpers";
 import { usePersistentState, useProtocols } from "@src/libs/hooks";
 import { DEFAULT_SEARCH_ENGINES, SearchEngine } from "@src/libs/constants";
