@@ -13,8 +13,8 @@ import {
   useEventListener,
 } from "@chakra-ui/react";
 import { FiSettings, FiSun, FiMoon } from "react-icons/fi";
-import logo from "./assets/defillama-logo.png";
-import { getIsMac, useTopSites } from "./utils";
+import logo from "../assets/defillama-logo.png";
+import { getIsMac, useTopSites } from "../utils";
 import { SearchBox } from "./SearchBox";
 import { TopSiteBlock } from "./TopSiteBlock";
 import { SettingsModal } from "./SettingsModal";

@@ -19,8 +19,8 @@ import {
 } from "@chakra-ui/react";
 import { FiSearch } from "react-icons/fi";
 
-import { DEFAULT_SEARCH_ENGINES, getIsMac, SearchEngine, usePersistentState, useProtocols } from "./utils";
-import fuzzyScore from "./libs/fuzzyScore";
+import { DEFAULT_SEARCH_ENGINES, getIsMac, SearchEngine, usePersistentState, useProtocols } from "../utils";
+import fuzzyScore from "../libs/fuzzyScore";
 
 export const SearchBox = () => {
   const isMac = useMemo(() => getIsMac(), []);
