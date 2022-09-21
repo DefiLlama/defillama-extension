@@ -3,12 +3,13 @@ import { ManifestType } from "@src/manifest-type";
 
 const manifest: ManifestType = {
   manifest_version: 3,
-  name: packageJson.name,
+  name: packageJson.displayName,
   version: packageJson.version,
   description: packageJson.description,
   options_page: "src/pages/options/index.html",
   background: { service_worker: "src/pages/background/index.js" },
   action: {
+    default_title: packageJson.displayName,
     default_popup: "src/pages/popup/index.html",
     default_icon: "icon-34.png",
   },
@@ -28,15 +29,11 @@ const manifest: ManifestType = {
   devtools_page: "src/pages/devtools/index.html",
   web_accessible_resources: [
     {
-      resources: [
-        "assets/js/*.js",
-        "assets/css/*.css",
-        "icon-128.png",
-        "icon-34.png",
-      ],
+      resources: ["assets/js/*.js", "assets/css/*.css", "icon-128.png", "icon-34.png"],
       matches: ["*://*/*"],
     },
   ],
+  permissions: ["activeTab", "storage", "tabs", "nativeMessaging"],
 };
 
 export default manifest;

@@ -1,9 +1,10 @@
 {
   "name": "defillama-extension",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "description": "DefiLlama Extension",
+  "displayName": "DefiLlama",
   "scripts": {
     "dev": "nodemon",
     "build": "tsc --noEmit && vite build"

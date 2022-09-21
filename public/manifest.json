@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "defillama-extension",
-  "version": "0.0.0",
+  "name": "DefiLlama",
+  "version": "0.0.1",
   "description": "DefiLlama Extension",
   "options_page": "src/pages/options/index.html",
   "background": {
     "service_worker": "src/pages/background/index.js"
   },
   "action": {
+    "default_title": "DefiLlama",
     "default_popup": "src/pages/popup/index.html",
     "default_icon": "icon-34.png"
   },
@@ -45,5 +46,11 @@
         "*://*/*"
       ]
     }
+  ],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "nativeMessaging"
   ]
 }
