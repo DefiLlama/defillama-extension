@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Center,
   IconButton,
@@ -13,8 +12,8 @@ import {
   useEventListener,
 } from "@chakra-ui/react";
 import { FiSettings, FiSun, FiMoon } from "react-icons/fi";
-import logo from "./assets/defillama-logo.png";
-import { getIsMac, useTopSites } from "./utils";
+import logo from "@assets/defillama-logo.png";
+import { useTopSites } from "@src/libs/hooks";
 import { SearchBox } from "./SearchBox";
 import { TopSiteBlock } from "./TopSiteBlock";
 import { SettingsModal } from "./SettingsModal";
