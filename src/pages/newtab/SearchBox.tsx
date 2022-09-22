@@ -151,10 +151,10 @@ export const SearchBox = () => {
         <Collapse in={searchBarFocused && !!input} animateOpacity>
           <VStack
             w={["sm", "md", "lg", "xl"]}
-            p="4"
+            p={optionKeys.length > 0 ? 4 : 0}
             borderRadius="md"
             spacing="4"
-            borderWidth={2}
+            borderWidth={optionKeys.length > 0 ? 2 : 0}
             position="absolute"
             bgColor={colorMode === "light" ? "white" : "gray.800"}
           >
