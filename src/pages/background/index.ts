@@ -9,9 +9,10 @@ import maxPain from "@assets/img/memes/max-pain-128.png";
 import que from "@assets/img/memes/que-128.png";
 import upOnly from "@assets/img/memes/up-only-128.png";
 
-import { Coin, coinsDb } from "../libs/db";
+import { Coin, coinsDb, Protocol, protocolsDb } from "../libs/db";
 
 export const COINGECKO_COINS_LIST_API = "https://api.coingecko.com/api/v3/coins/list";
+export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
 
 async function getCurrentTab() {
   const queryOptions = { active: true, currentWindow: true };
@@ -55,6 +56,18 @@ async function updateCoinsDb() {
   console.log("updateCoinsDb", result);
 }
 
+async function updateProtocolsDb() {
+  const raw = await fetch(PROTOCOLS_API).then((res) => res.json());
+  const protocols = (raw["protocols"]?.map((x: any) => ({
+    name: x.name,
+    url: x.url,
+    logo: x.logo,
+    category: x.category,
+  })) ?? []) as Protocol[];
+  const result = await protocolsDb.protocols.bulkPut(protocols);
+  console.log("updateProtocolsDb", result);
+}
+
 chrome.tabs.onUpdated.addListener(async () => {
   console.log("onUpdated");
   await handlePhishingCheck();
@@ -74,20 +87,36 @@ function setupUpdateCoinsDb() {
   });
 }
 
+function setupUpdateProtocolsDb() {
+  console.log("setupUpdateProtocolsDb");
+  chrome.alarms.get("updateProtocolsDb", async (a) => {
+    if (!a) {
+      await updateProtocolsDb();
+      chrome.alarms.create("updateProtocolsDb", { periodInMinutes: 240 }); // update once every 4 hours
+    }
+  });
+}
+
 setupUpdateCoinsDb();
+setupUpdateProtocolsDb();
 
 chrome.runtime.onInstalled.addListener(() => {
   setupUpdateCoinsDb();
+  setupUpdateProtocolsDb();
 });
 
 chrome.runtime.onStartup.addListener(() => {
   setupUpdateCoinsDb();
+  setupUpdateProtocolsDb();
 });
 
 chrome.alarms.onAlarm.addListener(async (a) => {
   switch (a.name) {
     case "updateCoinsDb":
       await updateCoinsDb();
+      break;
+    case "updateProtocolsDb":
+      await updateProtocolsDb();
       break;
   }
 });
