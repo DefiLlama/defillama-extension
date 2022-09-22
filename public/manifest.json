@@ -51,6 +51,7 @@
     "activeTab",
     "storage",
     "tabs",
-    "nativeMessaging"
+    "nativeMessaging",
+    "alarms"
   ]
 }

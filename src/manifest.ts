@@ -33,7 +33,7 @@ const manifest: ManifestType = {
       matches: ["*://*/*"],
     },
   ],
-  permissions: ["activeTab", "storage", "tabs", "nativeMessaging"],
+  permissions: ["activeTab", "storage", "tabs", "nativeMessaging", "alarms"],
 };
 
 export default manifest;
