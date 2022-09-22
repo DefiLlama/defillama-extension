@@ -9,7 +9,6 @@ import maxPain from "@assets/img/memes/max-pain-128.png";
 import que from "@assets/img/memes/que-128.png";
 import upOnly from "@assets/img/memes/up-only-128.png";
 
-// import { COINGECKO_COINS_LIST_API } from "../libs/constants"; // somehow this import is not working
 import { Coin, coinsDb } from "../libs/db";
 
 export const COINGECKO_COINS_LIST_API = "https://api.coingecko.com/api/v3/coins/list";
