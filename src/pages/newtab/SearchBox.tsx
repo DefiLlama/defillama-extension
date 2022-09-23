@@ -82,6 +82,8 @@ export const SearchBox = () => {
     [input, searchEngine],
   );
 
+  const _instantResult = useMemo(async () => {}, [input]);
+
   useEventListener("keydown", (event) => {
     const hotkey = isMac ? "metaKey" : "ctrlKey";
     if (event?.key?.toLowerCase() === "k" && event[hotkey]) {
@@ -197,7 +199,19 @@ export const SearchBox = () => {
                       {protocol.name}
                     </Text>
                   </HStack>
-                  <Badge>{protocol.category}</Badge>
+                  <HStack>
+                    {protocol.tvl && (
+                      <Badge>
+                        TVL{" "}
+                        {Intl.NumberFormat("en", {
+                          notation: "compact",
+                          style: "currency",
+                          currency: "USD",
+                        }).format(protocol.tvl)}
+                      </Badge>
+                    )}
+                    <Badge>{protocol.category}</Badge>
+                  </HStack>
                 </HStack>
               );
             })}
