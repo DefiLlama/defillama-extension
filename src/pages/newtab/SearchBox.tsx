@@ -20,7 +20,7 @@ import {
 import { FiSearch } from "react-icons/fi";
 
 import fuzzyScore from "@src/pages/libs/fuzzy-score";
-import { getIsMac } from "@src/pages/libs/helpers";
+import { getInstantResult, getIsMac } from "@src/pages/libs/helpers";
 import { usePersistentState, useProtocols } from "@src/pages/libs/hooks";
 import { DEFAULT_SEARCH_ENGINES, SearchEngine } from "@src/pages/libs/constants";
 
@@ -82,7 +82,18 @@ export const SearchBox = () => {
     [input, searchEngine],
   );
 
-  const _instantResult = useMemo(async () => {}, [input]);
+  const [instantResult, setInstantResult] = useState("");
+  useEffect(() => {
+    if (input.length === 0) {
+      setInstantResult("");
+      return;
+    }
+    const run = async () => {
+      const result = await getInstantResult(input);
+      setInstantResult(result);
+    };
+    run();
+  }, [input]);
 
   useEventListener("keydown", (event) => {
     const hotkey = isMac ? "metaKey" : "ctrlKey";
@@ -145,6 +156,9 @@ export const SearchBox = () => {
         />
         <InputRightElement w="20" justifyContent="flex-end" userSelect="none" mx="4">
           <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
+          <Fade in={searchBarFocused && !!instantResult}>
+            <Badge>{instantResult}</Badge>
+          </Fade>
         </InputRightElement>
         <InputLeftElement>
           <Icon as={FiSearch} opacity={searchBarFocused ? 0.8 : 0.4} />

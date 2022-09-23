@@ -12,13 +12,19 @@ export const getIsMac = () => /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform
 export const getInstantResult = async (query: string): Promise<string> => {
   let result = "";
 
-  if (query.length >= 3 && query.length <= 4) {
-    // if query is 3 or 4 characters long, check if it's a coin symbol
-    const { id: coinId } = await coinsDb.coins.where("symbol").equalsIgnoreCase(query).first();
+  if (query.length >= 2 && query.length <= 4) {
+    // if query is 2 to 4 characters long, check if it's a coin symbol
+    const matches = await coinsDb.coins.where("symbol").equalsIgnoreCase(query).toArray();
+    if (matches.length === 0) return result;
+
+    // sort the matches by length of name, shortest first. later will sort by mcap
+    matches.sort((a, b) => a.name.length - b.name.length);
+    const { id: coinId, name } = matches[0];
+
     const res = (await fetch(PRICES_API + "/coingecko:" + coinId).then((res) => res.json())) as Prices;
-    const price = res.coins["coingecko:" + coinId].price;
-    // thankfully the precision returned is exactly what we want
-    result = "$" + price;
+    const { price } = res.coins["coingecko:" + coinId];
+    // thankfully the precision returned from API is exactly what we want hehehe
+    result = `${name} $${price}`;
   }
 
   return result;
