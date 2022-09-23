@@ -9,10 +9,8 @@ import maxPain from "@assets/img/memes/max-pain-128.png";
 import que from "@assets/img/memes/que-128.png";
 import upOnly from "@assets/img/memes/up-only-128.png";
 
-import { Coin, coinsDb, Protocol, protocolsDb } from "../libs/db";
-
-export const COINGECKO_COINS_LIST_API = "https://api.coingecko.com/api/v3/coins/list";
-export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
+import { Coin, Protocol, coinsDb, protocolsDb } from "../libs/db";
+import { COINGECKO_COINS_LIST_API, PROTOCOLS_API } from "../libs/constants";
 
 async function getCurrentTab() {
   const queryOptions = { active: true, currentWindow: true };

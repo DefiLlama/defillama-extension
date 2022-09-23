@@ -5,7 +5,8 @@
   "description": "DefiLlama Extension",
   "options_page": "src/pages/options/index.html",
   "background": {
-    "service_worker": "src/pages/background/index.js"
+    "service_worker": "src/pages/background/index.js",
+    "type": "module"
   },
   "action": {
     "default_title": "DefiLlama",
