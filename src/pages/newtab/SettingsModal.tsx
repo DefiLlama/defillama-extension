@@ -18,8 +18,8 @@ import {
   FormLabel,
   Icon,
 } from "@chakra-ui/react";
-import { DEFAULT_SEARCH_ENGINES, SearchEngine } from "@src/libs/constants";
-import { usePersistentState } from "@src/libs/hooks";
+import { DEFAULT_SEARCH_ENGINES, SearchEngine } from "@src/pages/libs/constants";
+import { usePersistentState } from "@src/pages/libs/hooks";
 
 export const SettingsModal = (props: {
   settingsModal: {

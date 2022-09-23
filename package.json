@@ -15,6 +15,8 @@
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "@tanstack/react-query": "^4.3.9",
+    "dexie": "^3.2.2",
+    "dexie-react-hooks": "^1.1.1",
     "eth-phishing-detect": "^1.2.0",
     "framer-motion": "^7.3.0",
     "react": "^18.2.0",

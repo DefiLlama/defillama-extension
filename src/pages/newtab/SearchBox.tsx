@@ -19,16 +19,16 @@ import {
 } from "@chakra-ui/react";
 import { FiSearch } from "react-icons/fi";
 
-import fuzzyScore from "@src/libs/fuzzy-score";
-import { getIsMac } from "@src/libs/helpers";
-import { usePersistentState, useProtocols } from "@src/libs/hooks";
-import { DEFAULT_SEARCH_ENGINES, SearchEngine } from "@src/libs/constants";
+import fuzzyScore from "@src/pages/libs/fuzzy-score";
+import { getInstantResult, getIsMac } from "@src/pages/libs/helpers";
+import { usePersistentState, useProtocols } from "@src/pages/libs/hooks";
+import { DEFAULT_SEARCH_ENGINES, SearchEngine } from "@src/pages/libs/constants";
 
 export const SearchBox = () => {
   const isMac = useMemo(() => getIsMac(), []);
   const { colorMode } = useColorMode();
 
-  const { data } = useProtocols();
+  const protocols = useProtocols();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [searchBarFocused, setSearchBarFocused] = useState(false);
@@ -46,14 +46,14 @@ export const SearchBox = () => {
   const hasNoProtocols = useMemo(() => optionKeys.length === 1, [optionKeys]);
 
   useEffect(() => {
-    if (!data) return;
+    if (!protocols) return;
     if (input.length === 0) {
       setOptionKeys([]);
       setSelectedKey("");
       return;
     }
 
-    const scoredList = data
+    const scoredList = protocols
       .map((x) => {
         const score = fuzzyScore(x.name, input);
         return { score, ...x };
@@ -61,6 +61,7 @@ export const SearchBox = () => {
       .filter((x) => x.score > 0);
     scoredList.sort((a, b) => b.score - a.score);
     const topOptions = scoredList.slice(0, searchResultsCount);
+    topOptions.sort((a, b) => (b?.tvl ?? 0) - (a?.tvl ?? 0));
 
     if (topOptions.length > 0) {
       if (topOptions.find((x) => selectedKey === x.name) === undefined && selectedKey !== "search_engine") {
@@ -69,7 +70,7 @@ export const SearchBox = () => {
     }
 
     setOptionKeys([...topOptions.map((x) => x.name), "search_engine"]);
-  }, [input, data, selectedKey]);
+  }, [input, protocols, selectedKey]);
 
   const _searchEngine = useMemo(
     () => ({
@@ -80,6 +81,19 @@ export const SearchBox = () => {
     }),
     [input, searchEngine],
   );
+
+  const [instantResult, setInstantResult] = useState("");
+  useEffect(() => {
+    if (input.length === 0) {
+      setInstantResult("");
+      return;
+    }
+    const run = async () => {
+      const result = await getInstantResult(input);
+      setInstantResult(result);
+    };
+    run();
+  }, [input]);
 
   useEventListener("keydown", (event) => {
     const hotkey = isMac ? "metaKey" : "ctrlKey";
@@ -120,7 +134,7 @@ export const SearchBox = () => {
       if (hasNoProtocols || selectedKey === "search_engine") {
         location.href = _searchEngine.url;
       } else {
-        const protocol = data?.find((x) => x.name === selectedKey);
+        const protocol = protocols?.find((x) => x.name === selectedKey);
         if (protocol) {
           location.href = protocol.url;
         }
@@ -142,6 +156,9 @@ export const SearchBox = () => {
         />
         <InputRightElement w="20" justifyContent="flex-end" userSelect="none" mx="4">
           <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
+          <Fade in={searchBarFocused && !!instantResult}>
+            <Badge>{instantResult}</Badge>
+          </Fade>
         </InputRightElement>
         <InputLeftElement>
           <Icon as={FiSearch} opacity={searchBarFocused ? 0.8 : 0.4} />
@@ -151,10 +168,10 @@ export const SearchBox = () => {
         <Collapse in={searchBarFocused && !!input} animateOpacity>
           <VStack
             w={["sm", "md", "lg", "xl"]}
-            p="4"
+            p={optionKeys.length > 0 ? 4 : 0}
             borderRadius="md"
             spacing="4"
-            borderWidth={2}
+            borderWidth={optionKeys.length > 0 ? 2 : 0}
             position="absolute"
             bgColor={colorMode === "light" ? "white" : "gray.800"}
           >
@@ -178,7 +195,7 @@ export const SearchBox = () => {
                 );
               }
 
-              const protocol = data?.find((x) => x.name === optionKey);
+              const protocol = protocols?.find((x) => x.name === optionKey);
               return (
                 <HStack
                   key={optionKey}
@@ -196,7 +213,19 @@ export const SearchBox = () => {
                       {protocol.name}
                     </Text>
                   </HStack>
-                  <Badge>{protocol.category}</Badge>
+                  <HStack>
+                    {protocol.tvl && (
+                      <Badge>
+                        TVL{" "}
+                        {Intl.NumberFormat("en", {
+                          notation: "compact",
+                          style: "currency",
+                          currency: "USD",
+                        }).format(protocol.tvl)}
+                      </Badge>
+                    )}
+                    <Badge>{protocol.category}</Badge>
+                  </HStack>
                 </HStack>
               );
             })}
