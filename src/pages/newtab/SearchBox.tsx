@@ -28,7 +28,7 @@ export const SearchBox = () => {
   const isMac = useMemo(() => getIsMac(), []);
   const { colorMode } = useColorMode();
 
-  const { data } = useProtocols();
+  const protocols = useProtocols();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [searchBarFocused, setSearchBarFocused] = useState(false);
@@ -46,14 +46,14 @@ export const SearchBox = () => {
   const hasNoProtocols = useMemo(() => optionKeys.length === 1, [optionKeys]);
 
   useEffect(() => {
-    if (!data) return;
+    if (!protocols) return;
     if (input.length === 0) {
       setOptionKeys([]);
       setSelectedKey("");
       return;
     }
 
-    const scoredList = data
+    const scoredList = protocols
       .map((x) => {
         const score = fuzzyScore(x.name, input);
         return { score, ...x };
@@ -61,6 +61,7 @@ export const SearchBox = () => {
       .filter((x) => x.score > 0);
     scoredList.sort((a, b) => b.score - a.score);
     const topOptions = scoredList.slice(0, searchResultsCount);
+    topOptions.sort((a, b) => (b?.tvl ?? 0) - (a?.tvl ?? 0));
 
     if (topOptions.length > 0) {
       if (topOptions.find((x) => selectedKey === x.name) === undefined && selectedKey !== "search_engine") {
@@ -69,7 +70,7 @@ export const SearchBox = () => {
     }
 
     setOptionKeys([...topOptions.map((x) => x.name), "search_engine"]);
-  }, [input, data, selectedKey]);
+  }, [input, protocols, selectedKey]);
 
   const _searchEngine = useMemo(
     () => ({
@@ -120,7 +121,7 @@ export const SearchBox = () => {
       if (hasNoProtocols || selectedKey === "search_engine") {
         location.href = _searchEngine.url;
       } else {
-        const protocol = data?.find((x) => x.name === selectedKey);
+        const protocol = protocols?.find((x) => x.name === selectedKey);
         if (protocol) {
           location.href = protocol.url;
         }
@@ -178,7 +179,7 @@ export const SearchBox = () => {
                 );
               }
 
-              const protocol = data?.find((x) => x.name === optionKey);
+              const protocol = protocols?.find((x) => x.name === optionKey);
               return (
                 <HStack
                   key={optionKey}
