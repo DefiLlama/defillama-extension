@@ -1,4 +1,3 @@
-export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
 export const PRICES_API = "https://coins.llama.fi/prices/current";
 
 export type SearchEngine = {

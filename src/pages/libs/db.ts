@@ -11,6 +11,7 @@ export interface Protocol {
   url: string;
   logo: string;
   category: string;
+  tvl?: number;
 }
 
 export class CoinsDb extends Dexie {

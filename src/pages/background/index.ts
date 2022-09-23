@@ -49,20 +49,21 @@ async function handlePhishingCheck() {
   return isPhishing;
 }
 
-async function updateCoinsDb() {
+export async function updateCoinsDb() {
   const res = await fetch(COINGECKO_COINS_LIST_API);
   const coins = (await res.json()) as Coin[];
   const result = await coinsDb.coins.bulkPut(coins);
   console.log("updateCoinsDb", result);
 }
 
-async function updateProtocolsDb() {
+export async function updateProtocolsDb() {
   const raw = await fetch(PROTOCOLS_API).then((res) => res.json());
   const protocols = (raw["protocols"]?.map((x: any) => ({
     name: x.name,
     url: x.url,
     logo: x.logo,
     category: x.category,
+    tvl: x.tvl,
   })) ?? []) as Protocol[];
   const result = await protocolsDb.protocols.bulkPut(protocols);
   console.log("updateProtocolsDb", result);

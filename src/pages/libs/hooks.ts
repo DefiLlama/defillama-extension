@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLiveQuery } from "dexie-react-hooks";
 import { topSitesMock } from "./mock-data";
-import { PROTOCOLS_API } from "./constants";
+import { Protocol, protocolsDb } from "./db";
 
 export const useTopSites = () => {
   const [topSites, setTopSites] = useState<chrome.topSites.MostVisitedURL[]>([]);
@@ -17,25 +18,15 @@ export const useTopSites = () => {
   return topSites;
 };
 
-export type Protocol = {
-  name: string;
-  url: string;
-  logo: string;
-  category: string;
-};
-
-export const useProtocols = () => {
-  return useQuery(["protocolsData"], async () => {
-    const raw = await fetch(PROTOCOLS_API).then((res) => res.json());
-    const protocols = (raw["protocols"]?.map((x: any) => ({
-      name: x.name,
-      url: x.url,
-      logo: x.logo,
-      category: x.category,
-    })) ?? []) as Protocol[];
-    return protocols;
+/**
+ * Protocols data synced with IndexedDB and updated every 4 hours using Dexie.
+ *
+ * @returns {Protocol[]} protocols
+ */
+export const useProtocols = (): Protocol[] =>
+  useLiveQuery(async () => {
+    return await protocolsDb.protocols.toArray();
   });
-};
 
 /**
  * State synced with local storage. Updates itself when local storage changes based on event listener.
@@ -44,7 +35,7 @@ export const useProtocols = () => {
  * @param defaultValue the initial value to set the state to
  * @returns a tuple of the state and a function to update the state
  */
-export const usePersistentState = <T,>(key: string, defaultValue: T): [T, (value: T) => void] => {
+export const usePersistentState = <T>(key: string, defaultValue: T): [T, (value: T) => void] => {
   const [state, setState] = useState<T>(() => {
     const value = localStorage?.getItem(key);
     if (value) {
