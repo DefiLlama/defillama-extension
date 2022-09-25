@@ -3,7 +3,6 @@ import {
   InputGroup,
   InputRightElement,
   Kbd,
-  Fade,
   HStack,
   Text,
   VStack,
@@ -155,10 +154,8 @@ export const SearchBox = () => {
           onChange={(e) => setInput(e.target.value)}
         />
         <InputRightElement w="20" justifyContent="flex-end" userSelect="none" mx="4">
-          <Fade in={!searchBarFocused}>{isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>}</Fade>
-          <Fade in={searchBarFocused && !!instantResult}>
-            <Badge>{instantResult}</Badge>
-          </Fade>
+          {!searchBarFocused && (isMac ? <Kbd>⌘ + K</Kbd> : <Kbd>Ctrl + K</Kbd>)}
+          {searchBarFocused && !!instantResult && <Badge>{instantResult}</Badge>}
         </InputRightElement>
         <InputLeftElement>
           <Icon as={FiSearch} opacity={searchBarFocused ? 0.8 : 0.4} />
