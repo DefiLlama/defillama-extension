@@ -47,11 +47,27 @@ async function handlePhishingCheck() {
   return isPhishing;
 }
 
+/**
+ * Update the coinsDb with the top 2500 coins from coingecko ranked by market cap
+ */
 export async function updateCoinsDb() {
-  const res = await fetch(COINGECKO_COINS_LIST_API);
-  const coins = (await res.json()) as Coin[];
-  const result = await coinsDb.coins.bulkPut(coins);
-  console.log("updateCoinsDb", result);
+  const getCoingeckoCoinsMarketApi = (page = 1) =>
+    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=${page}&sparkline=false`;
+
+  for (let page = 1; page <= 10; page++) {
+    const response = await fetch(getCoingeckoCoinsMarketApi(page));
+    const coins: Coin[] = (await response.json()).map((c: Coin) => ({
+      id: c.id,
+      symbol: c.symbol,
+      name: c.name,
+      image: c.image,
+      market_cap: c.market_cap,
+      total_volume: c.total_volume,
+      last_updated: c.last_updated,
+    }));
+    const result = await coinsDb.coins.bulkPut(coins);
+    console.log("updateCoinsDb", result);
+  }
 }
 
 export async function updateProtocolsDb() {
