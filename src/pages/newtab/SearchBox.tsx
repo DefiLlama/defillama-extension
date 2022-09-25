@@ -21,7 +21,7 @@ import { FiSearch } from "react-icons/fi";
 import fuzzyScore from "@src/pages/libs/fuzzy-score";
 import { getInstantResult, getIsMac } from "@src/pages/libs/helpers";
 import { usePersistentState, useProtocols } from "@src/pages/libs/hooks";
-import { DEFAULT_SEARCH_ENGINES, SearchEngine } from "@src/pages/libs/constants";
+import { DEFAULT_SEARCH_ENGINES, PROTOCOL_TVL_THRESHOLD, SearchEngine } from "@src/pages/libs/constants";
 
 export const SearchBox = () => {
   const isMac = useMemo(() => getIsMac(), []);
@@ -57,7 +57,7 @@ export const SearchBox = () => {
         const score = fuzzyScore(x.name, input);
         return { score, ...x };
       })
-      .filter((x) => x.score > 0);
+      .filter((x) => x.tvl > PROTOCOL_TVL_THRESHOLD && x.score > 0);
     scoredList.sort((a, b) => b.score - a.score);
     const topOptions = scoredList.slice(0, searchResultsCount);
     topOptions.sort((a, b) => (b?.tvl ?? 0) - (a?.tvl ?? 0));

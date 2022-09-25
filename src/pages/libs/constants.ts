@@ -11,6 +11,7 @@ export interface Prices {
 }
 
 export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
+export const PROTOCOL_TVL_THRESHOLD = 1000000;
 
 export const COINGECKO_COINS_LIST_API = "https://api.coingecko.com/api/v3/coins/list";
 
