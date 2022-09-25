@@ -4,6 +4,10 @@ export interface Coin {
   id: string;
   symbol: string;
   name: string;
+  image: string;
+  market_cap: number;
+  total_volume?: number;
+  last_updated: string;
 }
 
 export interface Protocol {

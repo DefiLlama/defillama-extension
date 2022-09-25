@@ -12,7 +12,7 @@ export const getIsMac = () => /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform
 export const getInstantResult = async (query: string): Promise<string> => {
   let result = "";
 
-  if (query.length >= 2 && query.length <= 4) {
+  if (query.length >= 2 && query.length <= 5) {
     // if query is 2 to 4 characters long, check if it's a coin symbol
     const matches = await coinsDb.coins.where("symbol").equalsIgnoreCase(query).toArray();
     if (matches.length === 0) return result;
