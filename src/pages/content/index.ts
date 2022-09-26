@@ -1,7 +1,48 @@
-console.log("content loaded");
+switch (new URL(document.baseURI).hostname) {
+  case "etherscan.io":
+    console.log("Llama Power is activated on Etherscan, enjoy!");
+    import("./components/ethereum");
+    break;
+  case "bscscan.com":
+    console.log("Llama Power is not available on bscscan yet");
+    break;
+  case "snowtrace.io":
+    console.log("Llama Power is not available on snowtrace yet");
+    break;
+  case "ftmscan.com":
+    console.log("Llama Power is not available on ftmscan yet");
+    break;
+  case "arbiscan.io":
+    console.log("Llama Power is not available on arbiscan yet");
+    break;
+  case "polygonscan.com":
+    console.log("Llama Power is not available on polygonscan yet");
+    break;
+  case "optimistic.etherscan.io":
+    console.log("Llama Power is not available on optimistic yet");
+    break;
+  case "cronoscan.com":
+    console.log("Llama Power is not available on cronoscan yet");
+    break;
+  case "moonriver.moonscan.io":
+    console.log("Llama Power is not available on moonriver yet");
+    break;
+  case "moonscan.io":
+    console.log("Llama Power is not available on moonscan yet");
+    break;
+  case "gnosisscan.io":
+    console.log("Llama Power is not available on gnosisscan yet");
+    break;
+  case "bobascan.com":
+    console.log("Llama Power is not available on bobascan yet");
+    break;
+  default:
+    console.log("default");
+    break;
+}
 
-/**
- * @description
- * Chrome extensions don't support modules in content scripts.
- */
-import("./components/Demo");
+// /**
+//  * @description
+//  * Chrome extensions don't support modules in content scripts.
+//  */
+// import("./components/Demo");

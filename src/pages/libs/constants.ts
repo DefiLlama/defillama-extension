@@ -43,3 +43,33 @@ export const DEFAULT_SEARCH_ENGINES: SearchEngine[] = [
     url: "https://www.bing.com/search?q=",
   },
 ];
+
+export const CHAIN_PREFIX = {
+  ETHEREUM: "ethereum",
+  BSC: "bsc",
+  AVAX: "avax",
+  FANTOM: "fantom",
+  ARBITRUM: "arbitrum",
+  POLYGON: "polygon",
+  OPTIMISM: "optimism",
+  CRONOS: "cronos",
+  MOONRIVER: "moonriver",
+  MOONBEAM: "moonbeam",
+  GNOSIS: "xdai",
+  BOBA: "boba",
+} as const;
+
+export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
+  "etherscan.io": CHAIN_PREFIX.ETHEREUM,
+  "bscscan.com": CHAIN_PREFIX.BSC,
+  "snowtrace.io": CHAIN_PREFIX.AVAX,
+  "ftmscan.com": CHAIN_PREFIX.FANTOM,
+  "arbiscan.io": CHAIN_PREFIX.ARBITRUM,
+  "polygonscan.com": CHAIN_PREFIX.POLYGON,
+  "optimistic.etherscan.io": CHAIN_PREFIX.OPTIMISM,
+  "cronoscan.com": CHAIN_PREFIX.CRONOS,
+  "moonriver.moonscan.io": CHAIN_PREFIX.MOONRIVER,
+  "moonscan.io": CHAIN_PREFIX.MOONBEAM,
+  "gnosisscan.io": CHAIN_PREFIX.GNOSIS,
+  "bobascan.com": CHAIN_PREFIX.BOBA,
+} as const;
