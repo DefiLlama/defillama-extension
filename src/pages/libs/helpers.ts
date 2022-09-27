@@ -21,8 +21,7 @@ export const getInstantResult = async (query: string): Promise<string> => {
     matches.sort((a, b) => a.name.length - b.name.length);
     const { id: coinId, name } = matches[0];
 
-    const res = (await fetch(PRICES_API + "/coingecko:" + coinId).then((res) => res.json())) as Prices;
-    const { price } = res.coins["coingecko:" + coinId];
+    const { price } = await getTokenPrice("coingecko:" + coinId);
     // thankfully the precision returned from API is exactly what we want hehehe
     result = `${name} $${price}`;
   }
@@ -64,4 +63,42 @@ export function getReadableValue(value: number) {
   ];
   const e = Math.floor(Math.log(value) / Math.log(1000));
   return (value / Math.pow(1000, e)).toFixed(1) + s[e];
+}
+
+export function formatPrice(price: number, symbol = "$") {
+  let _price: string;
+  if (price < 1) {
+    _price = price.toPrecision(3);
+  } else {
+    _price = price.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  }
+  return symbol + _price;
+}
+
+export async function getTokenPrice(tokenWithPrefix: string) {
+  const res = (await fetch(PRICES_API + "/" + tokenWithPrefix).then((res) => res.json())) as Prices;
+  return res.coins[tokenWithPrefix];
+}
+
+export async function getBatchTokenPrices(tokensWithPrefix: string[]) {
+  const res = (await fetch(PRICES_API + "/" + tokensWithPrefix.join(",")).then((res) => res.json())) as Prices;
+  return res.coins;
+}
+
+// render an image to console with given url
+export const logImage = (url: string, message = "", size = 20, styles = "") => {
+  const _url = chrome.runtime.getURL(url);
+  console.log(
+    `%c ${message}`,
+    `background: url(${_url}) 0 0 no-repeat; padding-left: ${size}px; background-size: ${size}px; font-size: ${size}px; ${styles}`,
+  );
+};
+
+export function createInlineLlamaIcon(src: string, alt: string, size = 12, className = "mr-1 mCS_img_loaded") {
+  const icon = document.createElement("img");
+  icon.src = chrome.runtime.getURL(src);
+  icon.alt = alt;
+  icon.width = size;
+  icon.className = className;
+  return icon;
 }
