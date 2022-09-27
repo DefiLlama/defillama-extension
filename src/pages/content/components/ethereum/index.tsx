@@ -89,6 +89,11 @@ async function renderMissingPricesInDropdownOnAddressPage() {
   }
 
   totalAmountTextNode.textContent = "\n" + (hasMoreTokens ? ">" : "") + formatPrice(totalAmount) + "\n";
+
+  const sortButton = document.querySelector<HTMLButtonElement>("button#btn_ERC20_sort");
+  // double click - a hack to re-sort the list
+  sortButton.click();
+  sortButton.click();
 }
 
 async function renderErc20PriceOnAddressPage() {
