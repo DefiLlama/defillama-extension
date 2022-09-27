@@ -28,9 +28,6 @@ switch (urlType) {
   case "address":
     renderPriceOnAddressPage();
     break;
-  // case "token":
-  //   renderPriceOnTokenPage();
-  //   break;
   default:
     break;
 }
@@ -51,7 +48,6 @@ async function renderMissingPricesInDropdownOnAddressPage() {
   }, {} as Record<string, HTMLAnchorElement>);
 
   const totalAmountTextNode = document.querySelector("a#availableBalanceDropdown").childNodes[0];
-  // totalAmountTextNode's content is "$10,871.55". We want to get the number part
   const hasMoreTokens = totalAmountTextNode.textContent.includes(">");
   let totalAmount = parseFloat(totalAmountTextNode.textContent.split("\n")[2].replace(/,/g, "").replace(/.*\$/g, ""));
 

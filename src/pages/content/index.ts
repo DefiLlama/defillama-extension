@@ -37,7 +37,6 @@ switch (new URL(document.baseURI).hostname) {
     import("./components/boba");
     break;
   default:
-    console.log("default");
     break;
 }
 
