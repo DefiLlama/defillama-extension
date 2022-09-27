@@ -65,19 +65,24 @@ export function getReadableValue(value: number) {
   return (value / Math.pow(1000, e)).toFixed(1) + s[e];
 }
 
-export function formatPrice(price: number) {
+export function formatPrice(price: number, symbol = "$") {
   let _price: string;
   if (price < 1) {
     _price = price.toPrecision(3);
   } else {
     _price = price.toLocaleString("en-US", { maximumFractionDigits: 2 });
   }
-  return "$" + _price;
+  return symbol + _price;
 }
 
 export async function getTokenPrice(tokenWithPrefix: string) {
   const res = (await fetch(PRICES_API + "/" + tokenWithPrefix).then((res) => res.json())) as Prices;
   return res.coins[tokenWithPrefix];
+}
+
+export async function getBatchTokenPrices(tokensWithPrefix: string[]) {
+  const res = (await fetch(PRICES_API + "/" + tokensWithPrefix.join(",")).then((res) => res.json())) as Prices;
+  return res.coins;
 }
 
 // render an image to console with given url

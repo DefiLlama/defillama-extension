@@ -1,4 +1,4 @@
-import { formatPrice, getTokenPrice, logImage } from "@src/pages/libs/helpers";
+import { formatPrice, getBatchTokenPrices, getTokenPrice, logImage } from "@src/pages/libs/helpers";
 import { ETHEREUM_SELECTORS } from "@src/pages/libs/selectors";
 import { createRoot } from "react-dom/client";
 
@@ -30,6 +30,43 @@ switch (urlType) {
 }
 
 async function renderPriceOnAddressPage() {
+  await renderErc20PriceOnAddressPage();
+  await renderMissingPricesInDropdownOnAddressPage();
+}
+
+async function renderMissingPricesInDropdownOnAddressPage() {
+  const listItems = document.querySelectorAll<HTMLAnchorElement>(ETHEREUM_SELECTORS.address.tokenList.select);
+  const listItemsMap = Array.from(listItems).reduce((acc, item) => {
+    const url = new URL(item.href);
+    const address = url.pathname.split("/")[2];
+    const prefixedAddress = "ethereum:" + address;
+    acc[prefixedAddress] = item;
+    return acc;
+  }, {} as Record<string, HTMLAnchorElement>);
+
+  const prices = await getBatchTokenPrices(Object.keys(listItemsMap));
+  for (const [address, { price }] of Object.entries(prices)) {
+    const listItem = listItemsMap[address];
+    if (listItem) {
+      const amountSpan = listItem.querySelector("span.list-amount");
+      if (!amountSpan) {
+        continue;
+      }
+      const amount = parseFloat(amountSpan.textContent.split(" ")[0].replace(/,/g, ""));
+      const textRightDiv = listItem.querySelector("div.text-right");
+      const usdValueSpan = textRightDiv.querySelector("span.list-usd-value");
+      if (usdValueSpan.innerHTML === "&nbsp;") {
+        usdValueSpan.textContent = formatPrice(amount * price);
+        const priceSpan = document.createElement("span");
+        priceSpan.className = "list-usd-rate link-hover__item";
+        priceSpan.textContent = "@" + formatPrice(price, "");
+        textRightDiv.append(priceSpan);
+      }
+    }
+  }
+}
+
+async function renderErc20PriceOnAddressPage() {
   const { price } = (await getTokenPrice("ethereum:" + account)) ?? {};
   if (!price) return;
 
