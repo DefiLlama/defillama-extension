@@ -8,11 +8,11 @@ switch (new URL(document.baseURI).hostname) {
   case "snowtrace.io":
     import("./components/avax");
     break;
-    case "ftmscan.com":
+  case "ftmscan.com":
     import("./components/fantom");
     break;
   case "arbiscan.io":
-    console.log("Llama Power is not available on arbiscan yet");
+    import("./components/arbitrum");
     break;
   case "polygonscan.com":
     console.log("Llama Power is not available on polygonscan yet");
