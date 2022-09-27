@@ -34,7 +34,7 @@ switch (new URL(document.baseURI).hostname) {
     import("./components/gnosis");
     break;
   case "bobascan.com":
-    console.log("Llama Power is not available on bobascan yet");
+    import("./components/boba");
     break;
   default:
     console.log("default");
