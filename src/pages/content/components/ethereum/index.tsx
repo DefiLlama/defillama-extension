@@ -98,9 +98,18 @@ async function renderMissingPricesInDropdownOnAddressPage() {
 
 async function renderErc20PriceOnAddressPage() {
   const { price, symbol } = (await getTokenPrice("ethereum:" + account)) ?? {};
-  if (!price) return;
-  if (!document.querySelector(ETHEREUM_SELECTORS.address.erc20.test)) return;
-  if (document.querySelector(ETHEREUM_SELECTORS.address.erc20.select)) return;
+  if (!price) {
+    console.log("Llama doesn't know the price of this token");
+    return;
+  }
+  if (!document.querySelector(ETHEREUM_SELECTORS.address.erc20.test)) {
+    console.log("Llama thinks this is not an ERC20 token");
+    return;
+  }
+  if (document.querySelector(ETHEREUM_SELECTORS.address.erc20.select)) {
+    console.log("Llama thinks Etherscan already has the price");
+    return;
+  }
 
   const sibling = document.querySelector(ETHEREUM_SELECTORS.address.erc20.appendTo);
   const icon = createInlineLlamaIcon(gib, symbol, 16, "ml-2");
