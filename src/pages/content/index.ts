@@ -20,8 +20,8 @@ switch (new URL(document.baseURI).hostname) {
   case "optimistic.etherscan.io":
     import("./components/optimism");
     break;
-  case "cronoscan.com":
-    console.log("Llama Power is not available on cronoscan yet");
+    case "cronoscan.com":
+    import("./components/cronos");
     break;
   case "moonriver.moonscan.io":
     console.log("Llama Power is not available on moonriver yet");
