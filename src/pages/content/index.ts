@@ -3,7 +3,7 @@ switch (new URL(document.baseURI).hostname) {
     import("./components/ethereum");
     break;
   case "bscscan.com":
-    console.log("Llama Power is not available on bscscan yet");
+    import("./components/bsc");
     break;
   case "snowtrace.io":
     console.log("Llama Power is not available on snowtrace yet");
