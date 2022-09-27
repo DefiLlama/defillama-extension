@@ -50,6 +50,10 @@ async function renderMissingPricesInDropdownOnAddressPage() {
     return acc;
   }, {} as Record<string, HTMLAnchorElement>);
 
+  const totalAmountTextNode = document.querySelector("a#availableBalanceDropdown").childNodes[0];
+  // totalAmountTextNode's content is "$10,871.55". We want to get the number part
+  let totalAmount = parseFloat(totalAmountTextNode.textContent.split("\n")[1].replace(/,/g, "").replace(/.*\$/g, ""));
+
   const prices = await getBatchTokenPrices(Object.keys(listItemsMap));
   for (const [address, { price, symbol }] of Object.entries(prices)) {
     const listItem = listItemsMap[address];
@@ -62,7 +66,10 @@ async function renderMissingPricesInDropdownOnAddressPage() {
       const textRightDiv = listItem.querySelector("div.text-right");
       const usdValueSpan = textRightDiv.querySelector("span.list-usd-value");
       if (usdValueSpan.innerHTML === "&nbsp;") {
-        usdValueSpan.textContent = formatPrice(amount * price);
+        const usdAmount = amount * price;
+        totalAmount += usdAmount;
+
+        usdValueSpan.textContent = formatPrice(usdAmount);
         const priceDiv = document.createElement("div");
         priceDiv.className = "d-flex justify-content-end align-items-center";
         const priceTextSpan = document.createElement("span");
@@ -79,6 +86,8 @@ async function renderMissingPricesInDropdownOnAddressPage() {
       }
     }
   }
+
+  totalAmountTextNode.textContent = "\n" + formatPrice(totalAmount) + "\n";
 }
 
 async function renderErc20PriceOnAddressPage() {
