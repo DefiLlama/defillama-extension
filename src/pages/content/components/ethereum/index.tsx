@@ -34,11 +34,11 @@ async function renderPriceOnAddressPage() {
   if (!price) return;
 
   try {
-    document.querySelector(ETHEREUM_SELECTORS.address.remove).remove();
+    document.querySelector(ETHEREUM_SELECTORS.address.erc20.remove).remove();
   } catch (error) {
     console.log("token price not on native explorer");
   }
-  const sibling = document.querySelector(ETHEREUM_SELECTORS.address.appendTo);
+  const sibling = document.querySelector(ETHEREUM_SELECTORS.address.erc20.appendTo);
 
   const priceElement = document.createElement("span");
   priceElement.className = "text-secondary";
