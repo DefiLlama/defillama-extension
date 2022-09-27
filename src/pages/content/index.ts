@@ -31,7 +31,7 @@ switch (new URL(document.baseURI).hostname) {
     import("./components/moonbeam");
     break;
   case "gnosisscan.io":
-    console.log("Llama Power is not available on gnosisscan yet");
+    import("./components/gnosis");
     break;
   case "bobascan.com":
     console.log("Llama Power is not available on bobascan yet");
