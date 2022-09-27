@@ -18,7 +18,7 @@ switch (new URL(document.baseURI).hostname) {
     import("./components/polygon");
     break;
   case "optimistic.etherscan.io":
-    console.log("Llama Power is not available on optimistic yet");
+    import("./components/optimism");
     break;
   case "cronoscan.com":
     console.log("Llama Power is not available on cronoscan yet");
