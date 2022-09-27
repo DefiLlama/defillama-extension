@@ -72,30 +72,29 @@ async function renderMissingPricesInDropdownOnAddressPage() {
         priceDiv.append(icon, priceTextSpan);
         textRightDiv.append(priceDiv);
 
-        // somehow the tooltip doesn't work
-        textRightDiv.setAttribute("data-original-title", "Price from DeFiLlama API");
-        textRightDiv.setAttribute("data-toggle", "tooltip");
-        textRightDiv.setAttribute("title", "");
+        // // somehow the tooltip doesn't work
+        // textRightDiv.setAttribute("data-original-title", "Price from DeFiLlama API");
+        // textRightDiv.setAttribute("data-toggle", "tooltip");
+        textRightDiv.setAttribute("title", "Price from DeFiLlama API");
       }
     }
   }
 }
 
 async function renderErc20PriceOnAddressPage() {
-  const { price } = (await getTokenPrice("ethereum:" + account)) ?? {};
+  const { price, symbol } = (await getTokenPrice("ethereum:" + account)) ?? {};
   if (!price) return;
+  if (!document.querySelector(ETHEREUM_SELECTORS.address.erc20.test)) return;
+  if (document.querySelector(ETHEREUM_SELECTORS.address.erc20.select)) return;
 
-  try {
-    document.querySelector(ETHEREUM_SELECTORS.address.erc20.remove).remove();
-  } catch (error) {
-    console.log("token price not on native explorer");
-  }
   const sibling = document.querySelector(ETHEREUM_SELECTORS.address.erc20.appendTo);
-
-  const priceElement = document.createElement("span");
-  priceElement.className = "text-secondary";
-  priceElement.innerText = `${formatPrice(price)}`;
-  priceElement.style.marginLeft = "8px";
-
-  sibling.parentNode.append(priceElement);
+  const icon = createInlineLlamaIcon(gib, symbol, 16, "ml-2");
+  // // somehow the tooltip doesn't work
+  // icon.setAttribute("data-original-title", "Price from DeFiLlama API");
+  // icon.setAttribute("data-toggle", "tooltip");
+  icon.setAttribute("title", "Price from DeFiLlama API");
+  const priceSpan = document.createElement("span");
+  priceSpan.className = "text-secondary ml-1";
+  priceSpan.innerText = `${formatPrice(price)}`;
+  sibling.parentNode.append(icon, priceSpan);
 }

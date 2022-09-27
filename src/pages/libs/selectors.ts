@@ -1,4 +1,4 @@
-type SelectorPurposes = "remove" | "appendTo" | "insertInto" | "select";
+type SelectorPurposes = "remove" | "appendTo" | "insertInto" | "select" | "test";
 
 export interface EtherscanAlikeSelectors {
   address?: {
@@ -16,8 +16,10 @@ export interface EtherscanAlikeSelectors {
 export const ETHEREUM_SELECTORS: EtherscanAlikeSelectors = {
   address: {
     erc20: {
+      test: "#ContentPlaceHolder1_tr_tokeninfo",
       appendTo: "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > a",
-      remove: "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > span", // span.text-secondary
+      select: "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > span", // span.text-secondary
+      // remove: "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > span", // span.text-secondary
     },
     tokenList: {
       select: "li.list-custom.list-custom-ERC20 > a",
