@@ -45,7 +45,7 @@ async function renderMissingPricesInDropdownOnAddressPage() {
   const listItemsMap = Array.from(listItems).reduce((acc, item) => {
     const url = new URL(item.href);
     const address = url.pathname.split("/")[2];
-    const prefixedAddress = "bsc:" + address;
+    const prefixedAddress = "fantom:" + address;
     acc[prefixedAddress] = item;
     return acc;
   }, {} as Record<string, HTMLAnchorElement>);
@@ -97,7 +97,7 @@ async function renderMissingPricesInDropdownOnAddressPage() {
 }
 
 async function renderErc20PriceOnAddressPage() {
-  const { price, symbol } = (await getTokenPrice("bsc:" + account)) ?? {};
+  const { price, symbol } = (await getTokenPrice("fantom:" + account)) ?? {};
   if (!price) {
     console.log("Llama doesn't know the price of this token");
     return;
