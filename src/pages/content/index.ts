@@ -26,7 +26,8 @@ switch (new URL(document.baseURI).hostname) {
   case "moonriver.moonscan.io":
     import("./components/moonriver");
     break;
-    case "moonscan.io":
+  case "moonbeam.moonscan.io":
+  case "moonscan.io":
     import("./components/moonbeam");
     break;
   case "gnosisscan.io":
