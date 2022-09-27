@@ -52,6 +52,7 @@ async function renderMissingPricesInDropdownOnAddressPage() {
 
   const totalAmountTextNode = document.querySelector("a#availableBalanceDropdown").childNodes[0];
   // totalAmountTextNode's content is "$10,871.55". We want to get the number part
+  const hasMoreTokens = totalAmountTextNode.textContent.includes(">");
   let totalAmount = parseFloat(totalAmountTextNode.textContent.split("\n")[1].replace(/,/g, "").replace(/.*\$/g, ""));
 
   const prices = await getBatchTokenPrices(Object.keys(listItemsMap));
@@ -87,7 +88,7 @@ async function renderMissingPricesInDropdownOnAddressPage() {
     }
   }
 
-  totalAmountTextNode.textContent = "\n" + formatPrice(totalAmount) + "\n";
+  totalAmountTextNode.textContent = "\n" + (hasMoreTokens ? ">" : "") + formatPrice(totalAmount) + "\n";
 }
 
 async function renderErc20PriceOnAddressPage() {
