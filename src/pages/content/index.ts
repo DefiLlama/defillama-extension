@@ -6,7 +6,7 @@ switch (new URL(document.baseURI).hostname) {
     import("./components/bsc");
     break;
   case "snowtrace.io":
-    console.log("Llama Power is not available on snowtrace yet");
+    import("./components/avax");
     break;
   case "ftmscan.com":
     console.log("Llama Power is not available on ftmscan yet");
