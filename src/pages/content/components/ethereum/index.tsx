@@ -71,6 +71,11 @@ async function renderMissingPricesInDropdownOnAddressPage() {
         const icon = createInlineLlamaIcon(gib, symbol);
         priceDiv.append(icon, priceTextSpan);
         textRightDiv.append(priceDiv);
+
+        // somehow the tooltip doesn't work
+        textRightDiv.setAttribute("data-original-title", "Price from DeFiLlama API");
+        textRightDiv.setAttribute("data-toggle", "tooltip");
+        textRightDiv.setAttribute("title", "");
       }
     }
   }
