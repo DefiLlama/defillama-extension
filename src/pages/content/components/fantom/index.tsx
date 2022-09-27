@@ -19,7 +19,7 @@ import gib from "@src/assets/img/memes/gib-128.png";
 // if URL has /address/, get the 0x address as string, then call the price API, then render the price
 // to render the price, first remove the existing price, then create a new span, append to correct element
 
-logImage(gib, "Llama Power activated on Etherscan");
+logImage(gib, "Llama Power activated on FtmScan");
 
 const urlType = window.location.pathname.split("/")[1];
 const account = window.location.pathname.split("/")[2];
@@ -42,7 +42,7 @@ async function renderMissingPricesInDropdownOnAddressPage() {
   const listItemsMap = Array.from(listItems).reduce((acc, item) => {
     const url = new URL(item.href);
     const address = url.pathname.split("/")[2];
-    const prefixedAddress = "ethereum:" + address;
+    const prefixedAddress = "fantom:" + address;
     acc[prefixedAddress] = item;
     return acc;
   }, {} as Record<string, HTMLAnchorElement>);
@@ -93,7 +93,7 @@ async function renderMissingPricesInDropdownOnAddressPage() {
 }
 
 async function renderErc20PriceOnAddressPage() {
-  const { price, symbol } = (await getTokenPrice("ethereum:" + account)) ?? {};
+  const { price, symbol } = (await getTokenPrice("fantom:" + account)) ?? {};
   if (!price) {
     console.log("Llama doesn't know the price of this token");
     return;

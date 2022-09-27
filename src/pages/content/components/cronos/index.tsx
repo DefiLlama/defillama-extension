@@ -5,7 +5,7 @@ import {
   getTokenPrice,
   logImage,
 } from "@src/pages/libs/helpers";
-import { ETHEREUM_SELECTORS } from "@src/pages/libs/selectors";
+import { CRONOS_SELECTORS } from "@src/pages/libs/selectors";
 import { createRoot } from "react-dom/client";
 
 import gib from "@src/assets/img/memes/gib-128.png";
@@ -19,7 +19,7 @@ import gib from "@src/assets/img/memes/gib-128.png";
 // if URL has /address/, get the 0x address as string, then call the price API, then render the price
 // to render the price, first remove the existing price, then create a new span, append to correct element
 
-logImage(gib, "Llama Power activated on Etherscan");
+logImage(gib, "Llama Power activated on CronoScan");
 
 const urlType = window.location.pathname.split("/")[1];
 const account = window.location.pathname.split("/")[2];
@@ -38,18 +38,18 @@ async function renderPriceOnAddressPage() {
 }
 
 async function renderMissingPricesInDropdownOnAddressPage() {
-  const listItems = document.querySelectorAll<HTMLAnchorElement>(ETHEREUM_SELECTORS.address.tokenList.select);
+  const listItems = document.querySelectorAll<HTMLAnchorElement>(CRONOS_SELECTORS.address.tokenList.select);
   const listItemsMap = Array.from(listItems).reduce((acc, item) => {
     const url = new URL(item.href);
     const address = url.pathname.split("/")[2];
-    const prefixedAddress = "ethereum:" + address;
+    const prefixedAddress = "cronos:" + address;
     acc[prefixedAddress] = item;
     return acc;
   }, {} as Record<string, HTMLAnchorElement>);
 
   const totalAmountTextNode = document.querySelector("a#availableBalanceDropdown").childNodes[0];
   const hasMoreTokens = totalAmountTextNode.textContent.includes(">");
-  let totalAmount = parseFloat(totalAmountTextNode.textContent.split("\n")[1].replace(/,/g, "").replace(/.*\$/g, ""));
+  let totalAmount = parseFloat(totalAmountTextNode.textContent.split("\n")[2].replace(/,/g, "").replace(/.*\$/g, ""));
 
   const prices = await getBatchTokenPrices(Object.keys(listItemsMap));
   for (const [address, { price, symbol }] of Object.entries(prices)) {
@@ -93,21 +93,21 @@ async function renderMissingPricesInDropdownOnAddressPage() {
 }
 
 async function renderErc20PriceOnAddressPage() {
-  const { price, symbol } = (await getTokenPrice("ethereum:" + account)) ?? {};
+  const { price, symbol } = (await getTokenPrice("cronos:" + account)) ?? {};
   if (!price) {
     console.log("Llama doesn't know the price of this token");
     return;
   }
-  if (!document.querySelector(ETHEREUM_SELECTORS.address.erc20.test)) {
+  if (!document.querySelector(CRONOS_SELECTORS.address.erc20.test)) {
     console.log("Llama thinks this is not an ERC20 token");
     return;
   }
-  if (document.querySelector(ETHEREUM_SELECTORS.address.erc20.select)) {
+  if (document.querySelector(CRONOS_SELECTORS.address.erc20.select)) {
     console.log("Llama thinks Etherscan already has the price");
     return;
   }
 
-  const sibling = document.querySelector(ETHEREUM_SELECTORS.address.erc20.appendTo);
+  const sibling = document.querySelector(CRONOS_SELECTORS.address.erc20.appendTo);
   const icon = createInlineLlamaIcon(gib, symbol, 16, "ml-2");
   // // somehow the tooltip doesn't work
   // icon.setAttribute("data-original-title", "Price from DeFiLlama API");

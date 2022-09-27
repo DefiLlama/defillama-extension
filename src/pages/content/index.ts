@@ -3,40 +3,40 @@ switch (new URL(document.baseURI).hostname) {
     import("./components/ethereum");
     break;
   case "bscscan.com":
-    console.log("Llama Power is not available on bscscan yet");
+    import("./components/bsc");
     break;
   case "snowtrace.io":
-    console.log("Llama Power is not available on snowtrace yet");
+    import("./components/avax");
     break;
   case "ftmscan.com":
-    console.log("Llama Power is not available on ftmscan yet");
+    import("./components/fantom");
     break;
   case "arbiscan.io":
-    console.log("Llama Power is not available on arbiscan yet");
+    import("./components/arbitrum");
     break;
   case "polygonscan.com":
-    console.log("Llama Power is not available on polygonscan yet");
+    import("./components/polygon");
     break;
   case "optimistic.etherscan.io":
-    console.log("Llama Power is not available on optimistic yet");
+    import("./components/optimism");
     break;
   case "cronoscan.com":
-    console.log("Llama Power is not available on cronoscan yet");
+    import("./components/cronos");
     break;
   case "moonriver.moonscan.io":
-    console.log("Llama Power is not available on moonriver yet");
+    import("./components/moonriver");
     break;
+  case "moonbeam.moonscan.io":
   case "moonscan.io":
-    console.log("Llama Power is not available on moonscan yet");
+    import("./components/moonbeam");
     break;
   case "gnosisscan.io":
-    console.log("Llama Power is not available on gnosisscan yet");
+    import("./components/gnosis");
     break;
   case "bobascan.com":
-    console.log("Llama Power is not available on bobascan yet");
+    import("./components/boba");
     break;
   default:
-    console.log("default");
     break;
 }
 
