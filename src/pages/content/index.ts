@@ -20,14 +20,14 @@ switch (new URL(document.baseURI).hostname) {
   case "optimistic.etherscan.io":
     import("./components/optimism");
     break;
-    case "cronoscan.com":
+  case "cronoscan.com":
     import("./components/cronos");
     break;
   case "moonriver.moonscan.io":
-    console.log("Llama Power is not available on moonriver yet");
+    import("./components/moonriver");
     break;
-  case "moonscan.io":
-    console.log("Llama Power is not available on moonscan yet");
+    case "moonscan.io":
+    import("./components/moonbeam");
     break;
   case "gnosisscan.io":
     console.log("Llama Power is not available on gnosisscan yet");
