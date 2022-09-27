@@ -1,4 +1,4 @@
-import { getTokenPrice, logImage } from "@src/pages/libs/helpers";
+import { formatPrice, getTokenPrice, logImage } from "@src/pages/libs/helpers";
 import { ETHEREUM_SELECTORS } from "@src/pages/libs/selectors";
 import { createRoot } from "react-dom/client";
 
@@ -16,15 +16,23 @@ import gib from "@src/assets/img/memes/gib-128.png";
 logImage(gib, "Llama Power activated on Etherscan");
 
 const urlType = window.location.pathname.split("/")[1];
-const address = window.location.pathname.split("/")[2];
+const account = window.location.pathname.split("/")[2];
 
-if (urlType === "address") {
-  renderPriceOnAddressPage();
+switch (urlType) {
+  case "address":
+    renderPriceOnAddressPage();
+    break;
+  // case "token":
+  //   renderPriceOnTokenPage();
+  //   break;
+  default:
+    break;
 }
 
 async function renderPriceOnAddressPage() {
-  console.log("ethereum:", address);
-  const price = await getTokenPrice("ethereum:" + address);
+  const { price } = (await getTokenPrice("ethereum:" + account)) ?? {};
+  if (!price) return;
+
   try {
     document.querySelector(ETHEREUM_SELECTORS.address.remove).remove();
   } catch (error) {
@@ -34,6 +42,8 @@ async function renderPriceOnAddressPage() {
 
   const priceElement = document.createElement("span");
   priceElement.className = "text-secondary";
-  priceElement.innerText = `$${price}`;
+  priceElement.innerText = `${formatPrice(price)}`;
+  priceElement.style.marginLeft = "8px";
+
   sibling.parentNode.append(priceElement);
 }

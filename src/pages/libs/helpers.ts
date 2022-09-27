@@ -21,7 +21,7 @@ export const getInstantResult = async (query: string): Promise<string> => {
     matches.sort((a, b) => a.name.length - b.name.length);
     const { id: coinId, name } = matches[0];
 
-    const price = getTokenPrice("coingecko:" + coinId);
+    const { price } = await getTokenPrice("coingecko:" + coinId);
     // thankfully the precision returned from API is exactly what we want hehehe
     result = `${name} $${price}`;
   }
@@ -65,17 +65,26 @@ export function getReadableValue(value: number) {
   return (value / Math.pow(1000, e)).toFixed(1) + s[e];
 }
 
+export function formatPrice(price: number) {
+  let _price: string;
+  if (price < 1) {
+    _price = price.toPrecision(3);
+  } else {
+    _price = price.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  }
+  return "$" + _price;
+}
+
 export async function getTokenPrice(tokenWithPrefix: string) {
   const res = (await fetch(PRICES_API + "/" + tokenWithPrefix).then((res) => res.json())) as Prices;
-  const { price } = res.coins[tokenWithPrefix];
-  return price;
+  return res.coins[tokenWithPrefix];
 }
 
 // render an image to console with given url
-export const logImage = (url: string, message = "", styles = "") => {
+export const logImage = (url: string, message = "", size = 20, styles = "") => {
   const _url = chrome.runtime.getURL(url);
   console.log(
     `%c ${message}`,
-    `background: url(${_url}) 0 0 no-repeat; padding-left: 18px; background-size: 18px; font-size: 18px; ${styles}`,
+    `background: url(${_url}) 0 0 no-repeat; padding-left: ${size}px; background-size: ${size}px; font-size: ${size}px; ${styles}`,
   );
 };

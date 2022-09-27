@@ -1,6 +1,5 @@
 switch (new URL(document.baseURI).hostname) {
   case "etherscan.io":
-    console.log("Llama Power is activated on Etherscan, enjoy!");
     import("./components/ethereum");
     break;
   case "bscscan.com":
