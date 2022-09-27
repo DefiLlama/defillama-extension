@@ -1,4 +1,10 @@
-import { formatPrice, getBatchTokenPrices, getTokenPrice, logImage } from "@src/pages/libs/helpers";
+import {
+  createInlineLlamaIcon,
+  formatPrice,
+  getBatchTokenPrices,
+  getTokenPrice,
+  logImage,
+} from "@src/pages/libs/helpers";
 import { ETHEREUM_SELECTORS } from "@src/pages/libs/selectors";
 import { createRoot } from "react-dom/client";
 
@@ -45,7 +51,7 @@ async function renderMissingPricesInDropdownOnAddressPage() {
   }, {} as Record<string, HTMLAnchorElement>);
 
   const prices = await getBatchTokenPrices(Object.keys(listItemsMap));
-  for (const [address, { price }] of Object.entries(prices)) {
+  for (const [address, { price, symbol }] of Object.entries(prices)) {
     const listItem = listItemsMap[address];
     if (listItem) {
       const amountSpan = listItem.querySelector("span.list-amount");
@@ -57,10 +63,14 @@ async function renderMissingPricesInDropdownOnAddressPage() {
       const usdValueSpan = textRightDiv.querySelector("span.list-usd-value");
       if (usdValueSpan.innerHTML === "&nbsp;") {
         usdValueSpan.textContent = formatPrice(amount * price);
-        const priceSpan = document.createElement("span");
-        priceSpan.className = "list-usd-rate link-hover__item";
-        priceSpan.textContent = "@" + formatPrice(price, "");
-        textRightDiv.append(priceSpan);
+        const priceDiv = document.createElement("div");
+        priceDiv.className = "d-flex justify-content-end align-items-center";
+        const priceTextSpan = document.createElement("span");
+        priceTextSpan.textContent = "@" + formatPrice(price, "");
+        priceTextSpan.className = "list-usd-rate link-hover__item";
+        const icon = createInlineLlamaIcon(gib, symbol);
+        priceDiv.append(icon, priceTextSpan);
+        textRightDiv.append(priceDiv);
       }
     }
   }
