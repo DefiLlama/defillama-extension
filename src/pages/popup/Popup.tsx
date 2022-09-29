@@ -8,7 +8,7 @@ const Popup = () => {
   const priceInjector = useSetting("priceInjector");
   const phishingDetector = useSetting("phishingDetector");
   return (
-    <Box w="2xs" py="4" px="4">
+    <Box w="2xs" py="4" px="4" userSelect="none">
       <VStack>
         <Image src={cute} alt="Cute Llama" w="14" />
         <Text fontSize="xl" fontWeight="bold">
