@@ -1,4 +1,4 @@
-import { EtherscanAlikeExplorerConfig, injectPrice } from "../../../libs/etherscanInjector";
+import { EtherscanAlikeExplorerConfig, injectPrice } from "../etherscanInjector";
 
 const config: EtherscanAlikeExplorerConfig = {
   name: "Arbiscan",

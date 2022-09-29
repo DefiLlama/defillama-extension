@@ -1,11 +1,3 @@
-chrome.storage.local.get("priceInjector", (result) => {
-  console.log("priceInjector currently is ", result);
-});
-
-chrome.storage.local.get("phishingDetector", (result) => {
-  console.log("phishingDetector currently is ", result);
-});
-
 switch (new URL(document.baseURI).hostname) {
   case "etherscan.io":
     import("./components/ethereum");
