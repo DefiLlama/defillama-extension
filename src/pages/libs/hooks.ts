@@ -5,11 +5,11 @@ import { Protocol, protocolsDb } from "./db";
 import Browser from "webextension-polyfill";
 
 export const useTopSites = () => {
-  const [topSites, setTopSites] = useState<chrome.topSites.MostVisitedURL[]>([]);
+  const [topSites, setTopSites] = useState<Browser.TopSites.MostVisitedURL[]>([]);
   useEffect(() => {
-    if (chrome?.topSites?.get) {
+    if (Browser?.topSites?.get) {
       // if chrome api is available, aka in browser
-      chrome.topSites.get((sites) => setTopSites(sites));
+      Browser.topSites.get().then((sites) => setTopSites(sites));
     } else {
       console.log("No topSites");
       setTopSites(topSitesMock);
@@ -114,7 +114,7 @@ export const useBrowserStorage = <T>(
           setError(undefined);
         })
         .catch((error) => {
-          // set newValue to local state because chrome.storage.onChanged won't be fired in error case
+          // set newValue to local state because Browser.storage.onChanged won't be fired in error case
           setState(toStore);
           setIsPersistent(false);
           setError(error);
