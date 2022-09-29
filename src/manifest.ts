@@ -7,7 +7,7 @@ const manifest: ManifestType = {
   version: packageJson.version,
   description: packageJson.description,
   options_page: "src/pages/options/index.html",
-  background: { service_worker: "src/pages/background/index.js" },
+  background: { service_worker: "src/pages/background/index.js", type: "module" },
   action: {
     default_title: packageJson.displayName,
     default_popup: "src/pages/popup/index.html",
@@ -23,17 +23,26 @@ const manifest: ManifestType = {
     {
       matches: ["http://*/*", "https://*/*", "<all_urls>"],
       js: ["src/pages/content/index.js"],
-      css: ["assets/css/contentStyle.chunk.css"],
+      // css: ["assets/css/contentStyle.chunk.css"],
     },
   ],
   devtools_page: "src/pages/devtools/index.html",
   web_accessible_resources: [
     {
-      resources: ["assets/js/*.js", "assets/css/*.css", "icon-128.png", "icon-34.png"],
-      matches: ["*://*/*"],
+      resources: [
+        "assets/js/*.js",
+        "assets/css/*.css",
+        "assets/img/memes/*.png",
+        "assets/png/*.png",
+        "assets/png/*.chunk.png",
+        "icon-128.png",
+        "icon-34.png",
+      ],
+      // matches: ["*://*/*"],
+      matches: ["<all_urls>"],
     },
   ],
-  permissions: ["activeTab", "storage", "tabs", "nativeMessaging"],
+  permissions: ["activeTab", "storage", "tabs", "nativeMessaging", "alarms"],
 };
 
 export default manifest;
