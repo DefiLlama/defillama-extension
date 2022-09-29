@@ -3,7 +3,9 @@ console.log("background loaded");
 import checkForPhishing from "eth-phishing-detect";
 import PhishingDetector from "eth-phishing-detect/src/detector";
 import detectorConfig from "eth-phishing-detect/src/config.json";
+import Browser from "webextension-polyfill";
 
+import cute from "@assets/img/memes/cute-128.png";
 import gib from "@assets/img/memes/gib-128.png";
 import maxPain from "@assets/img/memes/max-pain-128.png";
 import que from "@assets/img/memes/que-128.png";
@@ -11,14 +13,21 @@ import upOnly from "@assets/img/memes/up-only-128.png";
 
 import { Coin, Protocol, coinsDb, protocolsDb } from "../libs/db";
 import { COINGECKO_COINS_LIST_API, PROTOCOLS_API } from "../libs/constants";
+import { getStorage } from "../libs/helpers";
 
 async function getCurrentTab() {
   const queryOptions = { active: true, currentWindow: true };
-  const [tab] = await chrome.tabs.query(queryOptions);
+  const [tab] = await Browser.tabs.query(queryOptions);
   return tab;
 }
 
 async function handlePhishingCheck() {
+  const phishingDetector = await getStorage("local", "settings:phishingDetector", true);
+  if (!phishingDetector) {
+    Browser.action.setIcon({ path: cute });
+    return;
+  }
+
   const detector = new PhishingDetector(detectorConfig);
 
   let isPhishing = false;
@@ -39,9 +48,9 @@ async function handlePhishingCheck() {
   }
 
   if (isPhishing) {
-    chrome.action.setIcon({ path: maxPain });
+    Browser.action.setIcon({ path: maxPain });
   } else {
-    chrome.action.setIcon({ path: que });
+    Browser.action.setIcon({ path: que });
   }
 
   return isPhishing;
@@ -83,31 +92,31 @@ export async function updateProtocolsDb() {
   console.log("updateProtocolsDb", result);
 }
 
-chrome.tabs.onUpdated.addListener(async () => {
+Browser.tabs.onUpdated.addListener(async () => {
   console.log("onUpdated");
   await handlePhishingCheck();
 });
-chrome.tabs.onActivated.addListener(async () => {
+Browser.tabs.onActivated.addListener(async () => {
   console.log("onActivated");
   await handlePhishingCheck();
 });
 
 function setupUpdateCoinsDb() {
   console.log("setupUpdateCoinsDb");
-  chrome.alarms.get("updateCoinsDb", async (a) => {
+  Browser.alarms.get("updateCoinsDb").then((a) => {
     if (!a) {
-      await updateCoinsDb();
-      chrome.alarms.create("updateCoinsDb", { periodInMinutes: 240 }); // update once every 4 hours
+      updateCoinsDb();
+      Browser.alarms.create("updateCoinsDb", { periodInMinutes: 240 }); // update once every 4 hours
     }
   });
 }
 
 function setupUpdateProtocolsDb() {
   console.log("setupUpdateProtocolsDb");
-  chrome.alarms.get("updateProtocolsDb", async (a) => {
+  Browser.alarms.get("updateProtocolsDb").then((a) => {
     if (!a) {
-      await updateProtocolsDb();
-      chrome.alarms.create("updateProtocolsDb", { periodInMinutes: 240 }); // update once every 4 hours
+      updateProtocolsDb();
+      Browser.alarms.create("updateProtocolsDb", { periodInMinutes: 240 }); // update once every 4 hours
     }
   });
 }
@@ -115,17 +124,17 @@ function setupUpdateProtocolsDb() {
 setupUpdateCoinsDb();
 setupUpdateProtocolsDb();
 
-chrome.runtime.onInstalled.addListener(() => {
+Browser.runtime.onInstalled.addListener(() => {
   setupUpdateCoinsDb();
   setupUpdateProtocolsDb();
 });
 
-chrome.runtime.onStartup.addListener(() => {
+Browser.runtime.onStartup.addListener(() => {
   setupUpdateCoinsDb();
   setupUpdateProtocolsDb();
 });
 
-chrome.alarms.onAlarm.addListener(async (a) => {
+Browser.alarms.onAlarm.addListener(async (a) => {
   switch (a.name) {
     case "updateCoinsDb":
       await updateCoinsDb();
