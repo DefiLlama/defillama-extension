@@ -1,3 +1,5 @@
+import Browser from "webextension-polyfill";
+
 import { Prices, PRICES_API } from "./constants";
 import { coinsDb } from "./db";
 
@@ -102,3 +104,12 @@ export function createInlineLlamaIcon(src: string, alt: string, size = 12, class
   icon.className = className;
   return icon;
 }
+
+export const getStorage = async <T>(area: "local" | "sync", key: string, defaultValue?: T): Promise<T | undefined> => {
+  const res = await Browser.storage[area].get(key);
+  return res[key] ?? defaultValue;
+};
+
+export const setStorage = async <T>(area: "local" | "sync", key: string, value: T): Promise<void> => {
+  await Browser.storage[area].set({ [key]: value });
+};
