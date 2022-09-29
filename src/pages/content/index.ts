@@ -36,6 +36,9 @@ switch (new URL(document.baseURI).hostname) {
   case "bobascan.com":
     import("./components/boba");
     break;
+  case "aurorascan.dev":
+    import("./components/aurora");
+    break;
   default:
     break;
 }
