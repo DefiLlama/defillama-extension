@@ -1,3 +1,11 @@
+chrome.storage.sync.get(["priceInjector"], (result) => {
+  console.log("priceInjector currently is " + result?.key);
+});
+
+chrome.storage.sync.get(["phishingDetector"], (result) => {
+  console.log("phishingDetector currently is " + result?.key);
+});
+
 switch (new URL(document.baseURI).hostname) {
   case "etherscan.io":
     import("./components/ethereum");
@@ -42,9 +50,3 @@ switch (new URL(document.baseURI).hostname) {
   default:
     break;
 }
-
-// /**
-//  * @description
-//  * Chrome extensions don't support modules in content scripts.
-//  */
-// import("./components/Demo");

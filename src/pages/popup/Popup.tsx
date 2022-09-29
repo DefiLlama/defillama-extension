@@ -24,6 +24,10 @@ const Popup = () => {
             size="sm"
             isChecked={priceInjector}
             onChange={(e) => {
+              chrome.storage.sync.set({ priceInjector: e.target.checked }, () => {
+                console.log("priceInjector currently is " + e.target.checked);
+              });
+
               if (priceInjector === undefined) {
                 settingsDb.settings.put({ name: "priceInjector", value: e.target.checked });
               } else {
@@ -38,6 +42,10 @@ const Popup = () => {
             size="sm"
             isChecked={phishingDetector}
             onChange={(e) => {
+              chrome.storage.sync.set({ phishingDetector: e.target.checked }, () => {
+                console.log("phishingDetector currently is " + e.target.checked);
+              });
+
               if (phishingDetector === undefined) {
                 settingsDb.settings.put({ name: "phishingDetector", value: e.target.checked });
               } else {
