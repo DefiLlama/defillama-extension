@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { topSitesMock } from "./mock-data";
-import { Protocol, protocolsDb, Setting, settingsDb } from "./db";
+import { Protocol, protocolsDb } from "./db";
 import Browser from "webextension-polyfill";
 
 export const useTopSites = () => {
@@ -26,25 +26,6 @@ export const useTopSites = () => {
 export const useProtocols = (): Protocol[] =>
   useLiveQuery(async () => {
     return await protocolsDb.protocols.toArray();
-  });
-
-/**
- * Settings data synced with IndexedDB using Dexie.
- *
- * @returns {Setting[]} settings
- */
-export const useSettings = (): Setting[] =>
-  useLiveQuery(async () => {
-    return await settingsDb.settings.toArray();
-  });
-
-/**
- * Single setting entry synced with IndexedDB using Dexie.
- *
- */
-export const useSetting = (name: "priceInjector" | "phishingDetector") =>
-  useLiveQuery(async () => {
-    return (await settingsDb.settings.toArray()).find((setting) => setting.name === name)?.value;
   });
 
 /**
