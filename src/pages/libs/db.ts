@@ -67,4 +67,17 @@ export class SettingsDb extends Dexie {
   }
 }
 
+export const getSetting = async (name: "priceInjector" | "phishingDetector") => {
+  return (await settingsDb.settings.toArray()).find((setting) => setting.name === name)?.value;
+};
+
+export const updateSetting = async ({ name, value }: Setting) => {
+  const _value = await getSetting(name);
+  if (_value === undefined) {
+    settingsDb.settings.put({ name: "priceInjector", value });
+  } else {
+    settingsDb.settings.update("priceInjector", { value });
+  }
+};
+
 export const settingsDb = new SettingsDb();
