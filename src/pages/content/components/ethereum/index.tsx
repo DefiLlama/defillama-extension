@@ -6,18 +6,8 @@ import {
   logImage,
 } from "@src/pages/libs/helpers";
 import { ETHEREUM_SELECTORS } from "@src/pages/libs/selectors";
-import { createRoot } from "react-dom/client";
 
 import gib from "@src/assets/img/memes/gib-128.png";
-
-// const root = document.createElement("span");
-// root.id = "defillama-extension-content-view-root";
-// document.body.append(root);
-
-// createRoot(root).render(<App />);
-
-// if URL has /address/, get the 0x address as string, then call the price API, then render the price
-// to render the price, first remove the existing price, then create a new span, append to correct element
 
 logImage(gib, "Llama Power activated on Etherscan");
 
@@ -63,6 +53,10 @@ async function renderMissingPricesInDropdownOnAddressPage() {
       const textRightDiv = listItem.querySelector("div.text-right");
       const usdValueSpan = textRightDiv.querySelector("span.list-usd-value");
       if (usdValueSpan.innerHTML === "&nbsp;") {
+        textRightDiv.setAttribute("data-original-title", "Price from DeFiLlama API");
+        textRightDiv.setAttribute("data-toggle", "tooltip");
+        textRightDiv.setAttribute("title", "");
+
         const usdAmount = amount * price;
         totalAmount += usdAmount;
 
@@ -75,21 +69,26 @@ async function renderMissingPricesInDropdownOnAddressPage() {
         const icon = createInlineLlamaIcon(gib, symbol);
         priceDiv.append(icon, priceTextSpan);
         textRightDiv.append(priceDiv);
-
-        // // somehow the tooltip doesn't work
-        // textRightDiv.setAttribute("data-original-title", "Price from DeFiLlama API");
-        // textRightDiv.setAttribute("data-toggle", "tooltip");
-        textRightDiv.setAttribute("title", "Price from DeFiLlama API");
       }
     }
   }
 
   totalAmountTextNode.textContent = "\n" + (hasMoreTokens ? ">" : "") + formatPrice(totalAmount) + "\n";
 
+  // ===============================
+  // hacks to hook up interactivity
+  // ===============================
+
+  // double click to re-sort the list
   const sortButton = document.querySelector<HTMLButtonElement>("button#btn_ERC20_sort");
-  // double click - a hack to re-sort the list
   sortButton.click();
   sortButton.click();
+  // fix injected tooltips
+  const tooltipsActivationScript = `$('[data-toggle="tooltip"]').tooltip()`;
+  document.documentElement.setAttribute("onreset", tooltipsActivationScript);
+  document.documentElement.dispatchEvent(new CustomEvent("reset"));
+  document.documentElement.removeAttribute("onreset");
+  // known bug: the llama tooltips won't render in list
 }
 
 async function renderErc20PriceOnAddressPage() {
@@ -108,13 +107,14 @@ async function renderErc20PriceOnAddressPage() {
   }
 
   const sibling = document.querySelector(ETHEREUM_SELECTORS.address.erc20.appendTo);
-  const icon = createInlineLlamaIcon(gib, symbol, 16, "ml-2");
-  // // somehow the tooltip doesn't work
-  // icon.setAttribute("data-original-title", "Price from DeFiLlama API");
-  // icon.setAttribute("data-toggle", "tooltip");
-  icon.setAttribute("title", "Price from DeFiLlama API");
   const priceSpan = document.createElement("span");
-  priceSpan.className = "text-secondary ml-1";
-  priceSpan.innerText = `${formatPrice(price)}`;
-  sibling.parentNode.append(icon, priceSpan);
+  priceSpan.setAttribute("data-original-title", "Price from DeFiLlama API");
+  priceSpan.setAttribute("data-toggle", "tooltip");
+  priceSpan.setAttribute("title", "");
+  const icon = createInlineLlamaIcon(gib, symbol, 16, "ml-2");
+  const priceTextSpan = document.createElement("span");
+  priceTextSpan.className = "text-secondary ml-1";
+  priceTextSpan.innerText = `${formatPrice(price)}`;
+  priceSpan.append(icon, priceTextSpan);
+  sibling.parentNode.append(priceSpan);
 }

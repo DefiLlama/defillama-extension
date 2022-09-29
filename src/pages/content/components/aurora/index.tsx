@@ -5,11 +5,11 @@ import {
   getTokenPrice,
   logImage,
 } from "@src/pages/libs/helpers";
-import { ETHEREUM_SELECTORS } from "@src/pages/libs/selectors";
+import { AURORA_SELECTORS } from "@src/pages/libs/selectors";
 
 import gib from "@src/assets/img/memes/gib-128.png";
 
-logImage(gib, "Llama Power activated on FtmScan");
+logImage(gib, "Llama Power activated on AuroraScan");
 
 const urlType = window.location.pathname.split("/")[1];
 const account = window.location.pathname.split("/")[2];
@@ -28,18 +28,18 @@ async function renderPriceOnAddressPage() {
 }
 
 async function renderMissingPricesInDropdownOnAddressPage() {
-  const listItems = document.querySelectorAll<HTMLAnchorElement>(ETHEREUM_SELECTORS.address.tokenList.select);
+  const listItems = document.querySelectorAll<HTMLAnchorElement>(AURORA_SELECTORS.address.tokenList.select);
   const listItemsMap = Array.from(listItems).reduce((acc, item) => {
     const url = new URL(item.href);
     const address = url.pathname.split("/")[2];
-    const prefixedAddress = "fantom:" + address;
+    const prefixedAddress = "aurora:" + address;
     acc[prefixedAddress] = item;
     return acc;
   }, {} as Record<string, HTMLAnchorElement>);
 
   const totalAmountTextNode = document.querySelector("a#availableBalanceDropdown").childNodes[0];
   const hasMoreTokens = totalAmountTextNode.textContent.includes(">");
-  let totalAmount = parseFloat(totalAmountTextNode.textContent.split("\n")[1].replace(/,/g, "").replace(/.*\$/g, ""));
+  let totalAmount = parseFloat(totalAmountTextNode.textContent.split("\n")[2].replace(/,/g, "").replace(/.*\$/g, ""));
 
   const prices = await getBatchTokenPrices(Object.keys(listItemsMap));
   for (const [address, { price, symbol }] of Object.entries(prices)) {
@@ -92,21 +92,21 @@ async function renderMissingPricesInDropdownOnAddressPage() {
 }
 
 async function renderErc20PriceOnAddressPage() {
-  const { price, symbol } = (await getTokenPrice("fantom:" + account)) ?? {};
+  const { price, symbol } = (await getTokenPrice("aurora:" + account)) ?? {};
   if (!price) {
     console.log("Llama doesn't know the price of this token");
     return;
   }
-  if (!document.querySelector(ETHEREUM_SELECTORS.address.erc20.test)) {
+  if (!document.querySelector(AURORA_SELECTORS.address.erc20.test)) {
     console.log("Llama thinks this is not an ERC20 token");
     return;
   }
-  if (document.querySelector(ETHEREUM_SELECTORS.address.erc20.select)) {
+  if (document.querySelector(AURORA_SELECTORS.address.erc20.select)) {
     console.log("Llama thinks Etherscan already has the price");
     return;
   }
 
-  const sibling = document.querySelector(ETHEREUM_SELECTORS.address.erc20.appendTo);
+  const sibling = document.querySelector(AURORA_SELECTORS.address.erc20.appendTo);
   const priceSpan = document.createElement("span");
   priceSpan.setAttribute("data-original-title", "Price from DeFiLlama API");
   priceSpan.setAttribute("data-toggle", "tooltip");
