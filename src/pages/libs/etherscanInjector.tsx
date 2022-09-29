@@ -14,7 +14,7 @@ export type EtherscanAlikeExplorerConfig = {
   chainPrefix: string;
 };
 
-const SELECTOR_ERC20_TOKEN_INFO_CARD = "#ContentPlaceHolder1_tr_tokeninfo";
+const SELECTOR_ERC20_TOKEN_INFO_ROW = "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-4.mb-1.mb-md-0 > span";
 const SELECTOR_ERC20_TOKEN_INFO_PRICE = "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > span";
 const SELECTOR_ERC20_TOKEN_INFO_LINK = "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > a";
 
@@ -47,6 +47,10 @@ export function injectPrice(config: EtherscanAlikeExplorerConfig) {
       return acc;
     }, {} as Record<string, HTMLAnchorElement>);
 
+    if (listItems.length === 0) {
+      return;
+    }
+
     const totalAmountTextNode = document.querySelector("a#availableBalanceDropdown").childNodes[0];
     const hasMoreTokens = totalAmountTextNode.textContent.includes(">");
     let totalAmount = parseFloat(
@@ -68,10 +72,6 @@ export function injectPrice(config: EtherscanAlikeExplorerConfig) {
         const textRightDiv = listItem.querySelector("div.text-right");
         const usdValueSpan = textRightDiv.querySelector("span.list-usd-value");
         if (usdValueSpan.innerHTML === "&nbsp;") {
-          textRightDiv.setAttribute("data-original-title", "Price from DeFiLlama API");
-          textRightDiv.setAttribute("data-toggle", "tooltip");
-          textRightDiv.setAttribute("title", "");
-
           const usdAmount = amount * price;
           totalAmount += usdAmount;
 
@@ -84,6 +84,7 @@ export function injectPrice(config: EtherscanAlikeExplorerConfig) {
           const icon = createInlineLlamaIcon(gib, symbol);
           priceDiv.append(icon, priceTextSpan);
           textRightDiv.append(priceDiv);
+          textRightDiv.setAttribute("title", "Price from DeFiLlama API");
         }
       }
     }
@@ -93,6 +94,7 @@ export function injectPrice(config: EtherscanAlikeExplorerConfig) {
     // ===============================
     // hacks to hook up interactivity
     // ===============================
+
     // double click to re-sort the list
     const sortButton = document.querySelector<HTMLButtonElement>("button#btn_ERC20_sort");
     sortButton.click();
@@ -106,17 +108,17 @@ export function injectPrice(config: EtherscanAlikeExplorerConfig) {
   }
 
   async function renderErc20PriceOnAddressPage() {
-    const { price, symbol } = (await getTokenPrice(config.chainPrefix + account)) ?? {};
-    if (!price) {
-      console.log("Llama doesn't know the price of this token");
-      return;
-    }
-    if (!document.querySelector(SELECTOR_ERC20_TOKEN_INFO_CARD)) {
+    if (!document.querySelector(SELECTOR_ERC20_TOKEN_INFO_ROW)) {
       console.log("Llama thinks this is not an ERC20 token");
       return;
     }
     if (document.querySelector(SELECTOR_ERC20_TOKEN_INFO_PRICE)) {
       console.log("Llama thinks Etherscan already has the price");
+      return;
+    }
+    const { price, symbol } = (await getTokenPrice(config.chainPrefix + account)) ?? {};
+    if (!price) {
+      console.log("Llama doesn't know the price of this token");
       return;
     }
 
