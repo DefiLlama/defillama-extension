@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLiveQuery } from "dexie-react-hooks";
 import { topSitesMock } from "./mock-data";
-import { Protocol, protocolsDb } from "./db";
+import { Protocol, protocolsDb, Setting, SettingsDb, settingsDb } from "./db";
 
 export const useTopSites = () => {
   const [topSites, setTopSites] = useState<chrome.topSites.MostVisitedURL[]>([]);
@@ -26,6 +26,25 @@ export const useTopSites = () => {
 export const useProtocols = (): Protocol[] =>
   useLiveQuery(async () => {
     return await protocolsDb.protocols.toArray();
+  });
+
+/**
+ * Settings data synced with IndexedDB using Dexie.
+ *
+ * @returns {Setting[]} settings
+ */
+export const useSettings = (): Setting[] =>
+  useLiveQuery(async () => {
+    return await settingsDb.settings.toArray();
+  });
+
+/**
+ * Single setting entry synced with IndexedDB using Dexie.
+ *
+ */
+export const useSetting = (name: "priceInjector" | "phishingDetector") =>
+  useLiveQuery(async () => {
+    return (await settingsDb.settings.toArray()).find((setting) => setting.name === name)?.value;
   });
 
 /**

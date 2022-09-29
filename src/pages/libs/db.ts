@@ -10,14 +10,6 @@ export interface Coin {
   last_updated: string;
 }
 
-export interface Protocol {
-  name: string;
-  url: string;
-  logo: string;
-  category: string;
-  tvl?: number;
-}
-
 export class CoinsDb extends Dexie {
   // 'coins' is added by dexie when declaring the stores()
   // We just tell the typing system this is the case
@@ -33,6 +25,14 @@ export class CoinsDb extends Dexie {
 
 export const coinsDb = new CoinsDb();
 
+export interface Protocol {
+  name: string;
+  url: string;
+  logo: string;
+  category: string;
+  tvl?: number;
+}
+
 export class ProtocolsDb extends Dexie {
   // 'protocols' is added by dexie when declaring the stores()
   // We just tell the typing system this is the case
@@ -47,3 +47,33 @@ export class ProtocolsDb extends Dexie {
 }
 
 export const protocolsDb = new ProtocolsDb();
+
+// export type Setting = {
+//   name: string;
+//   value: string | number | boolean;
+// };
+
+export type Setting =
+  | {
+      name: "priceInjector";
+      value: boolean;
+    }
+  | {
+      name: "phishingDetector";
+      value: boolean;
+    };
+
+export class SettingsDb extends Dexie {
+  // 'protocols' is added by dexie when declaring the stores()
+  // We just tell the typing system this is the case
+  settings!: Table<Setting>;
+
+  constructor() {
+    super("SettingsDb");
+    this.version(1).stores({
+      settings: "name", // Primary key and indexed props
+    });
+  }
+}
+
+export const settingsDb = new SettingsDb();
