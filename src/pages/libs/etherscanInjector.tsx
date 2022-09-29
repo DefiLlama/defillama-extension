@@ -3,20 +3,21 @@ import {
   formatPrice,
   getBatchTokenPrices,
   getTokenPrice,
-  logImage
+  logImage,
 } from "@src/pages/libs/helpers";
 import gib from "@src/assets/img/memes/gib-128.png";
-
 
 export type EtherscanAlikeExplorerConfig = {
   name: string;
   indexTotalAmountTextSplit: number;
   selectorTokenList: string;
-  selectorErc20TokenInfoCard: string;
-  selectorErc20TokenInfoPrice: string;
-  selectorErc20TokenInfoLink: string;
   chainPrefix: string;
 };
+
+const SELECTOR_ERC20_TOKEN_INFO_CARD = "#ContentPlaceHolder1_tr_tokeninfo";
+const SELECTOR_ERC20_TOKEN_INFO_PRICE = "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > span";
+const SELECTOR_ERC20_TOKEN_INFO_LINK = "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > a";
+
 export function injectPrice(config: EtherscanAlikeExplorerConfig) {
   logImage(gib, `Llama Power activated on ${config.name}`);
 
@@ -50,8 +51,9 @@ export function injectPrice(config: EtherscanAlikeExplorerConfig) {
     const hasMoreTokens = totalAmountTextNode.textContent.includes(">");
     let totalAmount = parseFloat(
       totalAmountTextNode.textContent
-        .split("\n")[config.indexTotalAmountTextSplit].replace(/,/g, "")
-        .replace(/.*\$/g, "")
+        .split("\n")
+        [config.indexTotalAmountTextSplit].replace(/,/g, "")
+        .replace(/.*\$/g, ""),
     );
 
     const prices = await getBatchTokenPrices(Object.keys(listItemsMap));
@@ -109,16 +111,16 @@ export function injectPrice(config: EtherscanAlikeExplorerConfig) {
       console.log("Llama doesn't know the price of this token");
       return;
     }
-    if (!document.querySelector(config.selectorErc20TokenInfoCard)) {
+    if (!document.querySelector(SELECTOR_ERC20_TOKEN_INFO_CARD)) {
       console.log("Llama thinks this is not an ERC20 token");
       return;
     }
-    if (document.querySelector(config.selectorErc20TokenInfoPrice)) {
+    if (document.querySelector(SELECTOR_ERC20_TOKEN_INFO_PRICE)) {
       console.log("Llama thinks Etherscan already has the price");
       return;
     }
 
-    const sibling = document.querySelector(config.selectorErc20TokenInfoLink);
+    const sibling = document.querySelector(SELECTOR_ERC20_TOKEN_INFO_LINK);
     const priceSpan = document.createElement("span");
     priceSpan.setAttribute("data-original-title", "Price from DeFiLlama API");
     priceSpan.setAttribute("data-toggle", "tooltip");
