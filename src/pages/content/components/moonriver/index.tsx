@@ -6,18 +6,8 @@ import {
   logImage,
 } from "@src/pages/libs/helpers";
 import { MOONRIVER_SELECTORS } from "@src/pages/libs/selectors";
-import { createRoot } from "react-dom/client";
 
 import gib from "@src/assets/img/memes/gib-128.png";
-
-// const root = document.createElement("span");
-// root.id = "defillama-extension-content-view-root";
-// document.body.append(root);
-
-// createRoot(root).render(<App />);
-
-// if URL has /address/, get the 0x address as string, then call the price API, then render the price
-// to render the price, first remove the existing price, then create a new span, append to correct element
 
 logImage(gib, "Llama Power activated on Moonriver MoonScan");
 
