@@ -1,6 +1,6 @@
 import cute from "@assets/img/memes/cute.gif";
 import { Box, HStack, Icon, Image, Switch, Text, useColorModeValue, VStack, Link } from "@chakra-ui/react";
-import { settingsDb } from "../libs/db";
+import { settingsDb, updateSetting } from "../libs/db";
 import { useSetting } from "../libs/hooks";
 import { FaDiscord, FaGithub, FaTwitter } from "react-icons/fa";
 
@@ -24,15 +24,7 @@ const Popup = () => {
             size="sm"
             isChecked={priceInjector}
             onChange={(e) => {
-              chrome.storage.sync.set({ priceInjector: e.target.checked }, () => {
-                console.log("priceInjector currently is " + e.target.checked);
-              });
-
-              if (priceInjector === undefined) {
-                settingsDb.settings.put({ name: "priceInjector", value: e.target.checked });
-              } else {
-                settingsDb.settings.update("priceInjector", { value: e.target.checked });
-              }
+              updateSetting({ name: "priceInjector", value: e.target.checked });
             }}
           />
         </HStack>
@@ -42,15 +34,7 @@ const Popup = () => {
             size="sm"
             isChecked={phishingDetector}
             onChange={(e) => {
-              chrome.storage.sync.set({ phishingDetector: e.target.checked }, () => {
-                console.log("phishingDetector currently is " + e.target.checked);
-              });
-
-              if (phishingDetector === undefined) {
-                settingsDb.settings.put({ name: "phishingDetector", value: e.target.checked });
-              } else {
-                settingsDb.settings.update("phishingDetector", { value: e.target.checked });
-              }
+              updateSetting({ name: "phishingDetector", value: e.target.checked });
             }}
           />
         </HStack>

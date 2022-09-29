@@ -72,7 +72,10 @@ export const getSetting = async (name: "priceInjector" | "phishingDetector") => 
 };
 
 export const updateSetting = async ({ name, value }: Setting) => {
-  chrome.storage.sync.set({ name: value });
+  console.log("updateSetting received", { name, value });
+  chrome.storage.local.set({ name: value }, () => {
+    console.log("updateSetting saved", { name, value });
+  });
 
   const _value = await getSetting(name);
   if (_value === undefined) {

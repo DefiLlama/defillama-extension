@@ -1,9 +1,9 @@
-chrome.storage.sync.get(["priceInjector"], (result) => {
-  console.log("priceInjector currently is " + result?.key);
+chrome.storage.local.get("priceInjector", (result) => {
+  console.log("priceInjector currently is ", result);
 });
 
-chrome.storage.sync.get(["phishingDetector"], (result) => {
-  console.log("phishingDetector currently is " + result?.key);
+chrome.storage.local.get("phishingDetector", (result) => {
+  console.log("phishingDetector currently is ", result);
 });
 
 switch (new URL(document.baseURI).hostname) {
