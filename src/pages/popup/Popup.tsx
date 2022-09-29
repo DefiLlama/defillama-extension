@@ -10,7 +10,9 @@ const Popup = () => {
   return (
     <Box w="2xs" py="4" px="4" userSelect="none">
       <VStack>
-        <Image src={cute} alt="Cute Llama" w="14" />
+        <Link href="https://defillama.com/" isExternal>
+          <Image src={cute} alt="Cute Llama" w="14" />
+        </Link>
         <Text fontSize="xl" fontWeight="bold">
           DefiLlama
         </Text>
