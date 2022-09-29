@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { topSitesMock } from "./mock-data";
-import { Protocol, protocolsDb, Setting, settingsDb } from "./db";
+import { Protocol, protocolsDb } from "./db";
+import Browser from "webextension-polyfill";
 
 export const useTopSites = () => {
   const [topSites, setTopSites] = useState<chrome.topSites.MostVisitedURL[]>([]);
@@ -25,25 +26,6 @@ export const useTopSites = () => {
 export const useProtocols = (): Protocol[] =>
   useLiveQuery(async () => {
     return await protocolsDb.protocols.toArray();
-  });
-
-/**
- * Settings data synced with IndexedDB using Dexie.
- *
- * @returns {Setting[]} settings
- */
-export const useSettings = (): Setting[] =>
-  useLiveQuery(async () => {
-    return await settingsDb.settings.toArray();
-  });
-
-/**
- * Single setting entry synced with IndexedDB using Dexie.
- *
- */
-export const useSetting = (name: "priceInjector" | "phishingDetector") =>
-  useLiveQuery(async () => {
-    return (await settingsDb.settings.toArray()).find((setting) => setting.name === name)?.value;
   });
 
 /**
@@ -92,4 +74,70 @@ export const usePersistentState = <T>(key: string, defaultValue: T): [T, (value:
   };
 
   return [state, setPersistentState];
+};
+
+// Updated from:
+// https://github.com/onikienko/use-chrome-storage/blob/master/src/useChromeStorage.js
+
+export const useBrowserStorage = <T>(
+  area: "local" | "sync",
+  key: string,
+  initialValue?: T,
+): [T | undefined, (value: T) => void, boolean, string | undefined] => {
+  const [state, setState] = useState();
+  const [isPersistent, setIsPersistent] = useState(true);
+  const [error, setError] = useState<string>();
+
+  useEffect(() => {
+    const keyObj = initialValue === undefined ? key : { [key]: initialValue };
+    Browser.storage[area]
+      .get(keyObj)
+      .then((res) => {
+        setState(res[key]);
+        setIsPersistent(true);
+        setError(undefined);
+      })
+      .catch((error) => {
+        setIsPersistent(false);
+        setError(error);
+      });
+  }, [key, initialValue]);
+
+  const updateValue = useCallback(
+    (newValue: any) => {
+      const toStore = typeof newValue === "function" ? newValue(state) : newValue;
+
+      Browser.storage[area]
+        .set({ [key]: toStore })
+        .then(() => {
+          setIsPersistent(true);
+          setError(undefined);
+        })
+        .catch((error) => {
+          // set newValue to local state because chrome.storage.onChanged won't be fired in error case
+          setState(toStore);
+          setIsPersistent(false);
+          setError(error);
+        });
+    },
+    [key, state],
+  );
+
+  useEffect(() => {
+    const onChange = (changes: any, areaName: string) => {
+      if (areaName === area && key in changes) {
+        setState(changes[key].newValue);
+        setIsPersistent(true);
+        setError(undefined);
+      }
+    };
+
+    Browser.storage.onChanged.addListener(onChange);
+
+    return () => {
+      Browser.storage.onChanged.removeListener(onChange);
+    };
+  }, [key]);
+
+  return [state, updateValue, isPersistent, error];
 };

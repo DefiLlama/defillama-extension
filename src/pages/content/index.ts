@@ -42,9 +42,3 @@ switch (new URL(document.baseURI).hostname) {
   default:
     break;
 }
-
-// /**
-//  * @description
-//  * Chrome extensions don't support modules in content scripts.
-//  */
-// import("./components/Demo");

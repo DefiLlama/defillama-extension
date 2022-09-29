@@ -45,26 +45,3 @@ export class ProtocolsDb extends Dexie {
 }
 
 export const protocolsDb = new ProtocolsDb();
-
-export type Setting =
-  | {
-      name: "priceInjector";
-      value: boolean;
-    }
-  | {
-      name: "phishingDetector";
-      value: boolean;
-    };
-
-export class SettingsDb extends Dexie {
-  settings!: Table<Setting>;
-
-  constructor() {
-    super("SettingsDb");
-    this.version(1).stores({
-      settings: "name",
-    });
-  }
-}
-
-export const settingsDb = new SettingsDb();

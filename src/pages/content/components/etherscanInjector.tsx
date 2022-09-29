@@ -2,6 +2,7 @@ import {
   createInlineLlamaIcon,
   formatPrice,
   getBatchTokenPrices,
+  getStorage,
   getTokenPrice,
   logImage,
 } from "@src/pages/libs/helpers";
@@ -18,7 +19,12 @@ const SELECTOR_ERC20_TOKEN_INFO_ROW = "#ContentPlaceHolder1_tr_tokeninfo > div >
 const SELECTOR_ERC20_TOKEN_INFO_PRICE = "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > span";
 const SELECTOR_ERC20_TOKEN_INFO_LINK = "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > a";
 
-export function injectPrice(config: EtherscanAlikeExplorerConfig) {
+export async function injectPrice(config: EtherscanAlikeExplorerConfig) {
+  const priceInjector = await getStorage("local", "settings:priceInjector", true);
+  if (!priceInjector) {
+    return;
+  }
+
   logImage(gib, `Llama Power activated on ${config.name}`);
 
   const urlType = window.location.pathname.split("/")[1];
