@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useLiveQuery } from "dexie-react-hooks";
 import { topSitesMock } from "./mock-data";
-import { Protocol, protocolsDb, Setting, SettingsDb, settingsDb } from "./db";
+import { Protocol, protocolsDb, Setting, settingsDb } from "./db";
 
 export const useTopSites = () => {
   const [topSites, setTopSites] = useState<chrome.topSites.MostVisitedURL[]>([]);

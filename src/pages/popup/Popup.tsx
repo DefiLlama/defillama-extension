@@ -1,6 +1,6 @@
 import cute from "@assets/img/memes/cute.gif";
 import { Box, HStack, Icon, Image, Switch, Text, useColorModeValue, VStack, Link } from "@chakra-ui/react";
-import { coinsDb, protocolsDb, settingsDb } from "../libs/db";
+import { settingsDb } from "../libs/db";
 import { useSetting } from "../libs/hooks";
 import { FaDiscord, FaGithub, FaTwitter } from "react-icons/fa";
 
