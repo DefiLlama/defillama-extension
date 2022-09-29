@@ -1276,7 +1276,7 @@
     hey-listen "^1.0.8"
     tslib "^2.3.1"
 
-"@popperjs/core@^2.9.3":
+"@popperjs/core@^2.9.2", "@popperjs/core@^2.9.3":
   version "2.11.6"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.6.tgz#cee20bd55e68a1720bdab363ecf0c821ded4cd45"
   integrity sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==
@@ -1326,6 +1326,13 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.3.tgz#472eaab5f15c1ffdd7f8628bd4c4f753995ec79e"
   integrity sha512-yOlFc+7UtL/89t2ZhjPvvB/DeAr3r+Dq58IgzsFkOAvVC6NMJXmCGjbptdXdR9qsX7pKcTL+s87FtYREi2dEEQ==
 
+"@types/bootstrap@^5.2.4":
+  version "5.2.4"
+  resolved "https://registry.yarnpkg.com/@types/bootstrap/-/bootstrap-5.2.4.tgz#7f4f4af8e22af8247385549bd2f687088d00d2d3"
+  integrity sha512-jGNB81zuDHu1DPvBV7Ox3Z3eyzdWPNguYwrt0j7X90VExA8H7c6qxJh0cz5j3xp0XvSy1TYaP2pkyXCHeo8CaA==
+  dependencies:
+    "@popperjs/core" "^2.9.2"
+
 "@types/chrome@^0.0.196":
   version "0.0.196"
   resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.196.tgz#9e0196a6fcdf3c0e12cfbcd086cd28feb5206990"
@@ -1350,6 +1357,13 @@
   version "1.2.8"
   resolved "https://registry.yarnpkg.com/@types/har-format/-/har-format-1.2.8.tgz#e6908b76d4c88be3db642846bb8b455f0bfb1c4e"
   integrity sha512-OP6L9VuZNdskgNN3zFQQ54ceYD8OLq5IbqO4VK91ORLfOm7WdT/CiT/pHEBSQEqCInJ2y3O6iCm/zGtPElpgJQ==
+
+"@types/jquery@^3.5.14":
+  version "3.5.14"
+  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.5.14.tgz#ac8e11ee591e94d4d58da602cb3a5a8320dee577"
+  integrity sha512-X1gtMRMbziVQkErhTQmSe2jFwwENA/Zr+PprCkF63vFq+Yt5PZ4AlKqgmeNlwgn7dhsXEK888eIW2520EpC+xg==
+  dependencies:
+    "@types/sizzle" "*"
 
 "@types/lodash.mergewith@4.6.6":
   version "4.6.6"
@@ -1403,6 +1417,11 @@
   version "0.16.2"
   resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.2.tgz#1a62f89525723dde24ba1b01b092bf5df8ad4d39"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
+
+"@types/sizzle@*":
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.3.tgz#ff5e2f1902969d305225a047c8a0fd5c915cebef"
+  integrity sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==
 
 "@types/yauzl@2.9.2":
   version "2.9.2"
@@ -1694,6 +1713,11 @@ boolbase@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==
+
+bootstrap@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-5.2.1.tgz#45f97ff05cbe828bad807b014d8425f3aeb8ec3a"
+  integrity sha512-UQi3v2NpVPEi1n35dmRRzBJFlgvWHYwyem6yHhuT6afYF+sziEt46McRbT//kVXZ7b1YUYEVGdXEH74Nx3xzGA==
 
 boxen@^5.0.0:
   version "5.1.2"
@@ -3345,6 +3369,11 @@ jed@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/jed/-/jed-1.1.1.tgz#7a549bbd9ffe1585b0cd0a191e203055bee574b4"
   integrity sha512-z35ZSEcXHxLW4yumw0dF6L464NT36vmx3wxJw8MDpraBcWuNVgUPZgPJKcu1HekNgwlMFNqol7i/IpSbjhqwqA==
+
+jquery@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.6.1.tgz#fab0408f8b45fc19f956205773b62b292c147a16"
+  integrity sha512-opJeO4nCucVnsjiXOE+/PcCgYw9Gwpvs/a6B1LL/lQhwWwpbVEVYDZ1FokFr8PRc7ghYlrFPuyHuiiDNTQxmcw==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
