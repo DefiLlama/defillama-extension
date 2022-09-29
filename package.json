@@ -21,13 +21,15 @@
     "framer-motion": "^7.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.4.0"
+    "react-icons": "^4.4.0",
+    "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.196",
     "@types/node": "^18.7.18",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
+    "@types/webextension-polyfill": "^0.9.1",
     "@vitejs/plugin-react": "^2.1.0",
     "fs-extra": "^10.1.0",
     "nodemon": "^2.0.20",
