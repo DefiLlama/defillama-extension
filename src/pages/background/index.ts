@@ -15,6 +15,8 @@ import { Coin, Protocol, coinsDb, protocolsDb } from "../libs/db";
 import { COINGECKO_COINS_LIST_API, PROTOCOLS_API } from "../libs/constants";
 import { getStorage } from "../libs/helpers";
 
+type EthPhishingDetection = { match?: string; result: boolean; type: "fuzzy" | "all" | "blocklist" | "allowlist" };
+
 startupTasks();
 
 async function getCurrentTab() {
@@ -30,29 +32,46 @@ async function handlePhishingCheck() {
     return;
   }
 
-  const detector = new PhishingDetector(detectorConfig);
+  const ethPhishingDetector = new PhishingDetector(detectorConfig);
 
   let isPhishing = false;
+  let reason = "";
   const tab = await getCurrentTab();
   try {
     const url = tab.url;
     if (url.startsWith("https://metamask.github.io/phishing-warning")) {
       // already captured and redirected to metamask phishing warning page
       isPhishing = true;
+      reason = "Phishing detected by Metamask";
     } else {
       const domain = new URL(url).hostname.replace("www.", "");
-      isPhishing = checkForPhishing(domain);
-      console.log("detector", detector.check(domain));
+      const ethPhishingDetection = ethPhishingDetector.check(domain) as EthPhishingDetection;
+
+      isPhishing = ethPhishingDetection.result;
+
+      if (isPhishing) {
+        switch (ethPhishingDetection.type) {
+          case "blocklist":
+            reason = "Website is blacklisted";
+            break;
+          case "fuzzy":
+            reason = `Website impersonating ${ethPhishingDetection.match}`;
+            break;
+          default:
+            reason = "Suspicious website detected";
+        }
+      }
     }
   } catch (error) {
-    // ignore error incase of invalid url, just treat as non-phishing
-    console.log(error);
+    console.log("You are trying to visit an invalid url.");
   }
 
   if (isPhishing) {
     Browser.action.setIcon({ path: maxPain });
+    Browser.action.setTitle({ title: reason });
   } else {
     Browser.action.setIcon({ path: que });
+    Browser.action.setTitle({ title: "DefiLlama" });
   }
 
   return isPhishing;
