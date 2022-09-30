@@ -89,7 +89,7 @@ export async function getBatchTokenPrices(tokensWithPrefix: string[]) {
 
 // render an image to console with given url
 export const logImage = (url: string, message = "", size = 20, styles = "") => {
-  const _url = chrome.runtime.getURL(url);
+  const _url = Browser.runtime.getURL(url);
   console.log(
     `%c ${message}`,
     `background: url(${_url}) 0 0 no-repeat; padding-left: ${size}px; background-size: ${size}px; font-size: ${size}px; ${styles}`,
@@ -98,7 +98,7 @@ export const logImage = (url: string, message = "", size = 20, styles = "") => {
 
 export function createInlineLlamaIcon(src: string, alt: string, size = 12, className = "mr-1 mCS_img_loaded") {
   const icon = document.createElement("img");
-  icon.src = chrome.runtime.getURL(src);
+  icon.src = Browser.runtime.getURL(src);
   icon.alt = alt;
   icon.width = size;
   icon.className = className;
