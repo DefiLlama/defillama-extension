@@ -165,6 +165,14 @@ export interface ManifestType {
       }
     | undefined;
   optional_permissions?: chrome.runtime.ManifestPermissions[] | string[] | undefined;
+  options_page?: string | undefined;
+  options_ui?:
+    | {
+        page?: string | undefined;
+        chrome_style?: boolean | undefined;
+        open_in_tab?: boolean | undefined;
+      }
+    | undefined;
   permissions?: chrome.runtime.ManifestPermissions[] | string[] | undefined;
   platforms?:
     | {
