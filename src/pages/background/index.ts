@@ -17,14 +17,6 @@ import { getStorage } from "../libs/helpers";
 type EthPhishingDetection = { match?: string; result: boolean; type: "fuzzy" | "all" | "blocklist" | "allowlist" };
 
 import defillamaDirectory from "../../assets/data/directory.json";
-type DefillamaDirectory = {
-  name: string;
-  url: string;
-  logo: string;
-}[];
-const _defillamaDirectory = (defillamaDirectory as DefillamaDirectory).map((d) =>
-  new URL(d.url).hostname.replace("www.", ""),
-);
 
 startupTasks();
 
@@ -45,7 +37,7 @@ async function handlePhishingCheck() {
 
   let isPhishing = false;
   let isTrusted = false;
-  let reason = "";
+  let reason = "Unknown website";
   const tab = await getCurrentTab();
   try {
     const url = tab.url;
@@ -55,9 +47,9 @@ async function handlePhishingCheck() {
       reason = "Phishing detected by Metamask";
     } else {
       const domain = new URL(url).hostname.replace("www.", "");
-      if (_defillamaDirectory.includes(domain)) {
+      if (defillamaDirectory.map((x) => x.domain).includes(domain)) {
         isTrusted = true;
-        reason = "Website is trusted by Defillama";
+        reason = `Official ${defillamaDirectory[domain].name}`;
       } else {
         const ethPhishingDetection = ethPhishingDetector.check(domain) as EthPhishingDetection;
         isPhishing = ethPhishingDetection.result;
@@ -76,7 +68,9 @@ async function handlePhishingCheck() {
       }
     }
   } catch (error) {
-    console.log("You are trying to visit an invalid url.");
+    Browser.action.setIcon({ path: que });
+    Browser.action.setTitle({ title: "Invalid URL" });
+    return;
   }
 
   if (isTrusted) {
@@ -90,7 +84,7 @@ async function handlePhishingCheck() {
     Browser.action.setTitle({ title: reason });
   } else {
     Browser.action.setIcon({ path: que });
-    Browser.action.setTitle({ title: "DefiLlama" });
+    Browser.action.setTitle({ title: reason });
   }
 }
 

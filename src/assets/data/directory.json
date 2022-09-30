@@ -1,202 +1,202 @@
 [
   {
     "name": "DefiLlama",
-    "url": "https://defillama.com/"
+    "domain": "defillama.com"
   },
   {
     "name": "LlamaPay",
-    "url": "https://llamapay.io/"
+    "domain": "llamapay.io"
   },
   {
     "name": "LlamaCorp",
-    "url": "https://llama-corp.com/"
+    "domain": "llama-corp.com"
   },
   {
     "name": "Binance Exchange",
-    "url": "https://www.binance.com/en"
+    "domain": "binance.com"
   },
   {
     "name": "KuCoin Exchange",
-    "url": "https://www.kucoin.com/"
+    "domain": "kucoin.com"
   },
   {
     "name": "Coinbase Exchange",
-    "url": "https://www.coinbase.com/"
+    "domain": "coinbase.com"
   },
   {
     "name": "Crypto.com Exchange",
-    "url": "https://crypto.com/exchange"
+    "domain": "crypto.com"
   },
   {
     "name": "FTX Exchange",
-    "url": "https://ftx.com/"
+    "domain": "ftx.com"
   },
   {
     "name": "Huobi Exchange",
-    "url": "https://www.huobi.com/en-us/"
+    "domain": "huobi.com"
   },
   {
     "name": "OKX Exchange",
-    "url": "https://www.okx.com/"
+    "domain": "okx.com"
   },
   {
     "name": "Gemini Exchange",
-    "url": "https://www.gemini.com/"
+    "domain": "gemini.com"
   },
   {
     "name": "Kraken Exchange",
-    "url": "https://www.kraken.com/"
+    "domain": "kraken.com"
   },
   {
     "name": "Gate.io",
-    "url": "https://www.gate.io/"
+    "domain": "gate.io"
   },
   {
     "name": "Bybit Exchange",
-    "url": "https://www.bybit.com/"
+    "domain": "bybit.com"
   },
   {
     "name": "Phemex",
-    "url": "https://phemex.com/"
+    "domain": "phemex.com"
   },
   {
     "name": "CoinGecko",
-    "url": "https://www.coingecko.com/"
+    "domain": "coingecko.com"
   },
   {
     "name": "CoinMarketCap",
-    "url": "https://coinmarketcap.com/"
+    "domain": "coinmarketcap.com"
   },
   {
     "name": "OpenSea",
-    "url": "https://opensea.io/"
+    "domain": "opensea.io"
   },
   {
     "name": "LooksRare",
-    "url": "https://looksrare.org/"
+    "domain": "looksrare.org"
   },
   {
     "name": "Decentraland",
-    "url": "https://decentraland.org/"
+    "domain": "decentraland.org"
   },
   {
     "name": "The Sandbox",
-    "url": "https://www.sandbox.game/en/"
+    "domain": "sandbox.game"
   },
   {
     "name": "Sudoswap",
-    "url": "https://sudoswap.xyz/#/"
+    "domain": "sudoswap.xyz"
   },
   {
     "name": "Rarible",
-    "url": "https://rarible.com/"
+    "domain": "rarible.com"
   },
   {
     "name": "SuperRare",
-    "url": "https://superrare.com/"
+    "domain": "superrare.com"
   },
   {
     "name": "Magic Eden",
-    "url": "https://magiceden.io/"
+    "domain": "magiceden.io"
   },
   {
     "name": "Foundation",
-    "url": "https://foundation.app/"
+    "domain": "foundation.app"
   },
   {
     "name": "NBA Top Shot",
-    "url": "https://nbatopshot.com/"
+    "domain": "nbatopshot.com"
   },
   {
     "name": "jgp.store",
-    "url": "https://www.jpg.store/"
+    "domain": "jpg.store"
   },
   {
     "name": "GameStop NFT",
-    "url": "https://nft.gamestop.com/"
+    "domain": "nft.gamestop.com"
   },
   {
     "name": "Paintswap",
-    "url": "https://paintswap.finance/"
+    "domain": "paintswap.finance"
   },
   {
     "name": "NFTrade",
-    "url": "https://nftrade.com/"
+    "domain": "nftrade.com"
   },
   {
     "name": "AtomicMarket",
-    "url": "https://atomicmarket.io/"
+    "domain": "atomicmarket.io"
   },
   {
     "name": "BakerySwap",
-    "url": "https://www.bakeryswap.org/#/home"
+    "domain": "bakeryswap.org"
   },
   {
     "name": "KnownOrigin",
-    "url": "https://knownorigin.io/"
+    "domain": "knownorigin.io"
   },
   {
     "name": "Enjin Marketplace",
-    "url": "https://enjin.io/products/marketplace"
+    "domain": "enjin.io"
   },
   {
     "name": "Portion",
-    "url": "https://portion.io/"
+    "domain": "portion.io"
   },
   {
     "name": "Async Art",
-    "url": "https://async.art/"
+    "domain": "async.art"
   },
   {
     "name": "Nifty Gateway",
-    "url": "https://www.niftygateway.com/"
+    "domain": "niftygateway.com"
   },
   {
     "name": "Zora",
-    "url": "https://zora.co/"
+    "domain": "zora.co"
   },
   {
     "name": "Mintable ",
-    "url": "https://mintable.app/"
+    "domain": "mintable.app"
   },
   {
     "name": "Institut",
-    "url": "https://institut.co/"
+    "domain": "institut.co"
   },
   {
     "name": "Theta Drop",
-    "url": "https://www.thetadrop.com/"
+    "domain": "thetadrop.com"
   },
   {
     "name": "Gitcoin",
-    "url": "https://gitcoin.co/"
+    "domain": "gitcoin.co"
   },
   {
     "name": "Chainlist",
-    "url": "https://chainlist.org/"
+    "domain": "chainlist.org"
   },
   {
     "name": "Zapper",
-    "url": "https://zapper.fi/"
+    "domain": "zapper.fi"
   },
   {
     "name": "Zerion",
-    "url": "https://zerion.io/"
+    "domain": "zerion.io"
   },
   {
     "name": "Gala Games",
-    "url": "https://app.gala.games/"
+    "domain": "app.gala.games"
   },
   {
     "name": "Axie Infinity",
-    "url": "https://axieinfinity.com/"
+    "domain": "axieinfinity.com"
   },
   {
     "name": "ENS",
-    "url": "https://ens.domains/"
+    "domain": "ens.domains"
   },
   {
     "name": "TradingView",
-    "url": "https://www.tradingview.com/"
+    "domain": "tradingview.com"
   }
 ]
