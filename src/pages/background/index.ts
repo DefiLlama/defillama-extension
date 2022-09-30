@@ -1,8 +1,6 @@
 console.log("background loaded");
 
-import checkForPhishing from "eth-phishing-detect";
 import PhishingDetector from "eth-phishing-detect/src/detector";
-import detectorConfig from "eth-phishing-detect/src/config.json";
 import Browser from "webextension-polyfill";
 
 import cute from "@assets/img/memes/cute-128.png";
@@ -16,6 +14,25 @@ import { COINGECKO_COINS_LIST_API, PROTOCOLS_API } from "../libs/constants";
 import { getStorage } from "../libs/helpers";
 
 type EthPhishingDetection = { match?: string; result: boolean; type: "fuzzy" | "all" | "blocklist" | "allowlist" };
+type EthPhishingConfig = {
+  version: number;
+  tolerance: number;
+  fuzzylist: string[];
+  whitelist: string[];
+  blacklist: string[];
+};
+import detectorConfig from "eth-phishing-detect/src/config.json";
+// EthPhishingConfig
+type DefillamaDirectory = {
+  name: string;
+  url: string;
+  logo: string;
+}[];
+import defillamaDirectory from "../../assets/data/directory.json";
+// DefillamaDirectory
+const _defillamaDirectory = (defillamaDirectory as DefillamaDirectory).map((d) =>
+  new URL(d.url).hostname.replace("www.", ""),
+);
 
 startupTasks();
 
@@ -45,6 +62,7 @@ async function handlePhishingCheck() {
       reason = "Phishing detected by Metamask";
     } else {
       const domain = new URL(url).hostname.replace("www.", "");
+
       const ethPhishingDetection = ethPhishingDetector.check(domain) as EthPhishingDetection;
 
       isPhishing = ethPhishingDetection.result;
