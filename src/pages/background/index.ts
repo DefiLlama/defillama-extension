@@ -15,6 +15,8 @@ import { Coin, Protocol, coinsDb, protocolsDb } from "../libs/db";
 import { COINGECKO_COINS_LIST_API, PROTOCOLS_API } from "../libs/constants";
 import { getStorage } from "../libs/helpers";
 
+startupTasks();
+
 async function getCurrentTab() {
   const queryOptions = { active: true, currentWindow: true };
   const [tab] = await Browser.tabs.query(queryOptions);
@@ -121,17 +123,18 @@ function setupUpdateProtocolsDb() {
   });
 }
 
-setupUpdateCoinsDb();
-setupUpdateProtocolsDb();
-
-Browser.runtime.onInstalled.addListener(() => {
+function startupTasks() {
   setupUpdateCoinsDb();
   setupUpdateProtocolsDb();
+  Browser.action.setIcon({ path: cute });
+}
+
+Browser.runtime.onInstalled.addListener(() => {
+  startupTasks();
 });
 
 Browser.runtime.onStartup.addListener(() => {
-  setupUpdateCoinsDb();
-  setupUpdateProtocolsDb();
+  startupTasks();
 });
 
 Browser.alarms.onAlarm.addListener(async (a) => {
