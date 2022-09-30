@@ -1,6 +1,7 @@
 console.log("background loaded");
 
 import PhishingDetector from "eth-phishing-detect/src/detector";
+import detectorConfig from "eth-phishing-detect/src/config.json";
 import Browser from "webextension-polyfill";
 
 import cute from "@assets/img/memes/cute-128.png";
@@ -14,22 +15,13 @@ import { COINGECKO_COINS_LIST_API, PROTOCOLS_API } from "../libs/constants";
 import { getStorage } from "../libs/helpers";
 
 type EthPhishingDetection = { match?: string; result: boolean; type: "fuzzy" | "all" | "blocklist" | "allowlist" };
-type EthPhishingConfig = {
-  version: number;
-  tolerance: number;
-  fuzzylist: string[];
-  whitelist: string[];
-  blacklist: string[];
-};
-import detectorConfig from "eth-phishing-detect/src/config.json";
-// EthPhishingConfig
+
+import defillamaDirectory from "../../assets/data/directory.json";
 type DefillamaDirectory = {
   name: string;
   url: string;
   logo: string;
 }[];
-import defillamaDirectory from "../../assets/data/directory.json";
-// DefillamaDirectory
 const _defillamaDirectory = (defillamaDirectory as DefillamaDirectory).map((d) =>
   new URL(d.url).hostname.replace("www.", ""),
 );
@@ -52,6 +44,7 @@ async function handlePhishingCheck() {
   const ethPhishingDetector = new PhishingDetector(detectorConfig);
 
   let isPhishing = false;
+  let isTrusted = false;
   let reason = "";
   const tab = await getCurrentTab();
   try {
@@ -62,26 +55,34 @@ async function handlePhishingCheck() {
       reason = "Phishing detected by Metamask";
     } else {
       const domain = new URL(url).hostname.replace("www.", "");
-
-      const ethPhishingDetection = ethPhishingDetector.check(domain) as EthPhishingDetection;
-
-      isPhishing = ethPhishingDetection.result;
-
-      if (isPhishing) {
-        switch (ethPhishingDetection.type) {
-          case "blocklist":
-            reason = "Website is blacklisted";
-            break;
-          case "fuzzy":
-            reason = `Website impersonating ${ethPhishingDetection.match}`;
-            break;
-          default:
-            reason = "Suspicious website detected";
+      if (_defillamaDirectory.includes(domain)) {
+        isTrusted = true;
+        reason = "Website is trusted by Defillama";
+      } else {
+        const ethPhishingDetection = ethPhishingDetector.check(domain) as EthPhishingDetection;
+        isPhishing = ethPhishingDetection.result;
+        if (isPhishing) {
+          switch (ethPhishingDetection.type) {
+            case "blocklist":
+              reason = "Website is blacklisted";
+              break;
+            case "fuzzy":
+              reason = `Website impersonating ${ethPhishingDetection.match}`;
+              break;
+            default:
+              reason = "Suspicious website detected";
+          }
         }
       }
     }
   } catch (error) {
     console.log("You are trying to visit an invalid url.");
+  }
+
+  if (isTrusted) {
+    Browser.action.setIcon({ path: upOnly });
+    Browser.action.setTitle({ title: reason });
+    return;
   }
 
   if (isPhishing) {
@@ -91,8 +92,6 @@ async function handlePhishingCheck() {
     Browser.action.setIcon({ path: que });
     Browser.action.setTitle({ title: "DefiLlama" });
   }
-
-  return isPhishing;
 }
 
 /**
