@@ -48,10 +48,8 @@
     }
   ],
   "permissions": [
-    "activeTab",
     "storage",
     "tabs",
-    "nativeMessaging",
     "alarms"
   ]
 }

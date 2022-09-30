@@ -39,7 +39,7 @@ const manifest: ManifestType = {
       matches: ["<all_urls>"],
     },
   ],
-  permissions: ["activeTab", "storage", "tabs", "nativeMessaging", "alarms"],
+  permissions: ["storage", "tabs", "alarms"],
 };
 
 export default manifest;
