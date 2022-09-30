@@ -1,7 +1,9 @@
 import cute from "@assets/img/memes/cute.gif";
+import cuteStatic from "@assets/img/memes/cute-128.png";
 import { Box, HStack, Icon, Image, Switch, Text, useColorModeValue, VStack, Link } from "@chakra-ui/react";
 import { useBrowserStorage } from "../libs/hooks";
 import { FaDiscord, FaGithub, FaTwitter } from "react-icons/fa";
+import Browser from "webextension-polyfill";
 
 const Popup = () => {
   const [priceInjector, setPriceInjector] = useBrowserStorage("local", "settings:priceInjector", true);
@@ -35,6 +37,9 @@ const Popup = () => {
             isChecked={phishingDetector}
             onChange={(e) => {
               setPhishingDetector(e.target.checked);
+              if (!e.target.checked) {
+                Browser.action.setIcon({ path: cuteStatic });
+              }
             }}
           />
         </HStack>
