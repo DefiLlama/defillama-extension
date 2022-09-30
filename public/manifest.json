@@ -3,7 +3,6 @@
   "name": "DefiLlama",
   "version": "0.0.1",
   "description": "DefiLlama Extension",
-  "options_page": "src/pages/options/index.html",
   "background": {
     "service_worker": "src/pages/background/index.js",
     "type": "module"

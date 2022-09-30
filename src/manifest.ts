@@ -6,7 +6,6 @@ const manifest: ManifestType = {
   name: packageJson.displayName,
   version: packageJson.version,
   description: packageJson.description,
-  options_page: "src/pages/options/index.html",
   background: { service_worker: "src/pages/background/index.js", type: "module" },
   action: {
     default_title: packageJson.displayName,
@@ -23,7 +22,6 @@ const manifest: ManifestType = {
     {
       matches: ["http://*/*", "https://*/*", "<all_urls>"],
       js: ["src/pages/content/index.js"],
-      // css: ["assets/css/contentStyle.chunk.css"],
     },
   ],
   devtools_page: "src/pages/devtools/index.html",
@@ -38,7 +36,6 @@ const manifest: ManifestType = {
         "icon-128.png",
         "icon-34.png",
       ],
-      // matches: ["*://*/*"],
       matches: ["<all_urls>"],
     },
   ],
