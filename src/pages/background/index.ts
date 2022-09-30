@@ -49,7 +49,7 @@ async function handlePhishingCheck() {
       const domain = new URL(url).hostname.replace("www.", "");
       if (defillamaDirectory.map((x) => x.domain).includes(domain)) {
         isTrusted = true;
-        reason = `Official ${defillamaDirectory[domain].name}`;
+        reason = `Official ${defillamaDirectory.find((x) => x.domain === domain).name}`;
       } else {
         const ethPhishingDetection = ethPhishingDetector.check(domain) as EthPhishingDetection;
         isPhishing = ethPhishingDetection.result;
@@ -68,9 +68,9 @@ async function handlePhishingCheck() {
       }
     }
   } catch (error) {
-    Browser.action.setIcon({ path: que });
-    Browser.action.setTitle({ title: "Invalid URL" });
-    return;
+    isTrusted = false;
+    isPhishing = false;
+    reason = "Invalid URL";
   }
 
   if (isTrusted) {
