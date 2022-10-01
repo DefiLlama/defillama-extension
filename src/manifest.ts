@@ -20,7 +20,19 @@ const manifest: ManifestType = {
   },
   content_scripts: [
     {
-      matches: ["http://*/*", "https://*/*", "<all_urls>"],
+      matches: [
+        "*://*.etherscan.io/*",
+        "*://*.bscscan.com/*",
+        "*://*.snowtrace.io/*",
+        "*://*.ftmscan.com/*",
+        "*://*.arbiscan.io/*",
+        "*://*.polygonscan.com/*",
+        "*://*.cronoscan.com/*",
+        "*://*.moonscan.io/*",
+        "*://*.gnosisscan.io/*",
+        "*://*.bobascan.com/*",
+        "*://*.aurorascan.dev/*",
+      ],
       js: ["src/pages/content/index.js"],
     },
   ],
