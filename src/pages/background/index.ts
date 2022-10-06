@@ -9,16 +9,9 @@ import que from "@assets/img/memes/que-128.png";
 import upOnly from "@assets/img/memes/up-only-128.png";
 
 import { Coin, Protocol, coinsDb, protocolsDb, allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb } from "../libs/db";
-import {
-  COINGECKO_COINS_LIST_API,
-  PROTOCOLS_API,
-  METAMASK_LIST_CONFIG_API,
-  DEFILLAMA_DIRECTORY_API,
-} from "../libs/constants";
+import { PROTOCOLS_API, METAMASK_LIST_CONFIG_API, DEFILLAMA_DIRECTORY_API } from "../libs/constants";
 import { getStorage } from "../libs/helpers";
 import { checkDomain } from "../libs/phishing-detector";
-
-import defillamaDirectory from "../../assets/data/directory.json";
 
 startupTasks();
 
@@ -48,6 +41,7 @@ async function handlePhishingCheck() {
     } else {
       const domain = new URL(url).hostname.replace("www.", "");
       const res = await checkDomain(domain);
+      console.log("checkDomain", res);
       isPhishing = res.result;
       if (isPhishing) {
         switch (res.type) {
@@ -72,6 +66,7 @@ async function handlePhishingCheck() {
       }
     }
   } catch (error) {
+    console.log("handlePhishingCheck error", error);
     isTrusted = false;
     isPhishing = false;
     reason = "Invalid URL";
@@ -129,6 +124,7 @@ export async function updateProtocolsDb() {
 }
 
 export async function updateDomainDbs() {
+  console.log("updateDomainDbs", "start");
   const rawProtocols = await fetch(PROTOCOLS_API).then((res) => res.json());
   const protocols = (rawProtocols["protocols"]?.map((x: any) => ({
     name: x.name,
@@ -137,7 +133,17 @@ export async function updateDomainDbs() {
     category: x.category,
     tvl: x.tvl,
   })) ?? []) as Protocol[];
-  const protocolDomains = protocols.map((x) => new URL(x.url).hostname.replace("www.", "")).map((x) => ({ domain: x }));
+  const protocolDomains = protocols
+    .map((x) => {
+      try {
+        return new URL(x.url).hostname.replace("www.", "");
+      } catch (error) {
+        console.log("updateDomainDbs", "error", error);
+        return null;
+      }
+    })
+    .filter((x) => x !== null)
+    .map((x) => ({ domain: x }));
   const metamaskLists = (await fetch(METAMASK_LIST_CONFIG_API).then((res) => res.json())) as {
     fuzzylist: string[];
     whitelist: string[];
@@ -146,7 +152,7 @@ export async function updateDomainDbs() {
   const metamaskFuzzyDomains = metamaskLists.fuzzylist.map((x) => ({ domain: x }));
   const metamaskAllowedDomains = metamaskLists.whitelist.map((x) => ({ domain: x }));
   const metamaskBlockedDomains = metamaskLists.blacklist.map((x) => ({ domain: x }));
-  const rawDefillamaDirectory = (await fetch(DEFILLAMA_DIRECTORY_API).then((res) => res.json)) as {
+  const rawDefillamaDirectory = (await fetch(DEFILLAMA_DIRECTORY_API).then((res) => res.json())) as {
     name: string;
     url: string;
   }[];
@@ -158,6 +164,13 @@ export async function updateDomainDbs() {
   allowedDomainsDb.domains.bulkPut(defillamaDomains);
   blockedDomainsDb.domains.bulkPut(metamaskBlockedDomains);
   fuzzyDomainsDb.domains.bulkPut(metamaskFuzzyDomains);
+  fuzzyDomainsDb.domains.bulkPut(metamaskAllowedDomains);
+  fuzzyDomainsDb.domains.bulkPut(protocolDomains);
+  fuzzyDomainsDb.domains.bulkPut(defillamaDomains);
+  console.log("updateDomainDbs", "done");
+  console.log("allowedDomainsDb", await allowedDomainsDb.domains.count());
+  console.log("blockedDomainsDb", await blockedDomainsDb.domains.count());
+  console.log("fuzzyDomainsDb", await fuzzyDomainsDb.domains.count());
 }
 
 Browser.tabs.onUpdated.addListener(async () => {
@@ -173,6 +186,7 @@ function setupUpdateCoinsDb() {
   console.log("setupUpdateCoinsDb");
   Browser.alarms.get("updateCoinsDb").then((a) => {
     if (!a) {
+      console.log("setupUpdateCoinsDb", "create");
       updateCoinsDb();
       Browser.alarms.create("updateCoinsDb", { periodInMinutes: 240 }); // update once every 4 hours
     }
@@ -183,6 +197,7 @@ function setupUpdateProtocolsDb() {
   console.log("setupUpdateProtocolsDb");
   Browser.alarms.get("updateProtocolsDb").then((a) => {
     if (!a) {
+      console.log("setupUpdateProtocolsDb", "create");
       updateProtocolsDb();
       Browser.alarms.create("updateProtocolsDb", { periodInMinutes: 240 }); // update once every 4 hours
     }
@@ -193,6 +208,7 @@ function setupUpdateDomainDbs() {
   console.log("setupUpdateDomainDbs");
   Browser.alarms.get("updateDomainDbs").then((a) => {
     if (!a) {
+      console.log("setupUpdateDomainDbs", "create");
       updateDomainDbs();
       Browser.alarms.create("updateDomainDbs", { periodInMinutes: 240 }); // update once every 4 hours
     }
@@ -200,10 +216,12 @@ function setupUpdateDomainDbs() {
 }
 
 function startupTasks() {
+  console.log("startupTasks", "start");
   setupUpdateCoinsDb();
   setupUpdateProtocolsDb();
   setupUpdateDomainDbs();
   Browser.action.setIcon({ path: cute });
+  console.log("startupTasks", "done");
 }
 
 Browser.runtime.onInstalled.addListener(() => {
