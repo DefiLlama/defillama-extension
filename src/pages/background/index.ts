@@ -1,7 +1,5 @@
 console.log("background loaded");
 
-import PhishingDetector from "eth-phishing-detect/src/detector";
-import detectorConfig from "eth-phishing-detect/src/config.json";
 import Browser from "webextension-polyfill";
 
 import cute from "@assets/img/memes/cute-128.png";
@@ -10,11 +8,15 @@ import maxPain from "@assets/img/memes/max-pain-128.png";
 import que from "@assets/img/memes/que-128.png";
 import upOnly from "@assets/img/memes/up-only-128.png";
 
-import { Coin, Protocol, coinsDb, protocolsDb } from "../libs/db";
-import { COINGECKO_COINS_LIST_API, PROTOCOLS_API } from "../libs/constants";
+import { Coin, Protocol, coinsDb, protocolsDb, allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb } from "../libs/db";
+import {
+  COINGECKO_COINS_LIST_API,
+  PROTOCOLS_API,
+  METAMASK_LIST_CONFIG_API,
+  DEFILLAMA_DIRECTORY_API,
+} from "../libs/constants";
 import { getStorage } from "../libs/helpers";
-
-type EthPhishingDetection = { match?: string; result: boolean; type: "fuzzy" | "all" | "blocklist" | "allowlist" };
+import { checkDomain } from "../libs/phishing-detector";
 
 import defillamaDirectory from "../../assets/data/directory.json";
 
@@ -33,8 +35,6 @@ async function handlePhishingCheck() {
     return;
   }
 
-  const ethPhishingDetector = new PhishingDetector(detectorConfig);
-
   let isPhishing = false;
   let isTrusted = false;
   let reason = "Unknown website";
@@ -47,23 +47,27 @@ async function handlePhishingCheck() {
       reason = "Phishing detected by Metamask";
     } else {
       const domain = new URL(url).hostname.replace("www.", "");
-      if (defillamaDirectory.map((x) => x.domain).includes(domain)) {
-        isTrusted = true;
-        reason = `Official ${defillamaDirectory.find((x) => x.domain === domain).name}`;
+      const res = await checkDomain(domain);
+      isPhishing = res.result;
+      if (isPhishing) {
+        switch (res.type) {
+          case "blocked":
+            reason = "Website is blacklisted";
+            break;
+          case "fuzzy":
+            reason = `Website impersonating ${res.extra}`;
+            break;
+          default:
+            reason = "Suspicious website detected";
+        }
       } else {
-        const ethPhishingDetection = ethPhishingDetector.check(domain) as EthPhishingDetection;
-        isPhishing = ethPhishingDetection.result;
-        if (isPhishing) {
-          switch (ethPhishingDetection.type) {
-            case "blocklist":
-              reason = "Website is blacklisted";
-              break;
-            case "fuzzy":
-              reason = `Website impersonating ${ethPhishingDetection.match}`;
-              break;
-            default:
-              reason = "Suspicious website detected";
-          }
+        switch (res.type) {
+          case "allowed":
+            isTrusted = true;
+            reason = "Website is whitelisted";
+            break;
+          default:
+            reason = "Unknown website";
         }
       }
     }
@@ -124,6 +128,38 @@ export async function updateProtocolsDb() {
   console.log("updateProtocolsDb", result);
 }
 
+export async function updateDomainDbs() {
+  const rawProtocols = await fetch(PROTOCOLS_API).then((res) => res.json());
+  const protocols = (rawProtocols["protocols"]?.map((x: any) => ({
+    name: x.name,
+    url: x.url,
+    logo: x.logo,
+    category: x.category,
+    tvl: x.tvl,
+  })) ?? []) as Protocol[];
+  const protocolDomains = protocols.map((x) => new URL(x.url).hostname.replace("www.", "")).map((x) => ({ domain: x }));
+  const metamaskLists = (await fetch(METAMASK_LIST_CONFIG_API).then((res) => res.json())) as {
+    fuzzylist: string[];
+    whitelist: string[];
+    blacklist: string[];
+  };
+  const metamaskFuzzyDomains = metamaskLists.fuzzylist.map((x) => ({ domain: x }));
+  const metamaskAllowedDomains = metamaskLists.whitelist.map((x) => ({ domain: x }));
+  const metamaskBlockedDomains = metamaskLists.blacklist.map((x) => ({ domain: x }));
+  const rawDefillamaDirectory = (await fetch(DEFILLAMA_DIRECTORY_API).then((res) => res.json)) as {
+    name: string;
+    url: string;
+  }[];
+  const defillamaDomains = rawDefillamaDirectory
+    .map((x) => new URL(x.url).hostname.replace("www.", ""))
+    .map((x) => ({ domain: x }));
+  allowedDomainsDb.domains.bulkPut(protocolDomains);
+  allowedDomainsDb.domains.bulkPut(metamaskAllowedDomains);
+  allowedDomainsDb.domains.bulkPut(defillamaDomains);
+  blockedDomainsDb.domains.bulkPut(metamaskBlockedDomains);
+  fuzzyDomainsDb.domains.bulkPut(metamaskFuzzyDomains);
+}
+
 Browser.tabs.onUpdated.addListener(async () => {
   console.log("onUpdated");
   await handlePhishingCheck();
@@ -153,9 +189,20 @@ function setupUpdateProtocolsDb() {
   });
 }
 
+function setupUpdateDomainDbs() {
+  console.log("setupUpdateDomainDbs");
+  Browser.alarms.get("updateDomainDbs").then((a) => {
+    if (!a) {
+      updateDomainDbs();
+      Browser.alarms.create("updateDomainDbs", { periodInMinutes: 240 }); // update once every 4 hours
+    }
+  });
+}
+
 function startupTasks() {
   setupUpdateCoinsDb();
   setupUpdateProtocolsDb();
+  setupUpdateDomainDbs();
   Browser.action.setIcon({ path: cute });
 }
 
@@ -174,6 +221,9 @@ Browser.alarms.onAlarm.addListener(async (a) => {
       break;
     case "updateProtocolsDb":
       await updateProtocolsDb();
+      break;
+    case "updateDomainDbs":
+      await updateDomainDbs();
       break;
   }
 });
