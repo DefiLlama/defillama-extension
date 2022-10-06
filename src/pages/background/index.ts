@@ -164,6 +164,9 @@ export async function updateDomainDbs() {
   allowedDomainsDb.domains.bulkPut(defillamaDomains);
   blockedDomainsDb.domains.bulkPut(metamaskBlockedDomains);
   fuzzyDomainsDb.domains.bulkPut(metamaskFuzzyDomains);
+  fuzzyDomainsDb.domains.bulkPut(metamaskAllowedDomains);
+  fuzzyDomainsDb.domains.bulkPut(protocolDomains);
+  fuzzyDomainsDb.domains.bulkPut(defillamaDomains);
   console.log("updateDomainDbs", "done");
   console.log("allowedDomainsDb", await allowedDomainsDb.domains.count());
   console.log("blockedDomainsDb", await blockedDomainsDb.domains.count());
