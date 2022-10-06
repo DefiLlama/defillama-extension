@@ -13,6 +13,11 @@ export interface Prices {
 export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
 export const PROTOCOL_TVL_THRESHOLD = 1000000;
 
+export const METAMASK_LIST_CONFIG_API =
+  "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/config.json";
+export const DEFILLAMA_DIRECTORY_API =
+  "https://raw.githubusercontent.com/DefiLlama/defillama-app/main/src/directory/directory-urls.json";
+
 export const COINGECKO_COINS_LIST_API = "https://api.coingecko.com/api/v3/coins/list";
 
 export type SearchEngine = {
