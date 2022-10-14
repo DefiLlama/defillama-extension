@@ -10,6 +10,7 @@ import {
   useColorMode,
   useDisclosure,
   useEventListener,
+  Text,
 } from "@chakra-ui/react";
 import { FiSettings, FiSun, FiMoon } from "react-icons/fi";
 import logo from "@assets/defillama-logo.png";
@@ -17,6 +18,7 @@ import { useTopSites } from "@src/pages/libs/hooks";
 import { SearchBox } from "./SearchBox";
 import { TopSiteBlock } from "./TopSiteBlock";
 import { SettingsModal } from "./SettingsModal";
+import { Clock } from "./widgets/Clock";
 
 function App() {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -26,7 +28,7 @@ function App() {
   return (
     <>
       <VStack h="100vh" justifyContent="space-between">
-        <HStack p="4" w="full" justifyContent="flex-end">
+        <HStack p="4" w="full" justifyContent="space-between">
           <IconButton
             aria-label="Toggle color mode"
             icon={colorMode === "light" ? <FiMoon /> : <FiSun />}
@@ -35,6 +37,7 @@ function App() {
             variant="ghost"
             size="md"
           />
+          <Clock />
         </HStack>
         <Center px="8">
           <VStack w={["sm", "md", "lg", "xl"]} gap="4" pb="24">
