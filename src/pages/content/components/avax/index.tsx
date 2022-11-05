@@ -1,4 +1,5 @@
 import { EtherscanAlikeExplorerConfig, injectPrice } from "../etherscanInjectPrice";
+import { injectTags } from "../etherscanInjectTags";
 
 const config: EtherscanAlikeExplorerConfig = {
   name: "Snowtrace",
@@ -8,3 +9,4 @@ const config: EtherscanAlikeExplorerConfig = {
 };
 
 injectPrice(config);
+injectTags();
