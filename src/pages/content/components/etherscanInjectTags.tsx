@@ -47,7 +47,7 @@ export async function injectTags() {
     // tagsButton.className = "btn btn-sm btn-outline-primary";
     // tagsButton.innerText = "Edit";
     // tagsButton.onclick = () => {
-    //   window.open(`https://llama.fi/tags/${account}`, "_blank");
+    //   window.open(`https://google.com/q=${account}`, "_blank");
     // };
     // tagsContainer.appendChild(tagsButton);
 
