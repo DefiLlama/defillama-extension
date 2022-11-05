@@ -1,4 +1,4 @@
-import { EtherscanAlikeExplorerConfig, injectPrice } from "../etherscanInjector";
+import { EtherscanAlikeExplorerConfig, injectPrice } from "../etherscanInjectPrice";
 
 const config: EtherscanAlikeExplorerConfig = {
   name: "Moonscan",
