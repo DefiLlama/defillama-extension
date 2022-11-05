@@ -11,14 +11,16 @@ import {
   useDisclosure,
   useEventListener,
   Text,
+  Icon,
 } from "@chakra-ui/react";
-import { FiSettings, FiSun, FiMoon } from "react-icons/fi";
+import { FiSettings, FiSun, FiMoon, FiArrowDown } from "react-icons/fi";
 import logo from "@assets/defillama-logo.png";
 import { useTopSites } from "@src/pages/libs/hooks";
 import { SearchBox } from "./SearchBox";
 import { TopSiteBlock } from "./TopSiteBlock";
 import { SettingsModal } from "./SettingsModal";
 import { Clock } from "./widgets/Clock";
+import { News } from "./widgets/News";
 
 function App() {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -27,7 +29,7 @@ function App() {
 
   return (
     <>
-      <VStack h="100vh" justifyContent="space-between">
+      <VStack h="100vh" w="100vw" justifyContent="space-between" pos="fixed">
         <HStack p="4" w="full" justifyContent="space-between">
           <IconButton
             aria-label="Toggle color mode"
@@ -54,17 +56,27 @@ function App() {
             </SimpleGrid>
           </VStack>
         </Center>
-        <HStack p="4" w="full" justifyContent="flex-end">
-          <IconButton
-            aria-label="Settings"
-            icon={<FiSettings />}
-            colorScheme="gray"
-            variant="ghost"
-            size="md"
-            onClick={settingsModal.onOpen}
-          />
-        </HStack>
+        <VStack w="full">
+          <VStack mb="10">
+            <Text fontSize="md" fontWeight="semibold">
+              Scroll for DefiLlama Roundup
+            </Text>
+            <Icon as={FiArrowDown} w="6" h="6" />
+          </VStack>
+
+          <HStack p="4" w="full" justifyContent="flex-end">
+            <IconButton
+              aria-label="Settings"
+              icon={<FiSettings />}
+              colorScheme="gray"
+              variant="ghost"
+              size="md"
+              onClick={settingsModal.onOpen}
+            />
+          </HStack>
+        </VStack>
       </VStack>
+      <News />
       <SettingsModal settingsModal={settingsModal} />
     </>
   );
