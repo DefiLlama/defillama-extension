@@ -1,6 +1,6 @@
 import Browser from "webextension-polyfill";
 
-import { Prices, PRICES_API } from "./constants";
+import { AccountsResponse, ACCOUNTS_API, Prices, PRICES_API } from "./constants";
 import { coinsDb } from "./db";
 
 export const getIsMac = () => /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform);
@@ -85,6 +85,16 @@ export async function getTokenPrice(tokenWithPrefix: string) {
 export async function getBatchTokenPrices(tokensWithPrefix: string[]) {
   const res = (await fetch(PRICES_API + "/" + tokensWithPrefix.join(",")).then((res) => res.json())) as Prices;
   return res.coins;
+}
+
+export async function getAccountTags(address: string) {
+  const res = (await fetch(ACCOUNTS_API + "/" + address).then((res) => res.json())) as AccountsResponse;
+  return res[0];
+}
+
+export async function getBatchAccountTags(addresses: string[]) {
+  const res = (await fetch(ACCOUNTS_API + "/" + addresses.join(",")).then((res) => res.json())) as AccountsResponse;
+  return res;
 }
 
 // render an image to console with given url
