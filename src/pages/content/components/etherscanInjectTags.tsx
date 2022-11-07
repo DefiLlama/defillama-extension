@@ -1,5 +1,6 @@
 import { createInlineLlamaIcon, getStorage, getAccountTags, logImage } from "@src/pages/libs/helpers";
 import gib from "@src/assets/img/memes/gib-128.png";
+import { makeDisplayTags } from "@src/pages/libs/tagging-helpers";
 
 export async function injectTags() {
   const tagsInjector = await getStorage("local", "settings:tagsInjector", true);
@@ -19,39 +20,44 @@ export async function injectTags() {
   }
 
   async function renderTagsOnAccountsPage() {
-    const tags = (await getAccountTags(account))?.tags ?? [];
-    console.log(tags);
-    if (tags.length === 0) {
+    const rawTags = await getAccountTags(account);
+    console.log(rawTags);
+    if (rawTags.tags.length === 0) {
       return;
     }
 
+    const displayTags = makeDisplayTags(rawTags);
+
     logImage(gib, `Llama Power knows a lot about ${account}`);
 
-    const tagsContainer = document.createElement("div");
-    tagsContainer.className = "d-flex align-items-center";
-    tagsContainer.style.marginBottom = "10px";
-
-    const tagsText = document.createElement("span");
-    tagsText.className = "text-muted";
-    tagsText.style.marginRight = "10px";
-    tagsText.innerText = "Tags:";
-    tagsContainer.appendChild(tagsText);
-
-    const tagsList = document.createElement("span");
-    tagsList.className = "text-muted";
-    tagsList.style.marginRight = "10px";
-    tagsList.innerText = tags.join(", ");
-    tagsContainer.appendChild(tagsList);
-
-    // const tagsButton = document.createElement("button");
-    // tagsButton.className = "btn btn-sm btn-outline-primary";
-    // tagsButton.innerText = "Edit";
-    // tagsButton.onclick = () => {
-    //   window.open(`https://google.com/q=${account}`, "_blank");
-    // };
-    // tagsContainer.appendChild(tagsButton);
+    // make a new card for tags
+    const card = document.createElement("div");
+    card.className = "card my-3";
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h2 class="card-header-title">Llama knows a lot</h5>
+          </div>  
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="d-flex flex-wrap">
+              ${displayTags
+                .map(
+                  (tag) =>
+                    `<span class="badge badge-pill badge-secondary m-1" style="font-size: smaller;">${tag.name}</span>`,
+                )
+                .join("")}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
 
     const container = document.querySelector("#content > div.container.py-3");
-    container.appendChild(tagsContainer);
+    container.appendChild(card);
   }
 }
