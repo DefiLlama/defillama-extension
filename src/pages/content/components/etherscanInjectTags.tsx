@@ -1,5 +1,6 @@
-import { createInlineLlamaIcon, getStorage, getAccountTags, logImage } from "@src/pages/libs/helpers";
+import { getStorage, getAccountTags, logImage, getImageUrl } from "@src/pages/libs/helpers";
 import gib from "@src/assets/img/memes/gib-128.png";
+import takeNote from "@src/assets/img/memes/take-note-128.png";
 import { makeDisplayTags } from "@src/pages/libs/tagging-helpers";
 
 export async function injectTags() {
@@ -37,7 +38,11 @@ export async function injectTags() {
       <div class="card-header">
         <div class="d-flex align-items-center">
           <div class="flex-grow-1">
-            <h2 class="card-header-title">Llama knows a lot</h5>
+            <h2 class="card-header-title">
+            <img src="${getImageUrl(
+              takeNote,
+            )}" width="20" height="20" class="d-inline-block align-top" alt="Llama knows a lot logo">
+            Llama knows a lot</h2>
           </div>  
         </div>
       </div>
@@ -46,10 +51,20 @@ export async function injectTags() {
           <div class="col-md-12">
             <div class="d-flex flex-wrap">
               ${displayTags
-                .map(
-                  (tag) =>
-                    `<span class="badge badge-pill badge-secondary m-1" style="font-size: smaller;">${tag.name}</span>`,
-                )
+                .map((tag) => {
+                  if (tag.icon) {
+                    return `
+                    <a href="${tag.link(tag.name)}">
+                    <span class="badge badge-pill badge-light m-1" style="font-size: smaller;"><img src="${getImageUrl(
+                      tag.icon,
+                    )}" width="12" height="12" class="d-inline-block align-top mr-1" alt="${tag.name} icon">${
+                      tag.name
+                    }</span>
+                    </a>`;
+                  } else {
+                    return `<span class="badge badge-pill badge-secondary m-1" style="font-size: smaller;">${tag.name}</span>`;
+                  }
+                })
                 .join("")}
             </div>
           </div>
