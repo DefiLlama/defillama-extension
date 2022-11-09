@@ -17,6 +17,7 @@ export const ACCOUNTS_API = "https://cutest.llamao.fi/api/v0/address";
 export interface TagsData {
   address: string; // with 0x prefix
   tags: string[];
+  entity?: string;
 }
 export type AccountsResponse = TagsData[];
 

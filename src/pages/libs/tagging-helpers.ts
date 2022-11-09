@@ -23,9 +23,8 @@ const TAG_TYPES = {
   // },
 } as const;
 
-export const makeDisplayTags = (res: TagsData) => {
+export const makeDisplayTags = (rawTags: string[]) => {
   const tags: DisplayTag[] = [];
-  const rawTags = res.tags;
 
   if (rawTags.includes("OpenSea User")) {
     // if doesn't have another tag starting with "OpenSea:", add "OpenSea User" tag.

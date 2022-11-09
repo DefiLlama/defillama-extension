@@ -21,15 +21,17 @@ export async function injectTags() {
   }
 
   async function renderTagsOnAccountsPage() {
-    const rawTags = await getAccountTags(account);
-    console.log(rawTags);
-    if (rawTags.tags.length === 0) {
+    const accountData = await getAccountTags(account);
+    console.log(accountData);
+    const rawTags = accountData.tags;
+    const entity = accountData.entity;
+    if (rawTags.length === 0 && !entity) {
       return;
     }
 
     const displayTags = makeDisplayTags(rawTags);
 
-    logImage(gib, `Llama Power knows a lot about ${account}`);
+    logImage(takeNote, `Llama knows a lot about ${account}`);
 
     // make a new card for tags
     const card = document.createElement("div");
@@ -50,6 +52,7 @@ export async function injectTags() {
         <div class="row">
           <div class="col-md-12">
             <div class="d-flex flex-wrap">
+              ${entity ? `<span class="badge badge-warning m-1" style="font-size: smaller;">${entity}</span>` : ""}
               ${displayTags
                 .map((tag) => {
                   if (tag.icon) {
