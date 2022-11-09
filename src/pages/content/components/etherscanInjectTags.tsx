@@ -55,14 +55,16 @@ export async function injectTags() {
               ${entity ? `<span class="badge badge-warning m-1" style="font-size: smaller;">${entity}</span>` : ""}
               ${displayTags
                 .map((tag) => {
-                  if (tag.icon) {
+                  if (tag.link) {
                     return `
-                    <a href="${tag.link(tag.name)}">
-                    <span class="badge badge-pill badge-light m-1" style="font-size: smaller;"><img src="${getImageUrl(
-                      tag.icon,
-                    )}" width="12" height="12" class="d-inline-block align-top mr-1" alt="${tag.name} icon">${
-                      tag.name
-                    }</span>
+                    <a href="${tag.link(account)}">
+                    <span class="badge badge-pill badge-light m-1" style="font-size: smaller;">${
+                      tag.icon
+                        ? `<img src="${getImageUrl(
+                            tag.icon,
+                          )}" width="12" height="12" class="d-inline-block align-top mr-1" alt="${tag.name} icon">`
+                        : ""
+                    }${tag.name}</span>
                     </a>`;
                   } else {
                     return `<span class="badge badge-pill badge-secondary m-1" style="font-size: smaller;">${tag.name}</span>`;
