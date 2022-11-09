@@ -106,6 +106,10 @@ export const logImage = (url: string, message = "", size = 20, styles = "") => {
   );
 };
 
+export const getImageUrl = (url: string) => {
+  return Browser.runtime.getURL(url);
+};
+
 export function createInlineLlamaIcon(src: string, alt: string, size = 12, className = "mr-1 mCS_img_loaded") {
   const icon = document.createElement("img");
   icon.src = Browser.runtime.getURL(src);
