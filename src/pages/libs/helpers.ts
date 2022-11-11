@@ -1,6 +1,6 @@
 import Browser from "webextension-polyfill";
 
-import { Prices, PRICES_API } from "./constants";
+import { AccountsResponse, ACCOUNTS_API, Prices, PRICES_API } from "./constants";
 import { coinsDb } from "./db";
 
 export const getIsMac = () => /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform);
@@ -87,6 +87,16 @@ export async function getBatchTokenPrices(tokensWithPrefix: string[]) {
   return res.coins;
 }
 
+export async function getAccountTags(address: string) {
+  const res = (await fetch(ACCOUNTS_API + "/" + address).then((res) => res.json())) as AccountsResponse;
+  return res[0];
+}
+
+export async function getBatchAccountTags(addresses: string[]) {
+  const res = (await fetch(ACCOUNTS_API + "/" + addresses.join(",")).then((res) => res.json())) as AccountsResponse;
+  return res;
+}
+
 // render an image to console with given url
 export const logImage = (url: string, message = "", size = 20, styles = "") => {
   const _url = Browser.runtime.getURL(url);
@@ -94,6 +104,10 @@ export const logImage = (url: string, message = "", size = 20, styles = "") => {
     `%c ${message}`,
     `background: url(${_url}) 0 0 no-repeat; padding-left: ${size}px; background-size: ${size}px; font-size: ${size}px; ${styles}`,
   );
+};
+
+export const getImageUrl = (url: string) => {
+  return Browser.runtime.getURL(url);
 };
 
 export function createInlineLlamaIcon(src: string, alt: string, size = 12, className = "mr-1 mCS_img_loaded") {

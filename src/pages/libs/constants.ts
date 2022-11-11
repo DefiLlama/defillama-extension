@@ -13,6 +13,14 @@ export interface Prices {
 export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
 export const PROTOCOL_TVL_THRESHOLD = 1000000;
 
+export const ACCOUNTS_API = "https://cutest.llamao.fi/api/v0/address";
+export interface TagsData {
+  address: string; // with 0x prefix
+  tags: string[];
+  entity?: string;
+}
+export type AccountsResponse = TagsData[];
+
 export const METAMASK_LIST_CONFIG_API =
   "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/config.json";
 export const DEFILLAMA_DIRECTORY_API =
