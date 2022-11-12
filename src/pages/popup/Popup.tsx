@@ -7,10 +7,11 @@ import Browser from "webextension-polyfill";
 
 const Popup = () => {
   const [priceInjector, setPriceInjector] = useBrowserStorage("local", "settings:priceInjector", true);
+  const [tagsInjector, setTagsInjector] = useBrowserStorage("local", "settings:tagsInjector", true);
   const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
 
   return (
-    <Box w="2xs" py="4" px="4" userSelect="none">
+    <Box w="xs" py="4" px="4" userSelect="none">
       <VStack>
         <Link href="https://defillama.com/" isExternal>
           <Image src={cute} alt="Cute Llama" w="14" />
@@ -21,7 +22,17 @@ const Popup = () => {
       </VStack>
       <VStack my="5" p="2" w="full" spacing="1.5" borderRadius="lg" bg={useColorModeValue("gray.100", "gray.900")}>
         <HStack justify="space-between" w="full">
-          <Text fontSize="sm">Inject prices on explorers</Text>
+          <Text fontSize="sm">Enable address tags on explorers</Text>
+          <Switch
+            size="sm"
+            isChecked={tagsInjector}
+            onChange={(e) => {
+              setTagsInjector(e.target.checked);
+            }}
+          />
+        </HStack>
+        <HStack justify="space-between" w="full">
+          <Text fontSize="sm">Enable token prices on explorers</Text>
           <Switch
             size="sm"
             isChecked={priceInjector}
