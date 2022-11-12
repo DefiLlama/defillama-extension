@@ -1,43 +1,43 @@
 switch (new URL(document.baseURI).hostname) {
   case "etherscan.io":
-    import("./components/ethereum");
+    import("./components/explorers/ethereum");
     break;
   case "bscscan.com":
-    import("./components/bsc");
+    import("./components/explorers/bsc");
     break;
   case "snowtrace.io":
-    import("./components/avax");
+    import("./components/explorers/avax");
     break;
   case "ftmscan.com":
-    import("./components/fantom");
+    import("./components/explorers/fantom");
     break;
   case "arbiscan.io":
-    import("./components/arbitrum");
+    import("./components/explorers/arbitrum");
     break;
   case "polygonscan.com":
-    import("./components/polygon");
+    import("./components/explorers/polygon");
     break;
   case "optimistic.etherscan.io":
-    import("./components/optimism");
+    import("./components/explorers/optimism");
     break;
   case "cronoscan.com":
-    import("./components/cronos");
+    import("./components/explorers/cronos");
     break;
   case "moonriver.moonscan.io":
-    import("./components/moonriver");
+    import("./components/explorers/moonriver");
     break;
   case "moonbeam.moonscan.io":
   case "moonscan.io":
-    import("./components/moonbeam");
+    import("./components/explorers/moonbeam");
     break;
   case "gnosisscan.io":
-    import("./components/gnosis");
+    import("./components/explorers/gnosis");
     break;
   case "bobascan.com":
-    import("./components/boba");
+    import("./components/explorers/boba");
     break;
   case "aurorascan.dev":
-    import("./components/aurora");
+    import("./components/explorers/aurora");
     break;
   default:
     break;
