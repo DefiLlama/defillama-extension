@@ -33,7 +33,6 @@ const manifest: ManifestType = {
       js: ["src/pages/content/index.js"],
     },
   ],
-  devtools_page: "src/pages/devtools/index.html",
   web_accessible_resources: [
     {
       resources: [
@@ -48,7 +47,7 @@ const manifest: ManifestType = {
       matches: ["<all_urls>"],
     },
   ],
-  permissions: ["storage", "tabs", "alarms"],
+  permissions: ["storage", "activeTab", "alarms"],
 };
 
 export default manifest;
