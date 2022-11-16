@@ -14,7 +14,7 @@ This extension wields the limitless llama power to show you accurate pricing of 
 
 ### Phishing link warning
 
-The cute llama icon on your browser extension tool bar is an unintrusive indicator that will turn red when you are visiting a suspicious website, or turn green when you are visiting a trusted website. Be safe with the llamas!
+The cute llama icon on your browser extension tool bar is an unintrusive indicator that will turn red when you are visiting a suspicious website, or turn green when you are visiting a trusted website. Stay safe with the llamas!
 
 ## Privacy
 
