@@ -37,21 +37,13 @@ export async function injectTags() {
     const card = document.createElement("div");
     card.className = "card my-3";
     card.innerHTML = `
-      <div class="card-header">
-        <div class="d-flex align-items-center">
-          <div class="flex-grow-1">
-            <h2 class="card-header-title">
-            <img src="${getImageUrl(
-              takeNote,
-            )}" width="20" height="20" class="d-inline-block align-top" alt="Llama knows a lot logo">
-            Llama knows a lot</h2>
-          </div>  
-        </div>
-      </div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-12">
-            <div class="d-flex flex-wrap">
+            <div class="d-flex flex-wrap flex align-items-center">
+              <img src="${getImageUrl(
+                takeNote,
+              )}" width="24" height="24" class="d-inline-block align-top mr-2" alt="Llama Tagging logo" title="Llama Tagging">
               ${entity ? `<span class="badge badge-warning m-1" style="font-size: smaller;">${entity}</span>` : ""}
               ${displayTags
                 .map((tag) => {
