@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DefiLlama",
-  "version": "0.0.1.4",
+  "version": "0.0.1.5",
   "description": "DefiLlama Extension",
   "background": {
     "service_worker": "src/pages/background/index.js",
@@ -53,7 +53,7 @@
   ],
   "permissions": [
     "storage",
-    "activeTab",
+    "tabs",
     "alarms"
   ]
 }
