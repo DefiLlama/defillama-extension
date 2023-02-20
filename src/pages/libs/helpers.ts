@@ -3,6 +3,18 @@ import Browser from "webextension-polyfill";
 import { AccountsResponse, ACCOUNTS_API, Prices, PRICES_API } from "./constants";
 import { coinsDb } from "./db";
 
+export const fetchWithUserAgent = async (url: string, options?: RequestInit) => {
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options?.headers,
+      "User-Agent": "DefiLlama Extension",
+    },
+  });
+};
+
+const fetch = fetchWithUserAgent;
+
 export const getIsMac = () => /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform);
 
 /**
