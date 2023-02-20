@@ -28,7 +28,6 @@ const manifest: ManifestType = {
         "*://*.moonscan.io/*",
         "*://*.gnosisscan.io/*",
         "*://*.bobascan.com/*",
-        "*://*.aurorascan.dev/*",
       ],
       js: ["src/pages/content/index.js"],
     },
