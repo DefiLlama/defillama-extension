@@ -40,8 +40,13 @@
         "assets/js/*.js",
         "assets/css/*.css",
         "assets/img/memes/*.png",
+        "assets/img/protocols/*.png",
         "assets/png/*.png",
         "assets/png/*.chunk.png",
+        "assets/img/memes/*.webp",
+        "assets/img/protocols/*.webp",
+        "assets/webp/*.webp",
+        "assets/webp/*.chunk.webp",
         "icon-128.png",
         "icon-34.png"
       ],
