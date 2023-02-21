@@ -4,11 +4,11 @@ import institute from "@src/assets/img/memes/institute-128.png";
 import opensea from "@src/assets/img/protocols/opensea.png";
 import uniswap from "@src/assets/img/protocols/uniswap.png";
 import shibaswap from "@src/assets/img/protocols/shibaswap.webp";
-import sushiswap from "@src/assets/img/protocols/sushiswap.webp";
+import sushi from "@src/assets/img/protocols/sushi.webp";
 import balancer from "@src/assets/img/protocols/balancer.webp";
 import pcs from "@src/assets/img/protocols/pcs.webp";
 import fraxswap from "@src/assets/img/protocols/fraxswap.webp";
-import { TagsDataV1, TagsDataV1Core } from "./constants";
+import { TagsDataV1Core } from "./constants";
 
 export interface DisplayTag {
   name: string;
@@ -92,7 +92,7 @@ export interface DisplayTagV1 {
   icon?: string;
   link?: string;
   tooltip?: string;
-  bg:
+  bg?:
     | "bg-primary"
     | "bg-secondary"
     | "bg-success"
@@ -102,7 +102,7 @@ export interface DisplayTagV1 {
     | "bg-light"
     | "bg-dark"
     | "bg-white";
-  textColor:
+  textColor?:
     | "text-primary"
     | "text-secondary"
     | "text-success"
@@ -118,10 +118,10 @@ export interface DisplayTagV1 {
 export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
   const socials: DisplayTagV1[] = tagsData.socials.map((data) => ({
     text: data.name,
-    icon: data.protocol === "OpenSea" ? opensea : null,
-    link: data.protocol === "OpenSea" ? `https://opensea.io/${data.name}` : null,
-    bg: "bg-light",
-    textColor: "text-dark",
+    icon: data.protocol === "Opensea" ? opensea : null,
+    link: data.protocol === "Opensea" ? `https://opensea.io/${data.name}` : null,
+    bg: "bg-primary",
+    textColor: "text-light",
   }));
 
   const entities: DisplayTagV1[] = tagsData.entities.map((data) => ({
@@ -197,9 +197,7 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
   const dexUsers: DisplayTagV1[] = tagsData.behaviorals
     .filter((data) => data.category === "DEX User")
     .map((data) => ({
-      bg: "bg-primary",
-      textColor: "text-white",
-      info:
+      icon:
         data.tag === "UniswapV2" || data.tag === "UniswapV3"
           ? uniswap
           : data.tag === "Balancer"
@@ -211,9 +209,9 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
           : data.tag === "ShibaSwap"
           ? shibaswap
           : data.tag === "SushiSwap"
-          ? sushiswap
+          ? sushi
           : null,
-      icon: smort,
+      info: data.tag,
     }));
 
   const otherBehaviorals: DisplayTagV1[] = tagsData.behaviorals
@@ -232,8 +230,8 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
     )
     .map((data) => ({
       text: data.tag,
-      bg: "bg-light",
-      textColor: "text-dark",
+      bg: "bg-secondary",
+      textColor: "text-light",
     }));
 
   return [

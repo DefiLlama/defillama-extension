@@ -36,7 +36,7 @@ export const injectTags = async () => {
 
     // containers n stuff reeeeeee
     const cardBody = document.createElement("div");
-    cardBody.className = "card-body d-flex flex-row gap-2";
+    cardBody.className = "card-body d-flex flex-row gap-2 flex-wrap align-items-center";
     card.appendChild(cardBody);
 
     // insert a takeNote image into the card
@@ -50,24 +50,40 @@ export const injectTags = async () => {
     cardBody.appendChild(takeNoteImage);
 
     const tags = makeDisplayTagsV1(accountData).map((tag) => {
+      console.log(tag);
       const tagContainer = document.createElement("div");
       tagContainer.className = "d-flex flex-column align-items-center";
       cardBody.appendChild(tagContainer);
 
+      const tagText = document.createElement("span");
+      tagText.className = tag.text ? "badge badge-pill " + (tag.textColor || "") + " " + (tag.bg || "") : "";
+      tagText.style.fontSize = "smaller";
+      tagText.textContent = tag.text;
+      tagContainer.appendChild(tagText);
+
+      if (tag.link) {
+        const tagLink = document.createElement("a");
+        // if there's link, wrap the tag text in an anchor tag
+        tagLink.href = tag.link;
+        tagLink.target = "_blank";
+        tagLink.rel = "noopener noreferrer";
+        tagLink.appendChild(tagText);
+        tagContainer.appendChild(tagLink);
+      }
+
       if (tag.icon) {
         const tagImage = document.createElement("img");
         tagImage.src = getImageUrl(tag.icon);
-        tagImage.width = 24;
-        tagImage.height = 24;
-        tagImage.className = "d-inline-block align-top mb-1";
-        tagImage.alt = `${tag.text} icon`;
-        tagContainer.appendChild(tagImage);
+        tagImage.width = tag.text ? 14 : 18;
+        tagImage.height = tag.text ? 14 : 18;
+        tagImage.className = "d-inline-block align-center rounded-circle";
+        tagImage.alt = `${tag.text ?? ""} icon`;
+        // add right margin to the image if there is text
+        if (tag.text) {
+          tagImage.style.marginRight = "4px";
+        }
+        tagText.prepend(tagImage);
       }
-
-      const tagText = document.createElement("span");
-      tagText.className = "badge badge-pill " + tag.textColor + " " + tag.bg;
-      tagText.textContent = tag.text;
-      tagContainer.appendChild(tagText);
 
       return tagContainer;
     });
