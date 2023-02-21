@@ -128,6 +128,7 @@ export const logImage = (url: string, message = "", size = 20, styles = "") => {
 };
 
 export const getImageUrl = (url: string) => {
+  if (url.startsWith("data:image")) return url;
   return Browser.runtime.getURL(url);
 };
 
