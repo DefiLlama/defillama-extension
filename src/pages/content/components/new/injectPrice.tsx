@@ -53,8 +53,10 @@ export async function injectPrice() {
     // select //*[@id="dropdownMenuBalance"]/text() and add the new balances and replace the text content
     const totalAmountTextNode = document.querySelector("#dropdownMenuBalance").childNodes[0];
     const hasMoreTokens = totalAmountTextNode.textContent.includes(">");
-    let totalAmount = parseFloat(totalAmountTextNode.textContent.split("\n")[1].replace(/,/g, "").replace(/.*\$/g, ""));
-    console.log(totalAmount);
+    const originalAmount = parseFloat(
+      totalAmountTextNode.textContent.split("\n")[1].replace(/,/g, "").replace(/.*\$/g, ""),
+    );
+    let discoveredAmount = 0;
 
     const tokenPrices = await getBatchTokenPrices(Object.keys(tokensToInject));
     for (const token of tokenListArray) {
@@ -64,7 +66,7 @@ export async function injectPrice() {
         const price = tokenPrices[address].price;
         const amount = tokensToInject[address].amount;
         const tokenValue = price * amount;
-        totalAmount += tokenValue;
+        discoveredAmount += tokenValue;
         const formattedPrice = formatPrice(price, "@");
         const formattedTokenValue = formatPrice(tokenValue, "$", true);
         token.querySelector(".list-usd-value").innerHTML = formattedTokenValue;
@@ -77,30 +79,33 @@ export async function injectPrice() {
       }
     }
 
-    totalAmountTextNode.textContent = "\n" + (hasMoreTokens ? ">" : "") + formatPrice(totalAmount) + "\n";
-    const biggerIcon = createInlineLlamaIcon(gib, "priced by defillama", 16);
-    document.querySelector("#dropdownMenuBalance").append(biggerIcon);
-    
+    if (discoveredAmount > 0) {
+      totalAmountTextNode.textContent =
+        "\n" + (hasMoreTokens ? ">" : "") + formatPrice(discoveredAmount + originalAmount) + "\n";
+      const biggerIcon = createInlineLlamaIcon(gib, "priced by defillama", 16);
+      document.querySelector("#dropdownMenuBalance").append(biggerIcon);
+    }
+
     // click on button #btn_ERC20_sort twice to sort by price
     const sortButton = document.querySelector<HTMLButtonElement>("#btn_ERC20_sort");
     sortButton.click();
     sortButton.click();
   }
-  
+
   async function renderErc20PriceOnAddressPage() {
     const tokenNameNode = document.querySelector<HTMLAnchorElement>("#ContentPlaceHolder1_tr_tokeninfo > div > a");
     const tokenPriceNode = document.querySelector("#ContentPlaceHolder1_tr_tokeninfo > div > span");
     if (!tokenNameNode || tokenPriceNode) {
       return;
     }
-    
+
     const tokenAddress = tokenNameNode.href.split("/")[4].split("?")[0];
     const address = "ethereum:" + tokenAddress;
     const tokenPrice = await getTokenPrice(address);
     if (!tokenPrice) {
       return;
     }
-    
+
     const formattedPrice = formatPrice(tokenPrice.price, "@$");
     // create a span with .text-muted and append to the token name node on the same level
     const priceSpan = document.createElement("span");
