@@ -22,7 +22,7 @@ export const injectTags = async () => {
   async function renderTagsOnAccountsPage() {
     const accountData = await getAccountTagsV1(account);
     console.log(accountData);
-    if (!accountData) {
+    if (accountData.behaviorals.length + accountData.entities.length + accountData.socials.length === 0) {
       return;
     }
 
