@@ -3,6 +3,7 @@ import smort from "@src/assets/img/memes/smort-128.png";
 import institute from "@src/assets/img/memes/institute-128.png";
 import opensea from "@src/assets/img/protocols/opensea.png";
 import uniswap from "@src/assets/img/protocols/uniswap.png";
+import uniswapv3 from "@src/assets/img/protocols/uniswapv3.webp";
 import shibaswap from "@src/assets/img/protocols/shibaswap.webp";
 import sushi from "@src/assets/img/protocols/sushi.webp";
 import balancer from "@src/assets/img/protocols/balancer.webp";
@@ -198,8 +199,10 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
     .filter((data) => data.category === "DEX User")
     .map((data) => ({
       icon:
-        data.tag === "UniswapV2" || data.tag === "UniswapV3"
+        data.tag === "UniswapV2"
           ? uniswap
+          : data.tag === "UniswapV3"
+          ? uniswapv3
           : data.tag === "Balancer"
           ? balancer
           : data.tag === "Fraxswap"
