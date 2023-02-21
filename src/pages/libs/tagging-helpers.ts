@@ -3,6 +3,11 @@ import smort from "@src/assets/img/memes/smort-128.png";
 import institute from "@src/assets/img/memes/institute-128.png";
 import opensea from "@src/assets/img/protocols/opensea.png";
 import uniswap from "@src/assets/img/protocols/uniswap.png";
+import shibaswap from "@src/assets/img/protocols/shibaswap.webp";
+import sushiswap from "@src/assets/img/protocols/sushiswap.webp";
+import balancer from "@src/assets/img/protocols/balancer.webp";
+import pcs from "@src/assets/img/protocols/pcs.webp";
+import fraxswap from "@src/assets/img/protocols/fraxswap.webp";
 import { TagsDataV1 } from "./constants";
 
 export interface DisplayTag {
@@ -113,6 +118,21 @@ export interface DisplayTagV1 {
 export const makeDisplayTagsV1 = (tagsDataDict: TagsDataV1, account: string) => {
   const tagsData = tagsDataDict[account];
 
+  const socials: DisplayTagV1[] = tagsData.socials.map((data) => ({
+    text: data.name,
+    icon: data.protocol === "OpenSea" ? opensea : null,
+    link: data.protocol === "OpenSea" ? `https://opensea.io/${data.name}` : null,
+    bg: "bg-light",
+    textColor: "text-dark",
+  }));
+
+  const entities: DisplayTagV1[] = tagsData.entities.map((data) => ({
+    text: data.tag,
+    icon: institute,
+    bg: "bg-dark",
+    textColor: "text-white",
+  }));
+
   const fundedByCex: DisplayTagV1[] = tagsData.behaviorals
     .filter((data) => data.category === "Funded By CEX")
     .map((data) => ({
@@ -181,7 +201,20 @@ export const makeDisplayTagsV1 = (tagsDataDict: TagsDataV1, account: string) => 
     .map((data) => ({
       bg: "bg-primary",
       textColor: "text-white",
-      info: data.tag,
+      info:
+        data.tag === "UniswapV2" || data.tag === "UniswapV3"
+          ? uniswap
+          : data.tag === "Balancer"
+          ? balancer
+          : data.tag === "Fraxswap"
+          ? fraxswap
+          : data.tag === "PancakeSwap ETH"
+          ? pcs
+          : data.tag === "ShibaSwap"
+          ? shibaswap
+          : data.tag === "SushiSwap"
+          ? sushiswap
+          : null,
       icon: smort,
     }));
 
@@ -205,18 +238,15 @@ export const makeDisplayTagsV1 = (tagsDataDict: TagsDataV1, account: string) => 
       textColor: "text-dark",
     }));
 
-  const socials: DisplayTagV1[] = tagsData.socials.map((data) => ({
-    text: data.name,
-    icon: data.protocol === "OpenSea" ? opensea : null,
-    link: data.protocol === "OpenSea" ? `https://opensea.io/${data.name}` : null,
-    bg: "bg-light",
-    textColor: "text-dark",
-  }));
-
-  const entities: DisplayTagV1[] = tagsData.entities.map((data) => ({
-    text: data.tag,
-    icon: institute,
-    bg: "bg-dark",
-    textColor: "text-white",
-  }));
+  return [
+    ...socials,
+    ...entities,
+    ...fundedByCex,
+    ...advancedDexUsers,
+    ...smartMoney,
+    ...nftCollectors,
+    ...donors,
+    ...dexUsers,
+    ...otherBehaviorals,
+  ];
 };
