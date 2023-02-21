@@ -121,6 +121,90 @@ export const makeDisplayTagsV1 = (tagsDataDict: TagsDataV1, account: string) => 
       textColor: "text-dark",
     }));
 
+  const advancedDexUsers: DisplayTagV1[] = tagsData.behaviorals
+    .filter((data) => data.category === "Advanced DEX User")
+    .map((data) => ({
+      text: data.tag,
+      bg: "bg-success",
+      textColor: "text-white",
+      icon: smort,
+      info: data.tag === "Frequent Dex Trader" ? "Top 1% frequent traders" : null,
+    }));
+
+  const smartMoney: DisplayTagV1[] = tagsData.behaviorals
+    .filter((data) => data.category === "Smart Money")
+    .map((data) => ({
+      text: data.tag,
+      bg: "bg-danger",
+      textColor: "text-white",
+      icon: smort,
+      info:
+        data.tag === "Early LP"
+          ? "Top 100 addresses which have consistently provided the earliest liquidity on all known DEXs"
+          : data.tag === "Early Farmer"
+          ? "Top 100 addresses which have consistently deposited the earliest into stake pools"
+          : null,
+    }));
+
+  const nftCollectors: DisplayTagV1[] = tagsData.behaviorals
+    .filter((data) => data.category === "NFT Collector")
+    .map((data) => ({
+      text: data.tag,
+      bg: "bg-danger",
+      textColor: "text-white",
+      icon: smort,
+      info:
+        data.tag === "NFT Enjoyoor"
+          ? "Top 1m addresses which have sent or received NFTs"
+          : data.tag === "Uncommon NFT Enjoyoor"
+          ? "Top 100k addresses which have sent or received NFTs"
+          : data.tag === "Rare NFT Enjoyoor"
+          ? "Top 25k addresses which have sent or received NFTs"
+          : data.tag === "Epic NFT Enjoyoor"
+          ? "Top 10k addresses which have sent or received NFTs"
+          : data.tag === "Legendary NFT Enjoyoor"
+          ? "Top 1k addresses which have sent or received NFTs"
+          : null,
+    }));
+
+  const donors: DisplayTagV1[] = tagsData.behaviorals
+    .filter((data) => data.category === "Donation")
+    .map((data) => ({
+      text: data.tag,
+      bg: "bg-primary",
+      textColor: "text-white",
+      icon: llub,
+    }));
+
+  const dexUsers: DisplayTagV1[] = tagsData.behaviorals
+    .filter((data) => data.category === "DEX User")
+    .map((data) => ({
+      bg: "bg-primary",
+      textColor: "text-white",
+      info: data.tag,
+      icon: smort,
+    }));
+
+  const otherBehaviorals: DisplayTagV1[] = tagsData.behaviorals
+    .filter(
+      (data) =>
+        data.category === "NFT Marketplace User" ||
+        data.category === "NFT Minter" ||
+        data.category === "Airdrop Recipients" ||
+        data.category === "Early Investor" ||
+        data.category === "Privacy Protocol User" ||
+        data.category === "Rug Victim" ||
+        data.category === "Developer" ||
+        data.category === "DeFi" ||
+        data.category === "Memes" ||
+        data.category === "Misc",
+    )
+    .map((data) => ({
+      text: data.tag,
+      bg: "bg-light",
+      textColor: "text-dark",
+    }));
+
   const socials: DisplayTagV1[] = tagsData.socials.map((data) => ({
     text: data.name,
     icon: data.protocol === "OpenSea" ? opensea : null,
