@@ -1,6 +1,6 @@
 import { getStorage, getAccountTags, logImage, getImageUrl, getAccountTagsV1 } from "@src/pages/libs/helpers";
 import takeNote from "@src/assets/img/memes/take-note-128.png";
-import { makeDisplayTags } from "@src/pages/libs/tagging-helpers";
+import { makeDisplayTags, makeDisplayTagsV1 } from "@src/pages/libs/tagging-helpers";
 
 export const injectTags = async () => {
   const tagsInjector = await getStorage("local", "settings:tagsInjector", true);
@@ -36,7 +36,7 @@ export const injectTags = async () => {
 
     // containers n stuff reeeeeee
     const cardBody = document.createElement("div");
-    cardBody.className = "card-body d-flex flex-row gap-5";
+    cardBody.className = "card-body d-flex flex-row gap-2";
     card.appendChild(cardBody);
 
     // insert a takeNote image into the card
@@ -48,5 +48,31 @@ export const injectTags = async () => {
     takeNoteImage.alt = "Llama Tagging logo";
     takeNoteImage.title = "Llama Tagging";
     cardBody.appendChild(takeNoteImage);
+
+    const tags = makeDisplayTagsV1(accountData).map((tag) => {
+      const tagContainer = document.createElement("div");
+      tagContainer.className = "d-flex flex-column align-items-center";
+      cardBody.appendChild(tagContainer);
+
+      if (tag.icon) {
+        const tagImage = document.createElement("img");
+        tagImage.src = getImageUrl(tag.icon);
+        tagImage.width = 24;
+        tagImage.height = 24;
+        tagImage.className = "d-inline-block align-top mb-1";
+        tagImage.alt = `${tag.text} icon`;
+        tagContainer.appendChild(tagImage);
+      }
+
+      const tagText = document.createElement("span");
+      tagText.className = "badge badge-pill " + tag.textColor + " " + tag.bg;
+      tagText.textContent = tag.text;
+      tagContainer.appendChild(tagText);
+
+      return tagContainer;
+    });
+
+    // attach the tags to the card
+    cardBody.append(...tags);
   }
 };
