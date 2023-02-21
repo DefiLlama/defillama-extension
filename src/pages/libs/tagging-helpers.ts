@@ -8,7 +8,7 @@ import sushiswap from "@src/assets/img/protocols/sushiswap.webp";
 import balancer from "@src/assets/img/protocols/balancer.webp";
 import pcs from "@src/assets/img/protocols/pcs.webp";
 import fraxswap from "@src/assets/img/protocols/fraxswap.webp";
-import { TagsDataV1 } from "./constants";
+import { TagsDataV1, TagsDataV1Core } from "./constants";
 
 export interface DisplayTag {
   name: string;
@@ -115,9 +115,7 @@ export interface DisplayTagV1 {
     | "text-white";
 }
 
-export const makeDisplayTagsV1 = (tagsDataDict: TagsDataV1, account: string) => {
-  const tagsData = tagsDataDict[account];
-
+export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
   const socials: DisplayTagV1[] = tagsData.socials.map((data) => ({
     text: data.name,
     icon: data.protocol === "OpenSea" ? opensea : null,

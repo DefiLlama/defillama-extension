@@ -22,14 +22,13 @@ export interface TagsData {
 }
 export type AccountsResponse = TagsData[];
 
-export type TagsDataV1 = Record<
-  string,
-  {
-    behaviorals: { category: string; tag: string }[];
-    entities: { category: string; tag: string }[];
-    socials: { protocol: string; name: string }[];
-  }
->;
+export type TagsDataV1 = Record<string, TagsDataV1Core>;
+
+export type TagsDataV1Core = {
+  behaviorals: { category: string; tag: string }[];
+  entities: { category: string; tag: string }[];
+  socials: { protocol: string; name: string }[];
+};
 
 export const METAMASK_LIST_CONFIG_API =
   "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/config.json";
