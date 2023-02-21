@@ -215,7 +215,7 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
           : data.tag === "SushiSwap"
           ? sushi
           : null,
-      tooltip: data.tag,
+      tooltip: data.tag + " User",
     }));
 
   const otherBehaviorals: DisplayTagV1[] = tagsData.behaviorals
