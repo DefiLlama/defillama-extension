@@ -138,6 +138,7 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
       text: data.tag,
       bg: "bg-warning",
       textColor: "text-dark",
+      tooltip: "Funded by CEX",
     }));
 
   const advancedDexUsers: DisplayTagV1[] = tagsData.behaviorals
@@ -147,7 +148,7 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
       bg: "bg-success",
       textColor: "text-white",
       icon: smort,
-      info: data.tag === "Frequent Dex Trader" ? "Top 1% frequent traders" : null,
+      tooltip: data.tag === "Frequent Dex Trader" ? "Top 1% frequent traders" : null,
     }));
 
   const smartMoney: DisplayTagV1[] = tagsData.behaviorals
@@ -157,7 +158,7 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
       bg: "bg-danger",
       textColor: "text-white",
       icon: smort,
-      info:
+      tooltip:
         data.tag === "Early LP"
           ? "Top 100 addresses which have consistently provided the earliest liquidity on all known DEXs"
           : data.tag === "Early Farmer"
@@ -172,7 +173,7 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
       bg: "bg-danger",
       textColor: "text-white",
       icon: smort,
-      info:
+      tooltip:
         data.tag === "NFT Enjoyoor"
           ? "Top 1m addresses which have sent or received NFTs"
           : data.tag === "Uncommon NFT Enjoyoor"
@@ -214,7 +215,7 @@ export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
           : data.tag === "SushiSwap"
           ? sushi
           : null,
-      info: data.tag,
+      tooltip: data.tag,
     }));
 
   const otherBehaviorals: DisplayTagV1[] = tagsData.behaviorals

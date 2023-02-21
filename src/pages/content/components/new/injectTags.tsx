@@ -87,10 +87,40 @@ export const injectTags = async () => {
         tagText.prepend(tagImage);
       }
 
+      // add a tooltip to the tag
+      if (tag.tooltip) {
+        tagContainer.title = tag.tooltip;
+        // data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" aria-label=tag.tooltip
+        tagContainer.setAttribute("data-bs-toggle", "tooltip");
+        tagContainer.setAttribute("data-bs-placement", "top");
+        tagContainer.setAttribute("data-bs-trigger", "hover");
+        tagContainer.setAttribute("aria-label", tag.tooltip);
+      }
+
       return tagContainer;
     });
 
     // attach the tags to the card
     cardBody.append(...tags);
+
+    // activate tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+
+    // this is a hack to wait for bootstrap to load so that the tooltips can be initialized
+    const waitForBootstrap = () => {
+      // @ts-ignore
+      if (window.bootstrap) {
+        console.log("bootstrap loaded");
+        tooltipTriggerList.map(function (el) {
+          // @ts-ignore
+          return new window.bootstrap.Tooltip(el);
+        });
+      } else {
+        // @ts-ignore
+        setTimeout(waitForBootstrap, 100);
+      }
+    };
+
+    setTimeout(waitForBootstrap, 100);
   }
 };
