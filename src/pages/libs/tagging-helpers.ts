@@ -1,9 +1,9 @@
-import { TagsData } from "./constants";
 import llub from "@src/assets/img/memes/llub-128.png";
 import smort from "@src/assets/img/memes/smort-128.png";
 import institute from "@src/assets/img/memes/institute-128.png";
 import opensea from "@src/assets/img/protocols/opensea.png";
 import uniswap from "@src/assets/img/protocols/uniswap.png";
+import { TagsDataV1 } from "./constants";
 
 export interface DisplayTag {
   name: string;
@@ -80,4 +80,39 @@ export const makeDisplayTags = (rawTags: string[]) => {
   }
 
   return tags;
+};
+
+export interface DisplayTagV1 {
+  text?: string;
+  icon?: string;
+  link?: string;
+  tooltip?: string;
+  bg?:
+    | "bg-primary"
+    | "bg-secondary"
+    | "bg-success"
+    | "bg-danger"
+    | "bg-warning"
+    | "bg-info"
+    | "bg-light"
+    | "bg-dark"
+    | "bg-white";
+  textColor?:
+    | "text-primary"
+    | "text-secondary"
+    | "text-success"
+    | "text-danger"
+    | "text-warning"
+    | "text-info"
+    | "text-light"
+    | "text-dark"
+    | "text-muted"
+    | "text-white";
+}
+
+export const makeDisplayTagsV1 = (tagsDataDict: TagsDataV1, account: string) => {
+  const displayTags: DisplayTagV1[] = [];
+  const tagsData = tagsDataDict[account];
+
+  const fundedByCex = tagsData.behaviorals.filter((tag) => tag.category === "Funded By CEX");
 };

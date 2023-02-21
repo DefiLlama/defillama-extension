@@ -36,7 +36,7 @@ export const injectTags = async () => {
 
     // containers n stuff reeeeeee
     const cardBody = document.createElement("div");
-    cardBody.className = "card-body d-flex flex-column gap-5";
+    cardBody.className = "card-body d-flex flex-row gap-5";
     card.appendChild(cardBody);
 
     // insert a takeNote image into the card
