@@ -1,6 +1,6 @@
 import Browser from "webextension-polyfill";
 
-import { AccountsResponse, ACCOUNTS_API, Prices, PRICES_API } from "./constants";
+import { AccountsResponse, ACCOUNTS_API, ACCOUNTS_API_V1, Prices, PRICES_API, TagsDataV1 } from "./constants";
 import { coinsDb } from "./db";
 
 export const getIsMac = () => /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform);
@@ -106,6 +106,11 @@ export async function getBatchTokenPrices(tokensWithPrefix: string[]) {
 export async function getAccountTags(address: string) {
   const res = (await fetch(ACCOUNTS_API + "/" + address).then((res) => res.json())) as AccountsResponse;
   return res[0];
+}
+
+export async function getAccountTagsV1(address: string) {
+  const res = (await fetch(ACCOUNTS_API_V1 + "/" + address).then((res) => res.json())) as TagsDataV1;
+  return res[address];
 }
 
 export async function getBatchAccountTags(addresses: string[]) {
