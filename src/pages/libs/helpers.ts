@@ -3,18 +3,6 @@ import Browser from "webextension-polyfill";
 import { AccountsResponse, ACCOUNTS_API, Prices, PRICES_API } from "./constants";
 import { coinsDb } from "./db";
 
-export const fetchWithUserAgent = async (url: string, options?: RequestInit) => {
-  return fetch(url, {
-    ...options,
-    headers: {
-      ...options?.headers,
-      "User-Agent": "DefiLlama Extension",
-    },
-  });
-};
-
-const fetch = fetchWithUserAgent;
-
 export const getIsMac = () => /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform);
 
 /**
@@ -79,9 +67,9 @@ export function getReadableValue(value: number) {
   return (value / Math.pow(1000, e)).toFixed(1) + s[e];
 }
 
-export function formatPrice(price: number, symbol = "$") {
+export function formatPrice(price: number, symbol = "$", ignoreSmol = false) {
   let _price: string;
-  if (price < 1) {
+  if (price < 1 && !ignoreSmol) {
     _price = price.toPrecision(3);
   } else {
     _price = price.toLocaleString("en-US", { maximumFractionDigits: 2 });
@@ -95,8 +83,24 @@ export async function getTokenPrice(tokenWithPrefix: string) {
 }
 
 export async function getBatchTokenPrices(tokensWithPrefix: string[]) {
-  const res = (await fetch(PRICES_API + "/" + tokensWithPrefix.join(",")).then((res) => res.json())) as Prices;
-  return res.coins;
+  const chunkSize = 20;
+  const chunks = [];
+  for (let i = 0; i < tokensWithPrefix.length; i += chunkSize) {
+    chunks.push(tokensWithPrefix.slice(i, i + chunkSize));
+  }
+
+  const res = await Promise.all(
+    chunks.map(async (chunk) => (await fetch(PRICES_API + "/" + chunk.join(",")).then((res) => res.json())) as Prices),
+  );
+  const coins: {
+    [key: string]: {
+      price: number;
+      symbol: string;
+      timestamp: number;
+      confidence: number;
+    };
+  } = res.reduce((acc, cur) => ({ ...acc, ...cur.coins }), {});
+  return coins;
 }
 
 export async function getAccountTags(address: string) {
