@@ -115,16 +115,13 @@ export async function injectPrice(config: EtherscanAlikeExplorerConfig) {
 
   async function renderErc20PriceOnAddressPage() {
     if (!document.querySelector(SELECTOR_ERC20_TOKEN_INFO_ROW)) {
-      console.log("Llama thinks this is not an ERC20 token");
       return;
     }
     if (document.querySelector(SELECTOR_ERC20_TOKEN_INFO_PRICE)) {
-      console.log("Llama thinks Etherscan already has the price");
       return;
     }
     const { price, symbol } = (await getTokenPrice(config.chainPrefix + account)) ?? {};
     if (!price) {
-      console.log("Llama doesn't know the price of this token");
       return;
     }
 

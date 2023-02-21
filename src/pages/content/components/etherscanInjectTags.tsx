@@ -21,7 +21,6 @@ export async function injectTags() {
 
   async function renderTagsOnAccountsPage() {
     const accountData = await getAccountTagsV1(account);
-    console.log(accountData);
     if (accountData.behaviorals.length + accountData.entities.length + accountData.socials.length === 0) {
       return;
     }
@@ -111,16 +110,16 @@ export async function injectTags() {
     let tries = 0;
     const waitForBootstrap = () => {
       if (tries++ > 30) {
-        console.log("couldn't initialize tooltips");
+        console.log("couldn't initialize tooltips for llama tags");
         return;
       }
       // @ts-ignore
       if (window.bootstrap) {
-        console.log("bootstrap loaded");
         tooltipTriggerList.map(function (el) {
           // @ts-ignore
           return new window.bootstrap.Tooltip(el);
         });
+        console.log("tooltips initialized for llama tags");
       } else {
         // @ts-ignore
         setTimeout(waitForBootstrap, 100);

@@ -21,7 +21,6 @@ export const injectTags = async () => {
 
   async function renderTagsOnAccountsPage() {
     const accountData = await getAccountTagsV1(account);
-    console.log(accountData);
     if (accountData.behaviorals.length + accountData.entities.length + accountData.socials.length === 0) {
       return;
     }
@@ -107,14 +106,19 @@ export const injectTags = async () => {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 
     // this is a hack to wait for bootstrap to load so that the tooltips can be initialized
+    let tries = 0;
     const waitForBootstrap = () => {
+      if (tries++ > 30) {
+        console.log("couldn't initialize tooltips for llama tags");
+        return;
+      }
       // @ts-ignore
       if (window.bootstrap) {
-        console.log("bootstrap loaded");
         tooltipTriggerList.map(function (el) {
           // @ts-ignore
           return new window.bootstrap.Tooltip(el);
         });
+        console.log("tooltips initialized for llama tags");
       } else {
         // @ts-ignore
         setTimeout(waitForBootstrap, 100);
