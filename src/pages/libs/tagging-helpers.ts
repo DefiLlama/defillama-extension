@@ -87,7 +87,7 @@ export interface DisplayTagV1 {
   icon?: string;
   link?: string;
   tooltip?: string;
-  bg?:
+  bg:
     | "bg-primary"
     | "bg-secondary"
     | "bg-success"
@@ -97,7 +97,7 @@ export interface DisplayTagV1 {
     | "bg-light"
     | "bg-dark"
     | "bg-white";
-  textColor?:
+  textColor:
     | "text-primary"
     | "text-secondary"
     | "text-success"
@@ -111,8 +111,28 @@ export interface DisplayTagV1 {
 }
 
 export const makeDisplayTagsV1 = (tagsDataDict: TagsDataV1, account: string) => {
-  const displayTags: DisplayTagV1[] = [];
   const tagsData = tagsDataDict[account];
 
-  const fundedByCex = tagsData.behaviorals.filter((tag) => tag.category === "Funded By CEX");
+  const fundedByCex: DisplayTagV1[] = tagsData.behaviorals
+    .filter((data) => data.category === "Funded By CEX")
+    .map((data) => ({
+      text: data.tag,
+      bg: "bg-warning",
+      textColor: "text-dark",
+    }));
+
+  const socials: DisplayTagV1[] = tagsData.socials.map((data) => ({
+    text: data.name,
+    icon: data.protocol === "OpenSea" ? opensea : null,
+    link: data.protocol === "OpenSea" ? `https://opensea.io/${data.name}` : null,
+    bg: "bg-light",
+    textColor: "text-dark",
+  }));
+
+  const entities: DisplayTagV1[] = tagsData.entities.map((data) => ({
+    text: data.tag,
+    icon: institute,
+    bg: "bg-dark",
+    textColor: "text-white",
+  }));
 };
