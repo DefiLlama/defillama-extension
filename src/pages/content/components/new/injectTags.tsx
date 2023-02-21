@@ -22,6 +22,9 @@ export const injectTags = async () => {
   async function renderTagsOnAccountsPage() {
     const accountData = await getAccountTagsV1(account);
     console.log(accountData);
+    if (!accountData) {
+      return;
+    }
 
     // add a section .container-xxl under the first .container-xxl that can be found on the page
     const container = document.querySelector("section.container-xxl");
@@ -50,7 +53,6 @@ export const injectTags = async () => {
     cardBody.appendChild(takeNoteImage);
 
     const tags = makeDisplayTagsV1(accountData).map((tag) => {
-      console.log(tag);
       const tagContainer = document.createElement("div");
       tagContainer.className = "d-flex flex-column align-items-center";
       cardBody.appendChild(tagContainer);

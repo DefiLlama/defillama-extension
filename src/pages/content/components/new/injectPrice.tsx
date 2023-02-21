@@ -17,8 +17,6 @@ export async function injectPrice() {
   logImage(gib, `Llama Power activated on Etherscan!`);
 
   const urlType = window.location.pathname.split("/")[1];
-  const account = window.location.pathname.split("/")[2];
-  // TODO: fix ENS names
 
   switch (urlType) {
     case "address":
