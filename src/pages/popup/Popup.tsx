@@ -56,7 +56,7 @@ const Popup = () => {
         </HStack>
       </VStack>
       <HStack w="full" spacing="2" justify="center">
-        <Link href="https://discord.gg/8dJgfQcvz3" isExternal>
+        <Link href="https://discord.defillama.com" isExternal>
           <Icon as={FaDiscord} w="6" h="6" />
         </Link>
         <Link href="https://twitter.com/defillama" isExternal>
