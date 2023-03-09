@@ -1,6 +1,6 @@
-import { getStorage, getAccountTags, logImage, getImageUrl, getAccountTagsV1 } from "@src/pages/libs/helpers";
+import { getStorage, getImageUrl, getAccountTagsV1 } from "@src/pages/libs/helpers";
 import takeNote from "@src/assets/img/memes/take-note-128.png";
-import { makeDisplayTags, makeDisplayTagsV1 } from "@src/pages/libs/tagging-helpers";
+import { makeDisplayTagsV1 } from "@src/pages/libs/tagging-helpers";
 
 export async function injectTags() {
   const tagsInjector = await getStorage("local", "settings:tagsInjector", true);

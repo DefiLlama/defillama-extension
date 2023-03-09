@@ -13,14 +13,7 @@ export interface Prices {
 export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
 export const PROTOCOL_TVL_THRESHOLD = 1000000;
 
-export const ACCOUNTS_API = "https://cutest.llamao.fi/api/v0/address";
 export const ACCOUNTS_API_V1 = "https://aww.llamao.fi/api/v1/address";
-export interface TagsData {
-  address: string; // with 0x prefix
-  tags: string[];
-  entity?: string;
-}
-export type AccountsResponse = TagsData[];
 
 export type TagsDataV1 = Record<string, TagsDataV1Core>;
 
@@ -36,35 +29,6 @@ export const DEFILLAMA_DIRECTORY_API =
   "https://raw.githubusercontent.com/DefiLlama/defillama-app/main/src/directory/directory-urls.json";
 
 export const COINGECKO_COINS_LIST_API = "https://api.coingecko.com/api/v3/coins/list";
-
-export type SearchEngine = {
-  name: string;
-  logo: string;
-  url: string;
-};
-
-export const DEFAULT_SEARCH_ENGINES: SearchEngine[] = [
-  {
-    name: "DuckDuckGo",
-    logo: "https://duckduckgo.com/favicon.ico",
-    url: "https://duckduckgo.com/?q=",
-  },
-  {
-    name: "Google",
-    logo: "https://www.google.com/favicon.ico",
-    url: "https://www.google.com/search?q=",
-  },
-  {
-    name: "Brave",
-    logo: "https://icons.duckduckgo.com/ip3/brave.com.ico",
-    url: "https://search.brave.com/search?q=",
-  },
-  {
-    name: "Bing",
-    logo: "https://www.bing.com/favicon.ico",
-    url: "https://www.bing.com/search?q=",
-  },
-];
 
 export const CHAIN_PREFIX = {
   ETHEREUM: "ethereum",
