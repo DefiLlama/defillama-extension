@@ -11,14 +11,6 @@ import pcs from "@src/assets/img/protocols/pcs.webp";
 import fraxswap from "@src/assets/img/protocols/fraxswap.webp";
 import { TagsDataV1Core } from "./constants";
 
-export interface DisplayTag {
-  name: string;
-  color?: string;
-  description?: string;
-  icon?: string;
-  link?: (input: string) => string;
-}
-
 export interface DisplayTagV1 {
   text?: string;
   icon?: string;
