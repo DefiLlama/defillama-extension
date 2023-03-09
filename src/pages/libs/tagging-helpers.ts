@@ -2,6 +2,7 @@ import llub from "@src/assets/img/memes/llub-128.png";
 import smort from "@src/assets/img/memes/smort-128.png";
 import institute from "@src/assets/img/memes/institute-128.png";
 import opensea from "@src/assets/img/protocols/opensea.png";
+import blur from "@src/assets/img/protocols/blur.jpg";
 import uniswap from "@src/assets/img/protocols/uniswap.png";
 import uniswapv3 from "@src/assets/img/protocols/uniswapv3.webp";
 import shibaswap from "@src/assets/img/protocols/shibaswap.webp";
@@ -141,10 +142,16 @@ export const makeDisplayTagsV1 = (account: string, tagsData: TagsDataV1Core) => 
       tooltip: data.tag + " User",
     }));
 
+  const nftMarketplaceUsers: DisplayTagV1[] = tagsData.behaviorals
+    .filter((data) => data.category === "NFT Marketplace User")
+    .map((data) => ({
+      icon: data.tag === "OpenSea" ? opensea : data.tag === "Blur" ? blur : null,
+      tooltip: data.tag + " User",
+    }));
+
   const otherBehaviorals: DisplayTagV1[] = tagsData.behaviorals
     .filter(
       (data) =>
-        data.category === "NFT Marketplace User" ||
         data.category === "NFT Minter" ||
         data.category === "Airdrop Recipients" ||
         data.category === "Early Investor" ||
@@ -170,6 +177,7 @@ export const makeDisplayTagsV1 = (account: string, tagsData: TagsDataV1Core) => 
     ...nftCollectors,
     ...donors,
     ...dexUsers,
+    ...nftMarketplaceUsers,
     ...otherBehaviorals,
   ];
 };

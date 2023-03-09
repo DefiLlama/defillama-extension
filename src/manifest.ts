@@ -37,6 +37,10 @@ const manifest: ManifestType = {
       resources: [
         "assets/js/*.js",
         "assets/css/*.css",
+        "assets/img/memes/*.jpg",
+        "assets/img/protocols/*.jpg",
+        "assets/jpg/*.jpg",
+        "assets/jpg/*.chunk.jpg",
         "assets/img/memes/*.png",
         "assets/img/protocols/*.png",
         "assets/png/*.png",
