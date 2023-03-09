@@ -67,7 +67,7 @@ const Popup = () => {
         </Link>
       </HStack>
       <VStack mt="2" w="full" spacing="2" justify="center">
-        <Text fontSize="xs">v0.0.2.0</Text>
+        <Text fontSize="xs">v0.0.2.1</Text>
       </VStack>
     </Box>
   );
