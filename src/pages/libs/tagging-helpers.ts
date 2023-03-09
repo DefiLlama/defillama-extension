@@ -47,11 +47,11 @@ export interface DisplayTagV1 {
     | "text-white";
 }
 
-export const makeDisplayTagsV1 = (tagsData: TagsDataV1Core) => {
+export const makeDisplayTagsV1 = (account: string, tagsData: TagsDataV1Core) => {
   const socials: DisplayTagV1[] = tagsData.socials.map((data) => ({
     text: data.name,
     icon: data.protocol === "Opensea" ? opensea : null,
-    link: data.protocol === "Opensea" ? `https://opensea.io/${data.name}` : null,
+    link: data.protocol === "Opensea" ? `https://opensea.io/${account}` : null,
     bg: "bg-primary",
     textColor: "text-light",
   }));

@@ -1,6 +1,6 @@
-import { getStorage, getAccountTags, logImage, getImageUrl, getAccountTagsV1 } from "@src/pages/libs/helpers";
+import { getStorage, getImageUrl, getAccountTagsV1 } from "@src/pages/libs/helpers";
 import takeNote from "@src/assets/img/memes/take-note-128.png";
-import { makeDisplayTags, makeDisplayTagsV1 } from "@src/pages/libs/tagging-helpers";
+import { makeDisplayTagsV1 } from "@src/pages/libs/tagging-helpers";
 
 export const injectTags = async () => {
   const tagsInjector = await getStorage("local", "settings:tagsInjector", true);
@@ -51,7 +51,7 @@ export const injectTags = async () => {
     takeNoteImage.title = "Llama Tagging";
     cardBody.appendChild(takeNoteImage);
 
-    const tags = makeDisplayTagsV1(accountData).map((tag) => {
+    const tags = makeDisplayTagsV1(account, accountData).map((tag) => {
       const tagContainer = document.createElement("div");
       tagContainer.className = "d-flex flex-column align-items-center";
       cardBody.appendChild(tagContainer);

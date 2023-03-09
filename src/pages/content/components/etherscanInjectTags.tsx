@@ -52,7 +52,7 @@ export async function injectTags() {
     takeNoteImage.title = "Llama Tagging";
     cardBody.appendChild(takeNoteImage);
 
-    const tags = makeDisplayTagsV1(accountData).map((tag) => {
+    const tags = makeDisplayTagsV1(account, accountData).map((tag) => {
       const tagContainer = document.createElement("div");
       tagContainer.className = "d-flex flex-column align-items-center";
       cardBody.appendChild(tagContainer);
