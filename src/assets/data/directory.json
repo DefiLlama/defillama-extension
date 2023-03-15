@@ -198,5 +198,9 @@
   {
     "name": "TradingView",
     "domain": "tradingview.com"
+  },
+  {
+    "name": "ChainPort",
+    "domain": "chainport.io"
   }
 ]
