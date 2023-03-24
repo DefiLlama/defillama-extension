@@ -47,8 +47,6 @@ export const METAMASK_LIST_CONFIG_API =
   "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/config.json";
 export const DEFILLAMA_DIRECTORY_API = "https://raw.githubusercontent.com/DefiLlama/url-directory/master/domains.json";
 
-export const COINGECKO_COINS_LIST_API = "https://api.coingecko.com/api/v3/coins/list";
-
 export const CHAIN_PREFIX = {
   ETHEREUM: "ethereum",
   BSC: "bsc",

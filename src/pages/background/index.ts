@@ -3,12 +3,11 @@ console.log("background loaded");
 import Browser from "webextension-polyfill";
 
 import cute from "@assets/img/memes/cute-128.png";
-import gib from "@assets/img/memes/gib-128.png";
 import maxPain from "@assets/img/memes/max-pain-128.png";
 import que from "@assets/img/memes/que-128.png";
 import upOnly from "@assets/img/memes/up-only-128.png";
 
-import { Coin, Protocol, coinsDb, protocolsDb, allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb } from "../libs/db";
+import { Protocol, protocolsDb, allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb } from "../libs/db";
 import {
   PROTOCOLS_API,
   METAMASK_LIST_CONFIG_API,
@@ -90,37 +89,6 @@ async function handlePhishingCheck() {
     Browser.action.setIcon({ path: que });
     Browser.action.setTitle({ title: reason });
   }
-}
-
-/**
- * Update the coinsDb with the top 2500 coins from coingecko ranked by market cap
- */
-export async function updateCoinsDb() {
-  const getCoingeckoCoinsMarketApi = (page = 1) =>
-    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=${page}&sparkline=false`;
-
-  const coins: Coin[] = [];
-  for (let page = 1; page <= 10; page++) {
-    const response = await fetch(getCoingeckoCoinsMarketApi(page));
-    const _coins: Coin[] = (await response.json()).map((c: Coin) => ({
-      id: c.id,
-      symbol: c.symbol,
-      name: c.name,
-      image: c.image,
-      market_cap: c.market_cap,
-      total_volume: c.total_volume,
-      last_updated: c.last_updated,
-    }));
-    coins.push(..._coins);
-  }
-  if (coins.length === 0) {
-    console.log("updateCoinsDb", "no coins found");
-    return;
-  }
-  // empty db before updating
-  await coinsDb.coins.clear();
-  const result = await coinsDb.coins.bulkPut(coins);
-  console.log("updateCoinsDb", result);
 }
 
 export async function updateProtocolsDb() {
@@ -221,24 +189,13 @@ Browser.tabs.onActivated.addListener(async () => {
   await handlePhishingCheck();
 });
 
-function setupUpdateCoinsDb() {
-  console.log("setupUpdateCoinsDb");
-  Browser.alarms.get("updateCoinsDb").then((a) => {
-    if (!a) {
-      console.log("setupUpdateCoinsDb", "create");
-      updateCoinsDb();
-      Browser.alarms.create("updateCoinsDb", { periodInMinutes: 120 }); // update once every 2 hours
-    }
-  });
-}
-
 function setupUpdateProtocolsDb() {
   console.log("setupUpdateProtocolsDb");
   Browser.alarms.get("updateProtocolsDb").then((a) => {
     if (!a) {
       console.log("setupUpdateProtocolsDb", "create");
       updateProtocolsDb();
-      Browser.alarms.create("updateProtocolsDb", { periodInMinutes: 120 }); // update once every 2 hours
+      Browser.alarms.create("updateProtocolsDb", { periodInMinutes: 1 }); // update once every 2 hours
     }
   });
 }
@@ -249,14 +206,13 @@ function setupUpdateDomainDbs() {
     if (!a) {
       console.log("setupUpdateDomainDbs", "create");
       updateDomainDbs();
-      Browser.alarms.create("updateDomainDbs", { periodInMinutes: 120 }); // update once every 2 hours
+      Browser.alarms.create("updateDomainDbs", { periodInMinutes: 1 }); // update once every 2 hours
     }
   });
 }
 
 function startupTasks() {
   console.log("startupTasks", "start");
-  setupUpdateCoinsDb();
   setupUpdateProtocolsDb();
   setupUpdateDomainDbs();
   Browser.action.setIcon({ path: cute });
@@ -273,9 +229,6 @@ Browser.runtime.onStartup.addListener(() => {
 
 Browser.alarms.onAlarm.addListener(async (a) => {
   switch (a.name) {
-    case "updateCoinsDb":
-      await updateCoinsDb();
-      break;
     case "updateProtocolsDb":
       await updateProtocolsDb();
       break;
