@@ -153,12 +153,10 @@ export async function updateDomainDbs() {
   const metamaskAllowedDomains = metamaskLists.whitelist.map((x) => ({ domain: x }));
   const metamaskBlockedDomains = metamaskLists.blacklist.map((x) => ({ domain: x }));
   const rawDefillamaDirectory = (await fetch(DEFILLAMA_DIRECTORY_API).then((res) => res.json())) as {
-    name: string;
-    url: string;
-  }[];
-  const defillamaDomains = rawDefillamaDirectory
-    .map((x) => new URL(x.url).hostname.replace("www.", ""))
-    .map((x) => ({ domain: x }));
+    version: number;
+    whitelist: string[];
+  };
+  const defillamaDomains = rawDefillamaDirectory.whitelist.map((x) => ({ domain: x }));
   allowedDomainsDb.domains.bulkPut(protocolDomains);
   allowedDomainsDb.domains.bulkPut(metamaskAllowedDomains);
   allowedDomainsDb.domains.bulkPut(defillamaDomains);
