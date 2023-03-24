@@ -13,15 +13,35 @@ export interface Prices {
 export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
 export const PROTOCOL_TVL_THRESHOLD = 1000000;
 
-export const ACCOUNTS_API_V1 = "https://aww.llamao.fi/api/v1/address";
-
-export type TagsDataV1 = Record<string, TagsDataV1Core>;
-
-export type TagsDataV1Core = {
-  behaviorals: { category: string; tag: string }[];
-  entities: { category: string; tag: string }[];
-  socials: { protocol: string; name: string }[];
-};
+export const ACCOUNTS_API_V2 = "https://accounts.llama.fi/api/v2/address";
+export type TagsDataV2 = { [address: string]: DisplayTag[] };
+export interface DisplayTag {
+  text?: string;
+  icon?: string;
+  link?: string;
+  tooltip?: string;
+  bg?:
+    | "bg-primary"
+    | "bg-secondary"
+    | "bg-success"
+    | "bg-danger"
+    | "bg-warning"
+    | "bg-info"
+    | "bg-light"
+    | "bg-dark"
+    | "bg-white";
+  textColor?:
+    | "text-primary"
+    | "text-secondary"
+    | "text-success"
+    | "text-danger"
+    | "text-warning"
+    | "text-info"
+    | "text-light"
+    | "text-dark"
+    | "text-muted"
+    | "text-white";
+}
 
 export const METAMASK_LIST_CONFIG_API =
   "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/config.json";
