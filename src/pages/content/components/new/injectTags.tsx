@@ -1,6 +1,5 @@
-import { getStorage, getImageUrl, getAccountTagsV1 } from "@src/pages/libs/helpers";
+import { getStorage, getImageUrl, getAccountTagsV2, getTagIconUrl } from "@src/pages/libs/helpers";
 import takeNote from "@src/assets/img/memes/take-note-128.png";
-import { makeDisplayTagsV1 } from "@src/pages/libs/tagging-helpers";
 
 export const injectTags = async () => {
   const tagsInjector = await getStorage("local", "settings:tagsInjector", true);
@@ -20,8 +19,8 @@ export const injectTags = async () => {
   }
 
   async function renderTagsOnAccountsPage() {
-    const accountData = await getAccountTagsV1(account);
-    if (accountData.behaviorals.length + accountData.entities.length + accountData.socials.length === 0) {
+    const displayTags = await getAccountTagsV2(account);
+    if (displayTags.length === 0) {
       return;
     }
 
@@ -51,7 +50,7 @@ export const injectTags = async () => {
     takeNoteImage.title = "Llama Tagging";
     cardBody.appendChild(takeNoteImage);
 
-    const tags = makeDisplayTagsV1(account, accountData).map((tag) => {
+    const tags = displayTags.map((tag) => {
       const tagContainer = document.createElement("div");
       tagContainer.className = "d-flex flex-column align-items-center";
       cardBody.appendChild(tagContainer);
@@ -74,7 +73,7 @@ export const injectTags = async () => {
 
       if (tag.icon) {
         const tagImage = document.createElement("img");
-        tagImage.src = getImageUrl(tag.icon);
+        tagImage.src = getTagIconUrl(tag.icon);
         tagImage.width = tag.text ? 14 : 18;
         tagImage.height = tag.text ? 14 : 18;
         tagImage.className = "d-inline-block align-center rounded-circle";
