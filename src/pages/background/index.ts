@@ -99,9 +99,10 @@ export async function updateCoinsDb() {
   const getCoingeckoCoinsMarketApi = (page = 1) =>
     `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=${page}&sparkline=false`;
 
+  const coins: Coin[] = [];
   for (let page = 1; page <= 10; page++) {
     const response = await fetch(getCoingeckoCoinsMarketApi(page));
-    const coins: Coin[] = (await response.json()).map((c: Coin) => ({
+    const _coins: Coin[] = (await response.json()).map((c: Coin) => ({
       id: c.id,
       symbol: c.symbol,
       name: c.name,
@@ -110,9 +111,16 @@ export async function updateCoinsDb() {
       total_volume: c.total_volume,
       last_updated: c.last_updated,
     }));
-    const result = await coinsDb.coins.bulkPut(coins);
-    console.log("updateCoinsDb", result);
+    coins.push(..._coins);
   }
+  if (coins.length === 0) {
+    console.log("updateCoinsDb", "no coins found");
+    return;
+  }
+  // empty db before updating
+  await coinsDb.coins.clear();
+  const result = await coinsDb.coins.bulkPut(coins);
+  console.log("updateCoinsDb", result);
 }
 
 export async function updateProtocolsDb() {
@@ -124,6 +132,12 @@ export async function updateProtocolsDb() {
     category: x.category,
     tvl: x.tvl,
   })) ?? []) as Protocol[];
+  if (protocols.length === 0) {
+    console.log("updateProtocolsDb", "no protocols found");
+    return;
+  }
+  // empty db before updating
+  await protocolsDb.protocols.clear();
   const result = await protocolsDb.protocols.bulkPut(protocols);
   console.log("updateProtocolsDb", result);
 }
@@ -164,18 +178,33 @@ export async function updateDomainDbs() {
     whitelist: string[];
   };
   const defillamaDomains = rawDefillamaDirectory.whitelist.map((x) => ({ domain: x }));
-  allowedDomainsDb.domains.bulkPut(protocolDomains);
-  allowedDomainsDb.domains.bulkPut(metamaskAllowedDomains);
-  allowedDomainsDb.domains.bulkPut(defillamaDomains);
-  blockedDomainsDb.domains.bulkPut(metamaskBlockedDomains);
-  fuzzyDomainsDb.domains.bulkPut(metamaskFuzzyDomains);
-  fuzzyDomainsDb.domains.bulkPut(metamaskAllowedDomains);
-  fuzzyDomainsDb.domains.bulkPut(protocolDomains);
-  fuzzyDomainsDb.domains.bulkPut(defillamaDomains);
+  const allowedDomains = [metamaskAllowedDomains, protocolDomains, defillamaDomains].flat();
+  if (allowedDomains.length === 0) {
+    console.log("allowedDomainsDb", "no allowed domains fetched, skipping update");
+  } else {
+    allowedDomainsDb.domains.clear();
+    allowedDomainsDb.domains.bulkPut(allowedDomains);
+    console.log("allowedDomainsDb", await allowedDomainsDb.domains.count());
+  }
+
+  if (metamaskBlockedDomains.length === 0) {
+    console.log("blockedDomainsDb", "no blocked domains fetched, skipping update");
+  } else {
+    blockedDomainsDb.domains.clear();
+    blockedDomainsDb.domains.bulkPut(metamaskBlockedDomains);
+    console.log("blockedDomainsDb", await blockedDomainsDb.domains.count());
+  }
+
+  const fuzzyDomains = [metamaskFuzzyDomains, protocolDomains, defillamaDomains].flat();
+  if (fuzzyDomains.length === 0) {
+    console.log("fuzzyDomainsDb", "no fuzzy domains fetched, skipping update");
+  } else {
+    fuzzyDomainsDb.domains.clear();
+    fuzzyDomainsDb.domains.bulkPut(fuzzyDomains);
+    console.log("fuzzyDomainsDb", await fuzzyDomainsDb.domains.count());
+  }
+
   console.log("updateDomainDbs", "done");
-  console.log("allowedDomainsDb", await allowedDomainsDb.domains.count());
-  console.log("blockedDomainsDb", await blockedDomainsDb.domains.count());
-  console.log("fuzzyDomainsDb", await fuzzyDomainsDb.domains.count());
 }
 
 Browser.tabs.onUpdated.addListener(async () => {
