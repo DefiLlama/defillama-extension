@@ -1,22 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { topSitesMock } from "./mock-data";
 import { Protocol, protocolsDb } from "./db";
 import Browser from "webextension-polyfill";
-
-export const useTopSites = () => {
-  const [topSites, setTopSites] = useState<Browser.TopSites.MostVisitedURL[]>([]);
-  useEffect(() => {
-    if (Browser?.topSites?.get) {
-      // if chrome api is available, aka in browser
-      Browser.topSites.get().then((sites) => setTopSites(sites));
-    } else {
-      console.log("No topSites");
-      setTopSites(topSitesMock);
-    }
-  }, []);
-  return topSites;
-};
 
 /**
  * Protocols data synced with IndexedDB and updated every 4 hours using Dexie.

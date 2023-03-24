@@ -1,36 +1,9 @@
 import Browser from "webextension-polyfill";
 
 import { ACCOUNTS_API_V2, Prices, PRICES_API, TagsDataV2 } from "./constants";
-import { coinsDb } from "./db";
 import { ICONS } from "./tagging-helpers";
 
 export const getIsMac = () => /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform);
-
-/**
- * Used in search bar to deliver instant query results on the right side. Can be coin price or whatever.
- *
- * @param query the query string
- * @returns the result in string format
- */
-export const getInstantResult = async (query: string): Promise<string> => {
-  let result = "";
-
-  if (query.length >= 2 && query.length <= 5) {
-    // if query is 2 to 4 characters long, check if it's a coin symbol
-    const matches = await coinsDb.coins.where("symbol").equalsIgnoreCase(query).toArray();
-    if (matches.length === 0) return result;
-
-    // sort the matches by length of name, shortest first. later will sort by mcap
-    matches.sort((a, b) => a.name.length - b.name.length);
-    const { id: coinId, name } = matches[0];
-
-    const { price } = await getTokenPrice("coingecko:" + coinId);
-    // thankfully the precision returned from API is exactly what we want hehehe
-    result = `${name} $${price}`;
-  }
-
-  return result;
-};
 
 export function getReadableValue(value: number) {
   if (typeof value !== "number" || isNaN(value) || value === 0) return "0";
