@@ -9,7 +9,12 @@ import que from "@assets/img/memes/que-128.png";
 import upOnly from "@assets/img/memes/up-only-128.png";
 
 import { Coin, Protocol, coinsDb, protocolsDb, allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb } from "../libs/db";
-import { PROTOCOLS_API, METAMASK_LIST_CONFIG_API, DEFILLAMA_DIRECTORY_API } from "../libs/constants";
+import {
+  PROTOCOLS_API,
+  METAMASK_LIST_CONFIG_API,
+  DEFILLAMA_DIRECTORY_API,
+  PROTOCOL_TVL_THRESHOLD,
+} from "../libs/constants";
 import { getStorage } from "../libs/helpers";
 import { checkDomain } from "../libs/phishing-detector";
 
@@ -126,13 +131,15 @@ export async function updateProtocolsDb() {
 export async function updateDomainDbs() {
   console.log("updateDomainDbs", "start");
   const rawProtocols = await fetch(PROTOCOLS_API).then((res) => res.json());
-  const protocols = (rawProtocols["protocols"]?.map((x: any) => ({
-    name: x.name,
-    url: x.url,
-    logo: x.logo,
-    category: x.category,
-    tvl: x.tvl,
-  })) ?? []) as Protocol[];
+  const protocols = (
+    (rawProtocols["protocols"]?.map((x: any) => ({
+      name: x.name,
+      url: x.url,
+      logo: x.logo,
+      category: x.category,
+      tvl: x.tvl || 0,
+    })) ?? []) as Protocol[]
+  ).filter((x) => x.tvl >= PROTOCOL_TVL_THRESHOLD);
   const protocolDomains = protocols
     .map((x) => {
       try {
@@ -186,7 +193,7 @@ function setupUpdateCoinsDb() {
     if (!a) {
       console.log("setupUpdateCoinsDb", "create");
       updateCoinsDb();
-      Browser.alarms.create("updateCoinsDb", { periodInMinutes: 240 }); // update once every 4 hours
+      Browser.alarms.create("updateCoinsDb", { periodInMinutes: 120 }); // update once every 2 hours
     }
   });
 }
@@ -197,7 +204,7 @@ function setupUpdateProtocolsDb() {
     if (!a) {
       console.log("setupUpdateProtocolsDb", "create");
       updateProtocolsDb();
-      Browser.alarms.create("updateProtocolsDb", { periodInMinutes: 240 }); // update once every 4 hours
+      Browser.alarms.create("updateProtocolsDb", { periodInMinutes: 120 }); // update once every 2 hours
     }
   });
 }
@@ -208,7 +215,7 @@ function setupUpdateDomainDbs() {
     if (!a) {
       console.log("setupUpdateDomainDbs", "create");
       updateDomainDbs();
-      Browser.alarms.create("updateDomainDbs", { periodInMinutes: 240 }); // update once every 4 hours
+      Browser.alarms.create("updateDomainDbs", { periodInMinutes: 120 }); // update once every 2 hours
     }
   });
 }
