@@ -176,8 +176,12 @@ export async function updateDomainDbs() {
   const rawDefillamaDirectory = (await fetch(DEFILLAMA_DIRECTORY_API).then((res) => res.json())) as {
     version: number;
     whitelist: string[];
+    blacklist?: string[];
+    fuzzylist?: string[];
   };
   const defillamaDomains = rawDefillamaDirectory.whitelist.map((x) => ({ domain: x }));
+  const defillamaBlockedDomains = rawDefillamaDirectory.blacklist?.map((x) => ({ domain: x })) ?? [];
+  const defillamaFuzzyDomains = rawDefillamaDirectory.fuzzylist?.map((x) => ({ domain: x })) ?? [];
   const allowedDomains = [metamaskAllowedDomains, protocolDomains, defillamaDomains].flat();
   if (allowedDomains.length === 0) {
     console.log("allowedDomainsDb", "no allowed domains fetched, skipping update");
@@ -187,15 +191,16 @@ export async function updateDomainDbs() {
     console.log("allowedDomainsDb", await allowedDomainsDb.domains.count());
   }
 
-  if (metamaskBlockedDomains.length === 0) {
+  const blockedDomains = [metamaskBlockedDomains, defillamaBlockedDomains].flat();
+  if (blockedDomains.length === 0) {
     console.log("blockedDomainsDb", "no blocked domains fetched, skipping update");
   } else {
     blockedDomainsDb.domains.clear();
-    blockedDomainsDb.domains.bulkPut(metamaskBlockedDomains);
+    blockedDomainsDb.domains.bulkPut(blockedDomains);
     console.log("blockedDomainsDb", await blockedDomainsDb.domains.count());
   }
 
-  const fuzzyDomains = [metamaskFuzzyDomains, protocolDomains, defillamaDomains].flat();
+  const fuzzyDomains = [metamaskFuzzyDomains, protocolDomains, defillamaDomains, defillamaFuzzyDomains].flat();
   if (fuzzyDomains.length === 0) {
     console.log("fuzzyDomainsDb", "no fuzzy domains fetched, skipping update");
   } else {
