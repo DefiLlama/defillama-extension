@@ -55,6 +55,13 @@ const Popup = () => {
           />
         </HStack>
       </VStack>
+      <VStack m="4">
+        <Link href="https://github.com/DefiLlama/url-directory" isExternal>
+          <Text fontSize="xs" color="gray.700">
+            Submit a whitelist domain
+          </Text>
+        </Link>
+      </VStack>
       <HStack w="full" spacing="2" justify="center">
         <Link href="https://discord.defillama.com" isExternal>
           <Icon as={FaDiscord} w="6" h="6" />
