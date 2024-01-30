@@ -27,7 +27,8 @@
         "*://*.cronoscan.com/*",
         "*://*.moonscan.io/*",
         "*://*.gnosisscan.io/*",
-        "*://*.bobascan.com/*"
+        "*://*.bobascan.com/*",
+        "*://*.twitter.com/*"
       ],
       "js": [
         "src/pages/content/index.js"

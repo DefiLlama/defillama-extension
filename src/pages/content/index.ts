@@ -36,6 +36,9 @@ switch (new URL(document.baseURI).hostname) {
   case "bobascan.com":
     import("./components/explorers/boba");
     break;
+  case "twitter.com":
+    import("./components/twitter");
+    break;
   default:
     break;
 }
