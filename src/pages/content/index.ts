@@ -5,9 +5,6 @@ switch (new URL(document.baseURI).hostname) {
   case "bscscan.com":
     import("./components/explorers/bsc");
     break;
-  case "snowtrace.io":
-    import("./components/explorers/avax");
-    break;
   case "ftmscan.com":
     import("./components/explorers/fantom");
     break;
@@ -36,7 +33,19 @@ switch (new URL(document.baseURI).hostname) {
   case "bobascan.com":
     import("./components/explorers/boba");
     break;
+  case "zkevm.polygonscan.com":
+  case "nova.arbiscan.io":
+  case "celoscan.com":
+  case "bttcscan.com":
+  case "scrollscan.com":
+  case "lineascan.build":
+  case "basescan.org":
+  case "era.zksync.network":
+  case "kromascan.com":
+    import("./components/explorers/genericEtherscanComponent");
+    break;
   case "twitter.com":
+  case "x.com":
     import("./components/twitter");
     break;
   default:

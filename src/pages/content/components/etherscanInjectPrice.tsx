@@ -45,13 +45,16 @@ export async function injectPrice(config: EtherscanAlikeExplorerConfig) {
 
   async function renderMissingPricesInDropdownOnAddressPage() {
     const listItems = document.querySelectorAll<HTMLAnchorElement>(config.selectorTokenList);
-    const listItemsMap = Array.from(listItems).reduce((acc, item) => {
-      const url = new URL(item.href);
-      const address = url.pathname.split("/")[2];
-      const prefixedAddress = config.chainPrefix + address;
-      acc[prefixedAddress] = item;
-      return acc;
-    }, {} as Record<string, HTMLAnchorElement>);
+    const listItemsMap = Array.from(listItems).reduce(
+      (acc, item) => {
+        const url = new URL(item.href);
+        const address = url.pathname.split("/")[2];
+        const prefixedAddress = config.chainPrefix + address;
+        acc[prefixedAddress] = item;
+        return acc;
+      },
+      {} as Record<string, HTMLAnchorElement>,
+    );
 
     if (listItems.length === 0) {
       return;

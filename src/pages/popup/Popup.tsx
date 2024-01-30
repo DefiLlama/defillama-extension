@@ -9,7 +9,11 @@ const Popup = () => {
   const [priceInjector, setPriceInjector] = useBrowserStorage("local", "settings:priceInjector", true);
   const [tagsInjector, setTagsInjector] = useBrowserStorage("local", "settings:tagsInjector", true);
   const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
-  const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage("local", "settings:phishingHandleDetector", true);
+  const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
+    "local",
+    "settings:phishingHandleDetector",
+    true,
+  );
 
   return (
     <Box w="xs" py="4" px="4" userSelect="none">
