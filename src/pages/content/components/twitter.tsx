@@ -14,33 +14,64 @@ async function initPhishingHandleDetector() {
   window.addEventListener("scroll", () => {
     debouncedVerifyHandle();
     debouncedVerifyHandle2();
+    debouncedVerifyHandle3();
   });
 }
 
 const susHandles = new Set() as Set<string>;
+let lastSafeDisplayName: string;
 
 async function verifyHandle() {
   const isTweetPage = window.location.pathname.split("/")[2] === "status";
-  if (!isTweetPage) return;
+  if (!isTweetPage) return handleHomePage();
 
   const safeHandle = window.location.pathname.split("/")[1];
-  let safeDisplayName;
+  let safeDisplayName = lastSafeDisplayName;
   const tweets = document.querySelectorAll('[data-testid="tweet"]');
   for (const tweet of tweets) {
     const element = tweet.querySelectorAll('a[role="link"]');
     const tweetHandle = (element[2] as any).innerText.replace("@", "");
     const displayName = (element[1] as any).innerText;
+    console.log(tweetHandle, displayName, safeDisplayName, displayName === safeDisplayName);
 
     if (susHandles.has(tweetHandle)) handleSusTweets(tweet, tweetHandle);
-    else if (tweetHandle === safeHandle) safeDisplayName = displayName;
-    else if (safeDisplayName && areHandlesSimilar(safeDisplayName, displayName, 3)) handleSusTweets(tweet, tweetHandle);
+    else if (tweetHandle === safeHandle) {
+      lastSafeDisplayName = displayName;
+      safeDisplayName = displayName;
+    } else if (safeDisplayName && areHandlesSimilar(safeDisplayName, displayName, 3))
+      handleSusTweets(tweet, tweetHandle);
     else if (areHandlesSimilar(safeHandle, tweetHandle)) handleSusTweets(tweet, tweetHandle);
   }
 
   function handleSusTweets(tweet: any, handle: string) {
     susHandles.add(handle);
+    (tweet as any).style.background = "#c0000069"; // set background as light red
+  }
+}
+
+async function handleHomePage() {
+  const tweets = document.querySelectorAll('[data-testid="tweet"]');
+  for (const tweet of tweets) {
+    const { comments, likes, retweets } = getTweetStats(tweet);
+    if (comments === 0 && (likes > 10 || retweets > 5)) handleSusTweets(tweet);
+  }
+
+  function handleSusTweets(tweet: any) {
     (tweet as any).style.background = "#ff000069"; // set background as light red
   }
+}
+
+function getTweetStats(tweet: any) {
+  const getNumber = (id: string) => {
+    const element = tweet.querySelector(`[data-testid="${id}"]`);
+    if (!element) return 0;
+    return +element.getAttribute("aria-label").split(" ")[0];
+  };
+  return {
+    comments: getNumber("reply"),
+    likes: getNumber("like"),
+    retweets: getNumber("retweet"),
+  };
 }
 
 function areHandlesSimilar(handle1, handle2, threshold = 4) {
