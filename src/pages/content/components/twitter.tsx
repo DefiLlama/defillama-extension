@@ -32,7 +32,6 @@ async function verifyHandle() {
     const element = tweet.querySelectorAll('a[role="link"]');
     const tweetHandle = (element[2] as any).innerText.replace("@", "");
     const displayName = (element[1] as any).innerText;
-    console.log(tweetHandle, displayName, safeDisplayName, displayName === safeDisplayName);
 
     if (susHandles.has(tweetHandle)) handleSusTweets(tweet, tweetHandle);
     else if (tweetHandle === safeHandle) {
