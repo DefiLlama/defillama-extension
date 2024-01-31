@@ -2,15 +2,49 @@ import { EtherscanAlikeExplorerConfig, injectPrice } from "../etherscanInjectPri
 import { injectTags } from "../etherscanInjectTags";
 
 function injectExplorerComponent() {
-  const name = new URL(document.baseURI).hostname;
+  let name = new URL(document.baseURI).hostname;
   let chainPrefix: string;
 
   switch (name) {
+    case "etherscan.io":
+      chainPrefix = "ethereum:";
+      break;
+    case "bscscan.com":
+      chainPrefix = "bsc:";
+      break;
+    case "ftmscan.com":
+      chainPrefix = "fantom:";
+      break;
+    case "arbiscan.io":
+      chainPrefix = "arbitrum:";
+      break;
+    case "polygonscan.com":
+      chainPrefix = "polygon:";
+      break;
+    case "optimistic.etherscan.io":
+      chainPrefix = "optimism:";
+      break;
+    case "cronoscan.com":
+      chainPrefix = "cronos:";
+      break;
+    case "moonriver.moonscan.io":
+      chainPrefix = "moonriver:";
+      break;
+    case "moonbeam.moonscan.io":
+    case "moonscan.io":
+      chainPrefix = "moonbeam:";
+      break;
+    case "gnosisscan.io":
+      chainPrefix = "xdai:";
+      break;
+    case "bobascan.com":
+      chainPrefix = "boba:";
+      break;
     case "zkevm.polygonscan.com":
-      chainPrefix = "arbitrum_nova:";
+      chainPrefix = "polygon_zkevm:";
       break;
     case "nova.arbiscan.io":
-      chainPrefix = "polygon_zkevm:";
+      chainPrefix = "arbitrum_nova:";
       break;
     case "celoscan.com":
       chainPrefix = "celo:";
@@ -39,8 +73,6 @@ function injectExplorerComponent() {
 
   const config: EtherscanAlikeExplorerConfig = {
     name,
-    indexTotalAmountTextSplit: 2,
-    selectorTokenList: "li.list-custom.list-custom-ERC20 > a",
     chainPrefix,
   };
 

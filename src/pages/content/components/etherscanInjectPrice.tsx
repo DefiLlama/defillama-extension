@@ -10,8 +10,6 @@ import gib from "@src/assets/img/memes/gib-128.png";
 
 export type EtherscanAlikeExplorerConfig = {
   name: string;
-  indexTotalAmountTextSplit: number;
-  selectorTokenList: string;
   chainPrefix: string;
 };
 
@@ -43,58 +41,103 @@ export async function injectPrice(config: EtherscanAlikeExplorerConfig) {
     await renderMissingPricesInDropdownOnAddressPage();
   }
 
+  const spamTokenIdentifiers = [
+    "[Spam]",
+    "[Suspicious]",
+    "[Unsafe]",
+    "Visit ",
+    "https:",
+    "http:",
+    ".com",
+    "www.",
+    ".xyz",
+    ".net",
+    ".site",
+    "claim ",
+    "claimusdc",
+    "airdrop",
+  ].map((i) => i.toLowerCase());
+
   async function renderMissingPricesInDropdownOnAddressPage() {
-    const listItems = document.querySelectorAll<HTMLAnchorElement>(config.selectorTokenList);
-    const listItemsMap = Array.from(listItems).reduce(
+    const getERC20Items = () => getElements(["li.list-custom-ERC20 > a", "li.list-custom-ERC-20 > a"], undefined, true);
+    // clean up spam NFTs & tokens
+    const cleanupSpam = () => {
+      let listItems = getERC20Items();
+      const lastItem = listItems[listItems.length - 1];
+      if (!lastItem) return;
+      const ulElement = lastItem.parentElement.parentElement;
+      listItems = getElements(["li > a"], ulElement, true);
+      listItems.forEach((item) => {
+        if (tokenHasPrice(item)) return;
+
+        const text = item.textContent.toLowerCase();
+        const isSus = spamTokenIdentifiers.some((s) => text.includes(s)) || !text;
+        if (isSus) {
+          item.parentElement.remove();
+        }
+      });
+    };
+
+    cleanupSpam();
+
+    let listItems = getERC20Items();
+
+    const addressPriceMap = listItems.reduce(
+      (acc, item) => {
+        if (tokenHasPrice(item)) return acc;
+
+        const url = new URL(item.href);
+        const address = url.pathname.split("/token/")[1];
+        const prefixedAddress = config.chainPrefix + address;
+        acc[prefixedAddress] = address;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+    if (!Object.keys(addressPriceMap).length) return;
+
+    let totalAmountTextNode = getElements(["a#availableBalanceDropdown", "button#dropdownMenuBalance"]);
+    if (!totalAmountTextNode) return;
+    totalAmountTextNode = totalAmountTextNode.childNodes[0];
+    const hasMoreTokens = totalAmountTextNode.textContent.includes(">");
+    let totalAmount = parseFloat(totalAmountTextNode.textContent.replace(/(\s|\,|\$|\>)/g, ""));
+
+    const prices = await getBatchTokenPrices(Object.keys(addressPriceMap));
+    if (!Object.keys(prices).length) return;
+
+    const addressItemMap = getERC20Items().reduce(
       (acc, item) => {
         const url = new URL(item.href);
-        const address = url.pathname.split("/")[2];
-        const prefixedAddress = config.chainPrefix + address;
-        acc[prefixedAddress] = item;
+        const address = url.pathname.split("/token/")[1];
+        acc[address] = item;
         return acc;
       },
       {} as Record<string, HTMLAnchorElement>,
     );
 
-    if (listItems.length === 0) {
-      return;
-    }
-
-    const totalAmountTextNode = document.querySelector("a#availableBalanceDropdown").childNodes[0];
-    const hasMoreTokens = totalAmountTextNode.textContent.includes(">");
-    let totalAmount = parseFloat(
-      totalAmountTextNode.textContent
-        .split("\n")
-        [config.indexTotalAmountTextSplit].replace(/,/g, "")
-        .replace(/.*\$/g, ""),
-    );
-
-    const prices = await getBatchTokenPrices(Object.keys(listItemsMap));
+    listItems = getERC20Items(); // refetch erc20 list
     for (const [address, { price, symbol }] of Object.entries(prices)) {
-      const listItem = listItemsMap[address];
+      const listItem = addressItemMap[addressPriceMap[address]];
       if (listItem) {
-        const amountSpan = listItem.querySelector("span.list-amount");
-        if (!amountSpan) {
-          continue;
-        }
-        const amount = parseFloat(amountSpan.textContent.split(" ")[0].replace(/,/g, ""));
-        const textRightDiv = listItem.querySelector("div.text-right");
-        const usdValueSpan = textRightDiv.querySelector("span.list-usd-value");
-        if (usdValueSpan.innerHTML === "&nbsp;") {
-          const usdAmount = amount * price;
-          totalAmount += usdAmount;
+        const amountSpan = getElements(["span.list-amount", ".text-muted"], listItem);
+        if (!amountSpan) continue;
 
-          usdValueSpan.textContent = formatPrice(usdAmount);
-          const priceDiv = document.createElement("div");
-          priceDiv.className = "d-flex justify-content-end align-items-center";
-          const priceTextSpan = document.createElement("span");
-          priceTextSpan.textContent = "@" + formatPrice(price, "");
-          priceTextSpan.className = "list-usd-rate link-hover__item";
-          const icon = createInlineLlamaIcon(gib, symbol);
-          priceDiv.append(icon, priceTextSpan);
-          textRightDiv.append(priceDiv);
-          textRightDiv.setAttribute("title", "Price from DeFiLlama API");
-        }
+        const amount = parseFloat(amountSpan.textContent.trim().split(" ")[0].replace(/,/g, ""));
+        const textRightDiv = getElements(["div.text-right", "div.text-end"], listItem);
+        const usdValueSpan = getElements([".list-usd-value"], listItem);
+        const usdAmount = amount * price;
+        totalAmount += usdAmount;
+
+        usdValueSpan.textContent = formatPrice(usdAmount);
+        const priceDiv = document.createElement("div");
+        priceDiv.className = "d-flex justify-content-end align-items-center";
+        const priceTextSpan = document.createElement("span");
+        priceTextSpan.textContent = "@" + formatPrice(price, "");
+        priceTextSpan.className = "list-usd-rate link-hover__item";
+        const icon = createInlineLlamaIcon(gib, symbol);
+        priceDiv.append(icon, priceTextSpan);
+        textRightDiv.append(priceDiv);
+        textRightDiv.setAttribute("title", "Price from DeFiLlama API");
       }
     }
 
@@ -113,7 +156,13 @@ export async function injectPrice(config: EtherscanAlikeExplorerConfig) {
     document.documentElement.setAttribute("onreset", tooltipsActivationScript);
     document.documentElement.dispatchEvent(new CustomEvent("reset"));
     document.documentElement.removeAttribute("onreset");
+    setTimeout(cleanupSpam, 3000);
     // known bug: the llama tooltips won't render in list
+  }
+
+  function tokenHasPrice(token: Element) {
+    const usdValueSpan = getElements([".list-usd-rate"], token);
+    return /^\@\d/.test(usdValueSpan?.textContent.trim());
   }
 
   async function renderErc20PriceOnAddressPage() {
@@ -140,4 +189,14 @@ export async function injectPrice(config: EtherscanAlikeExplorerConfig) {
     priceSpan.append(icon, priceTextSpan);
     sibling.parentNode.append(priceSpan);
   }
+}
+
+function getElements(selectors: string[], root: Element | Document = document, isList = false) {
+  let data;
+  for (const selector of selectors) {
+    if (isList) data = Array.from(root.querySelectorAll(selector));
+    else data = root.querySelector(selector);
+    if (isList ? data.length > 0 : data) return data;
+  }
+  data;
 }

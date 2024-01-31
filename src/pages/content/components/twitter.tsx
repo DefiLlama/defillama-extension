@@ -44,8 +44,8 @@ async function verifyHandle() {
 }
 
 function areHandlesSimilar(handle1, handle2, threshold = 4) {
-  if (handle1.length > handle2.length) handle1 = handle1.slice(0, handle2.length);
-  if (handle2.length > handle1.length) handle2 = handle2.slice(0, handle1.length);
+  // if (handle1.length > handle2.length) handle1 = handle1.slice(0, handle2.length);
+  // if (handle2.length > handle1.length) handle2 = handle2.slice(0, handle1.length);
 
   if (handle1 === handle2) return true;
   const distance = levenshtein.get(handle1, handle2);
