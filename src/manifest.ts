@@ -18,24 +18,7 @@ const manifest: ManifestType = {
   content_scripts: [
     {
       matches: [
-        "*://*.etherscan.io/*",
-        "*://*.bscscan.com/*",
-        "*://*.ftmscan.com/*",
-        "*://*.arbiscan.io/*",
-        "*://*.polygonscan.com/*",
-        "*://*.cronoscan.com/*",
-        "*://*.moonscan.io/*",
-        "*://*.gnosisscan.io/*",
-        "*://*.bobascan.com/*",
-        "*://*.celoscan.com/*",
-        "*://*.bttcscan.com/*",
-        "*://*.scrollscan.com/*",
-        "*://*.lineascan.build/*",
-        "*://*.basescan.org/*",
-        "*://*.era.zksync.network/*",
-        "*://*.kromascan.com/*",
-        "*://*.twitter.com/*",
-        "*://*.x.com/*",
+        "<all_urls>",
       ],
       js: ["src/pages/content/index.js"],
     },
@@ -63,7 +46,7 @@ const manifest: ManifestType = {
       matches: ["<all_urls>"],
     },
   ],
-  permissions: ["storage", "tabs", "alarms"],
+  permissions: ["storage", "tabs", "alarms", "<all_urls>"],
 };
 
 export default manifest;

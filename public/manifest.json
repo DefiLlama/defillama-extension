@@ -18,24 +18,7 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.etherscan.io/*",
-        "*://*.bscscan.com/*",
-        "*://*.ftmscan.com/*",
-        "*://*.arbiscan.io/*",
-        "*://*.polygonscan.com/*",
-        "*://*.cronoscan.com/*",
-        "*://*.moonscan.io/*",
-        "*://*.gnosisscan.io/*",
-        "*://*.bobascan.com/*",
-        "*://*.celoscan.com/*",
-        "*://*.bttcscan.com/*",
-        "*://*.scrollscan.com/*",
-        "*://*.lineascan.build/*",
-        "*://*.basescan.org/*",
-        "*://*.era.zksync.network/*",
-        "*://*.kromascan.com/*",
-        "*://*.twitter.com/*",
-        "*://*.x.com/*"
+        "<all_urls>"
       ],
       "js": [
         "src/pages/content/index.js"
@@ -70,6 +53,7 @@
   "permissions": [
     "storage",
     "tabs",
-    "alarms"
+    "alarms",
+    "<all_urls>"
   ]
 }

@@ -22,24 +22,38 @@ const susHandles = new Set() as Set<string>;
 let lastSafeDisplayName: string;
 
 async function verifyHandle() {
+  const twitterConfig = await getStorage("local", "twitterConfig", { whitelist: [], blacklist: [] } as any);
+  twitterConfig.whitelistSet = new Set(twitterConfig.whitelist || []);
+  twitterConfig.blacklistSet = new Set(twitterConfig.blacklist || []);
+
   const isTweetPage = window.location.pathname.split("/")[2] === "status";
-  if (!isTweetPage) return handleHomePage();
+  if (!isTweetPage) return handleHomePage(twitterConfig);
 
   const safeHandle = window.location.pathname.split("/")[1];
   let safeDisplayName = lastSafeDisplayName;
   const tweets = document.querySelectorAll('[data-testid="tweet"]');
   for (const tweet of tweets) {
-    const element = tweet.querySelectorAll('a[role="link"]');
-    const tweetHandle = (element[2] as any).innerText.replace("@", "");
-    const displayName = (element[1] as any).innerText;
+    const { tweetHandle, displayName } = getTweetInfo(tweet);
 
-    if (susHandles.has(tweetHandle)) handleSusTweets(tweet, tweetHandle);
+    if (susHandles.has(tweetHandle) || twitterConfig.blacklistSet.has(tweetHandle))
+      // if handle is already in the blacklist, notify user of sus tweet
+      handleSusTweets(tweet, tweetHandle);
     else if (tweetHandle === safeHandle) {
+      // if handle is the same as the current page handle, extract the display name as whitelisted username
       lastSafeDisplayName = displayName;
       safeDisplayName = displayName;
-    } else if (safeDisplayName && areHandlesSimilar(safeDisplayName, displayName, 3))
+    } else if (twitterConfig.whitelistSet.has(tweetHandle))
+      // if handle is in the whitelist, ignore
+      continue;
+    else if (safeDisplayName && areHandlesSimilar(safeDisplayName, displayName, 3))
+      // if display name is similar to the current main tweet's display name, treat as sus tweet
       handleSusTweets(tweet, tweetHandle);
-    else if (areHandlesSimilar(safeHandle, tweetHandle)) handleSusTweets(tweet, tweetHandle);
+    else if (
+      areHandlesSimilar(safeHandle, tweetHandle) ||
+      twitterConfig.whitelist.some((i) => areHandlesSimilar(i, tweetHandle, 3))
+    )
+      // if handle is similar to the current page handle or any of the whitelisted handles, treat as sus tweet
+      handleSusTweets(tweet, tweetHandle);
   }
 
   function handleSusTweets(tweet: any, handle: string) {
@@ -48,11 +62,14 @@ async function verifyHandle() {
   }
 }
 
-async function handleHomePage() {
+async function handleHomePage(twitterConfig) {
   const tweets = document.querySelectorAll('[data-testid="tweet"]');
   for (const tweet of tweets) {
-    const { comments, likes, retweets } = getTweetStats(tweet);
+    const { comments, likes, retweets, tweetHandle } = getTweetInfo(tweet);
     if (comments === 0 && (likes > 10 || retweets > 5)) handleSusTweets(tweet);
+    if (twitterConfig.blacklistSet.has(tweetHandle)) handleSusTweets(tweet);
+    else if (twitterConfig.whitelistSet.has(tweetHandle)) continue;
+    else if (twitterConfig.whitelist.some((i) => areHandlesSimilar(i, tweetHandle, 3))) handleSusTweets(tweet);
   }
 
   function handleSusTweets(tweet: any) {
@@ -60,13 +77,16 @@ async function handleHomePage() {
   }
 }
 
-function getTweetStats(tweet: any) {
+function getTweetInfo(tweet: any) {
   const getNumber = (id: string) => {
     const element = tweet.querySelector(`[data-testid="${id}"]`);
     if (!element) return 0;
     return +element.getAttribute("aria-label").split(" ")[0];
   };
+  const element = tweet.querySelectorAll('a[role="link"]');
   return {
+    tweetHandle: (element[2] as any).innerText.replace("@", ""),
+    displayName: (element[1] as any).innerText,
     comments: getNumber("reply"),
     likes: getNumber("like"),
     retweets: getNumber("retweet"),
@@ -74,6 +94,8 @@ function getTweetStats(tweet: any) {
 }
 
 function areHandlesSimilar(handle1, handle2, threshold = 4) {
+  handle1 = handle1.toLowerCase();
+  handle2 = handle2.toLowerCase();
   // if (handle1.length > handle2.length) handle1 = handle1.slice(0, handle2.length);
   // if (handle2.length > handle1.length) handle2 = handle2.slice(0, handle1.length);
 
