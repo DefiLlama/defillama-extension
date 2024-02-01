@@ -7,6 +7,9 @@
     "service_worker": "src/pages/background/index.js",
     "type": "module"
   },
+  "host_permissions": [
+    "*://*/*"
+  ],
   "action": {
     "default_title": "DefiLlama",
     "default_popup": "src/pages/popup/index.html",
@@ -53,7 +56,6 @@
   "permissions": [
     "storage",
     "tabs",
-    "alarms",
-    "<all_urls>"
+    "alarms"
   ]
 }

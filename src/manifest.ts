@@ -7,6 +7,7 @@ const manifest: ManifestType = {
   version: packageJson.version,
   description: packageJson.description,
   background: { service_worker: "src/pages/background/index.js", type: "module" },
+  host_permissions: ["*://*/*"],
   action: {
     default_title: packageJson.displayName,
     default_popup: "src/pages/popup/index.html",
@@ -46,7 +47,7 @@ const manifest: ManifestType = {
       matches: ["<all_urls>"],
     },
   ],
-  permissions: ["storage", "tabs", "alarms", "<all_urls>"],
+  permissions: ["storage", "tabs", "alarms"],
 };
 
 export default manifest;
