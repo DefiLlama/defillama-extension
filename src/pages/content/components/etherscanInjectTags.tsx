@@ -25,13 +25,9 @@ export async function injectTags() {
     }
 
     // add a section .container-xxl under the first .container-xxl that can be found on the page
-    let container = document.querySelector(".container.py-3");
+    let container = document.querySelector(".container.py-3") ?? document.querySelector("section.container-xxl");
     let container2 = document.createElement("section");
-    if (container) container2.className = "container py-3";
-    else {
-      container = document.querySelector("section.container-xxl");
-      container2.className = "container py-3";
-    }
+    container2.className = "container py-3";
     container?.parentNode?.insertBefore(container2, container.nextSibling);
 
     // insert a div with .card.h-100 into the new section
