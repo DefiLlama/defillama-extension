@@ -66,7 +66,7 @@ async function handleHomePage(twitterConfig) {
   const tweets = document.querySelectorAll('[data-testid="tweet"]');
   for (const tweet of tweets) {
     const { comments, likes, retweets, tweetHandle } = getTweetInfo(tweet);
-    if (comments === 0 && (likes > 10 || retweets > 5)) handleSusTweets(tweet);
+    // if (comments === 0 && (likes > 10 || retweets > 5)) handleSusTweets(tweet);
     if (twitterConfig.blacklistSet.has(tweetHandle)) handleSusTweets(tweet);
     else if (twitterConfig.whitelistSet.has(tweetHandle)) continue;
     else if (twitterConfig.whitelist.some((i) => areHandlesSimilar(i, tweetHandle, 3))) handleSusTweets(tweet);
