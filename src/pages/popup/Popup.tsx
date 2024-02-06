@@ -9,6 +9,11 @@ const Popup = () => {
   const [priceInjector, setPriceInjector] = useBrowserStorage("local", "settings:priceInjector", true);
   const [tagsInjector, setTagsInjector] = useBrowserStorage("local", "settings:tagsInjector", true);
   const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
+  const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
+    "local",
+    "settings:phishingHandleDetector",
+    true,
+  );
 
   return (
     <Box w="xs" py="4" px="4" userSelect="none">
@@ -48,6 +53,19 @@ const Popup = () => {
             isChecked={phishingDetector}
             onChange={(e) => {
               setPhishingDetector(e.target.checked);
+              if (!e.target.checked) {
+                Browser.action.setIcon({ path: cuteStatic });
+              }
+            }}
+          />
+        </HStack>
+        <HStack justify="space-between" w="full">
+          <Text fontSize="sm">Twitter: Detect phishing handles</Text>
+          <Switch
+            size="sm"
+            isChecked={phishingHandleDetector}
+            onChange={(e) => {
+              setPhishingHandleDetector(e.target.checked);
               if (!e.target.checked) {
                 Browser.action.setIcon({ path: cuteStatic });
               }

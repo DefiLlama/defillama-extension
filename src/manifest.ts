@@ -7,6 +7,7 @@ const manifest: ManifestType = {
   version: packageJson.version,
   description: packageJson.description,
   background: { service_worker: "src/pages/background/index.js", type: "module" },
+  host_permissions: ["*://*/*"],
   action: {
     default_title: packageJson.displayName,
     default_popup: "src/pages/popup/index.html",
@@ -18,16 +19,7 @@ const manifest: ManifestType = {
   content_scripts: [
     {
       matches: [
-        "*://*.etherscan.io/*",
-        "*://*.bscscan.com/*",
-        "*://*.snowtrace.io/*",
-        "*://*.ftmscan.com/*",
-        "*://*.arbiscan.io/*",
-        "*://*.polygonscan.com/*",
-        "*://*.cronoscan.com/*",
-        "*://*.moonscan.io/*",
-        "*://*.gnosisscan.io/*",
-        "*://*.bobascan.com/*",
+        "<all_urls>",
       ],
       js: ["src/pages/content/index.js"],
     },

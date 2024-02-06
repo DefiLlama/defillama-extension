@@ -25,8 +25,8 @@ export async function injectTags() {
     }
 
     // add a section .container-xxl under the first .container-xxl that can be found on the page
-    const container = document.querySelector(".container.py-3");
-    const container2 = document.createElement("section");
+    let container = document.querySelector(".container.py-3") ?? document.querySelector("section.container-xxl");
+    let container2 = document.createElement("section");
     container2.className = "container py-3";
     container?.parentNode?.insertBefore(container2, container.nextSibling);
 
