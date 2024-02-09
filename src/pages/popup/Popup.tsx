@@ -4,6 +4,7 @@ import { Box, HStack, Icon, Image, Switch, Text, useColorModeValue, VStack, Link
 import { useBrowserStorage } from "../libs/hooks";
 import { FaDiscord, FaGithub, FaTwitter } from "react-icons/fa";
 import Browser from "webextension-polyfill";
+import packageJson from "../../../public/manifest.json";
 
 const Popup = () => {
   const [priceInjector, setPriceInjector] = useBrowserStorage("local", "settings:priceInjector", true);
@@ -92,7 +93,7 @@ const Popup = () => {
         </Link>
       </HStack>
       <VStack mt="2" w="full" spacing="2" justify="center">
-        <Text fontSize="xs">v0.0.2.4</Text>
+        <Text fontSize="xs">v{packageJson.version}</Text>
       </VStack>
     </Box>
   );
