@@ -77,3 +77,10 @@ export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "gnosisscan.io": CHAIN_PREFIX.GNOSIS,
   "bobascan.com": CHAIN_PREFIX.BOBA,
 } as const;
+
+export const DB_UPDATE_CHUNK_SIZE = 1000;
+export const DB_UPDATE_FREQUENCY = 60 * 2; //2 hours
+
+export enum MessageType {
+  ProtocolsQuery = "ProtocolsQuery",
+}

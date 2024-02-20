@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Protocol, protocolsDb } from "./db";
+import { MessageType } from "./constants";
 import Browser from "webextension-polyfill";
 
 /**
@@ -12,6 +13,27 @@ export const useProtocols = (): Protocol[] =>
   useLiveQuery(async () => {
     return await protocolsDb.protocols.toArray();
   });
+
+export const useProtocolsQuery = (): { query: string; setQuery: (query: string) => void; protocols: Protocol[] } => {
+  const [query, setQuery] = useState("");
+  const [protocols, setProtocols] = useState<Protocol[]>([]);
+  useEffect(() => {
+    Browser.runtime
+      .sendMessage({ type: MessageType.ProtocolsQuery, payload: { query: null } })
+      .then((protocols) => setProtocols(protocols));
+  }, []);
+  useEffect(() => {
+    console.log("sending message", query);
+
+    Browser.runtime
+      .sendMessage({ type: MessageType.ProtocolsQuery, payload: { query: query ?? null } })
+      .then((protocols) => {
+        console.log("got response", query);
+        setProtocols(protocols);
+      });
+  }, [query]);
+  return { query, setQuery, protocols };
+};
 
 /**
  * State synced with local storage. Updates itself when local storage changes based on event listener.

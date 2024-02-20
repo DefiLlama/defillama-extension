@@ -16,6 +16,9 @@ const manifest: ManifestType = {
   icons: {
     "128": "icon-128.png",
   },
+  chrome_url_overrides: {
+    newtab: "src/pages/newtab/index.html",
+  },
   content_scripts: [
     {
       matches: [
