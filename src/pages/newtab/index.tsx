@@ -4,7 +4,7 @@ import { ChakraProvider, ColorModeScript, extendTheme } from "@chakra-ui/react";
 import Newtab from "./Newtab";
 
 const config = {
-  // initialColorMode: "dark",
+  initialColorMode: "system",
   useSystemColorMode: true,
   disableTransitionOnChange: false,
 };
@@ -17,7 +17,7 @@ const rootElement = document.querySelector("body");
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
-      <ColorModeScript />
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <Newtab />
     </ChakraProvider>
   </React.StrictMode>,

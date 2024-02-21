@@ -8,7 +8,7 @@ import { protocolsDb } from "../libs/db";
 const queryClient = new QueryClient();
 
 const config = {
-  // initialColorMode: "dark",
+  initialColorMode: "system",
   useSystemColorMode: true,
   disableTransitionOnChange: false,
 };
@@ -22,7 +22,7 @@ ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ChakraProvider theme={theme}>
-        <ColorModeScript />
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <Popup />
       </ChakraProvider>
     </QueryClientProvider>
