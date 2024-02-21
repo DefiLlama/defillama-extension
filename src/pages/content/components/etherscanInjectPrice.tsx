@@ -7,6 +7,7 @@ import {
   logImage,
 } from "@src/pages/libs/helpers";
 import gib from "@src/assets/img/memes/gib-128.png";
+import { DEFAULT_SETTINGS } from "@src/pages/libs/constants";
 
 export type EtherscanAlikeExplorerConfig = {
   name: string;
@@ -18,7 +19,7 @@ const SELECTOR_ERC20_TOKEN_INFO_PRICE = "#ContentPlaceHolder1_tr_tokeninfo > div
 const SELECTOR_ERC20_TOKEN_INFO_LINK = "#ContentPlaceHolder1_tr_tokeninfo > div > div.col-md-8 > a";
 
 export async function injectPrice(config: EtherscanAlikeExplorerConfig) {
-  const priceInjector = await getStorage("local", "settings:priceInjector", true);
+  const priceInjector = await getStorage("local", "settings:priceInjector", DEFAULT_SETTINGS.PRICE_INJECTOR);
   if (!priceInjector) {
     return;
   }
@@ -82,18 +83,15 @@ export async function injectPrice(config: EtherscanAlikeExplorerConfig) {
 
     let listItems = getERC20Items();
 
-    const addressPriceMap = listItems.reduce(
-      (acc, item) => {
-        if (tokenHasPrice(item)) return acc;
+    const addressPriceMap = listItems.reduce((acc, item) => {
+      if (tokenHasPrice(item)) return acc;
 
-        const url = new URL(item.href);
-        const address = url.pathname.split("/token/")[1];
-        const prefixedAddress = config.chainPrefix + address;
-        acc[prefixedAddress] = address;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
+      const url = new URL(item.href);
+      const address = url.pathname.split("/token/")[1];
+      const prefixedAddress = config.chainPrefix + address;
+      acc[prefixedAddress] = address;
+      return acc;
+    }, {} as Record<string, string>);
     if (!Object.keys(addressPriceMap).length) return;
 
     let totalAmountTextNode = getElements(["a#availableBalanceDropdown", "button#dropdownMenuBalance"]);
@@ -105,15 +103,12 @@ export async function injectPrice(config: EtherscanAlikeExplorerConfig) {
     const prices = await getBatchTokenPrices(Object.keys(addressPriceMap));
     if (!Object.keys(prices).length) return;
 
-    const addressItemMap = getERC20Items().reduce(
-      (acc, item) => {
-        const url = new URL(item.href);
-        const address = url.pathname.split("/token/")[1];
-        acc[address] = item;
-        return acc;
-      },
-      {} as Record<string, HTMLAnchorElement>,
-    );
+    const addressItemMap = getERC20Items().reduce((acc, item) => {
+      const url = new URL(item.href);
+      const address = url.pathname.split("/token/")[1];
+      acc[address] = item;
+      return acc;
+    }, {} as Record<string, HTMLAnchorElement>);
 
     listItems = getERC20Items(); // refetch erc20 list
     for (const [address, { price, symbol }] of Object.entries(prices)) {

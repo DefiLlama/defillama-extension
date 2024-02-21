@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useProtocolsQuery } from "../libs/hooks";
+import { useProtocolsQuery, useBrowserStorage } from "@src/pages/libs/hooks";
+import { DEFAULT_SETTINGS } from "@src/pages/libs/constants";
+import Browser from "webextension-polyfill";
 import {
   Box,
   Center,
@@ -20,11 +22,19 @@ import {
 } from "@chakra-ui/react";
 
 const Newtab = () => {
+  const [newTabPage] = useBrowserStorage("local", "settings:newTabPage", DEFAULT_SETTINGS.NEWTAB_PAGE);
   const { colorMode } = useColorMode();
   const searchInput = useRef<HTMLInputElement>(null);
   const [selectedProtocol, setSelectedProtocol] = useState<number | null>(null);
   const { query, setQuery, protocols } = useProtocolsQuery();
-
+  useEffect(() => {
+    if (newTabPage === false) {
+      Browser.tabs.update({ url: "chrome-search://local-ntp/local-ntp.html" });
+    }
+  }, [newTabPage]);
+  if (!newTabPage) {
+    return null;
+  }
   // ____________ Handlers ____________
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
@@ -54,10 +64,10 @@ const Newtab = () => {
       case "Enter":
         if (selectedProtocol !== null && protocols) {
           const protocol = protocols[selectedProtocol];
-          window.location.href = protocol.url;
+          Browser.tabs.update({ url: protocol.url });
           return;
         } else if (protocols) {
-          window.location.href = protocols[0].url;
+          Browser.tabs.update({ url: protocols[0].url });
         }
     }
   };
@@ -112,7 +122,7 @@ const Newtab = () => {
                               }}
                               onFocus={() => setSelectedProtocol(index)}
                               onClick={() => {
-                                window.location.href = protocol.url;
+                                Browser.tabs.update({ url: protocol.url });
                               }}
                               tabIndex={index + 2}
                             >

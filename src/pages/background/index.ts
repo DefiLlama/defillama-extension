@@ -17,7 +17,7 @@ import {
   countAllowedDomainsDb,
   countFuzzyDomainsDb,
   countBlockedDomainsDb,
-} from "../libs/db";
+} from "@src/pages/libs/db";
 import {
   PROTOCOLS_API,
   METAMASK_LIST_CONFIG_API,
@@ -25,10 +25,11 @@ import {
   PROTOCOL_TVL_THRESHOLD,
   TWITTER_CONFIG_API,
   DB_UPDATE_FREQUENCY,
+  DEFAULT_SETTINGS,
   MessageType,
-} from "../libs/constants";
-import { getStorage, setStorage } from "../libs/helpers";
-import { checkDomain } from "../libs/phishing-detector";
+} from "@src/pages/libs/constants";
+import { getStorage, setStorage } from "@src/pages/libs/helpers";
+import { checkDomain } from "@src/pages/libs/phishing-detector";
 
 // startupTasks();
 interface ProtocolsQueryMessage {
@@ -90,7 +91,7 @@ class Background {
       return;
     }
     console.log("phishing check");
-    const phishingDetector = await getStorage("local", "settings:phishingDetector", true);
+    const phishingDetector = await getStorage("local", "settings:phishingDetector", DEFAULT_SETTINGS.PHISHING_DETECTOR);
     if (!phishingDetector) {
       Browser.action.setIcon({ path: cute });
       return;
