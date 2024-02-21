@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Protocol, protocolsDb } from "./db";
 import { MessageType } from "./constants";
@@ -14,25 +14,49 @@ export const useProtocols = (): Protocol[] =>
     return await protocolsDb.protocols.toArray();
   });
 
-export const useProtocolsQuery = (): { query: string; setQuery: (query: string) => void; protocols: Protocol[] } => {
+/**
+ * Protocols query hook
+ *
+ * this runs an initial empty query, then new queries when the query prop is updated.
+ * Queries are sent to the background script via runtime.sendMessage.
+ * Since responses can take some time to come back (in case there is a DB update happening at the same time)
+ * we verify that the query is still the same when handling the response.
+ * If it changed in the meantime, we discard it, and wait for the next query to return.
+ *
+ * @returns {Protocol[]} protocols
+ * @returns {string} query
+ * @returns {(query: string) => void} setQuery
+ * @returns {boolean} loading
+ */
+export const useProtocolsQuery = (): {
+  query: string;
+  setQuery: (query: string) => void;
+  protocols: Protocol[];
+  loading: boolean;
+} => {
   const [query, setQuery] = useState("");
+  const queryRef = useRef("");
   const [protocols, setProtocols] = useState<Protocol[]>([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    Browser.runtime
-      .sendMessage({ type: MessageType.ProtocolsQuery, payload: { query: null } })
-      .then((protocols) => setProtocols(protocols));
+    Browser.runtime.sendMessage({ type: MessageType.ProtocolsQuery, payload: { query: null } }).then((protocols) => {
+      setProtocols(protocols);
+      setLoading(false);
+    });
   }, []);
   useEffect(() => {
-    console.log("sending message", query);
-
+    setLoading(true);
+    queryRef.current = query;
     Browser.runtime
       .sendMessage({ type: MessageType.ProtocolsQuery, payload: { query: query ?? null } })
       .then((protocols) => {
-        console.log("got response", query);
-        setProtocols(protocols);
+        if (query === queryRef.current) {
+          setLoading(false);
+          setProtocols(protocols);
+        }
       });
   }, [query]);
-  return { query, setQuery, protocols };
+  return { query, setQuery, protocols, loading };
 };
 
 /**

@@ -41,14 +41,18 @@ interface ProtocolsQueryMessage {
 // extend with new message types if needed
 type Message = ProtocolsQueryMessage;
 
+/* Background class that encapsulates all background operations and state */
 class Background {
   updateProtocolsDbRunning: boolean;
   updateDomainDbsRunning: boolean;
   updateTwitterConfigRunning: boolean;
   constructor() {
+    // those variables are used to know if an update routine is currently running, to avoid launching another at the same time
     this.updateProtocolsDbRunning = false;
     this.updateDomainDbsRunning = false;
     this.updateTwitterConfigRunning = false;
+
+    // listeners to trigger the startup script
     Browser.runtime.onInstalled.addListener(() => {
       this.startupTasks();
     });
@@ -57,6 +61,7 @@ class Background {
       this.startupTasks();
     });
 
+    // listener for the alarms the startup script sets up
     Browser.alarms.onAlarm.addListener(async (a) => {
       switch (a.name) {
         case "updateProtocolsDb":
@@ -71,6 +76,7 @@ class Background {
       }
     });
 
+    // listeners for tab update/activation to trigger phising check
     Browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       await this.handlePhishingCheck(tabId);
     });
@@ -85,8 +91,12 @@ class Background {
     return tab;
   }
 
+  // checks if the current tab is a phising site
   async handlePhishingCheck(tabId: number) {
     const tab = await this.getCurrentTab();
+    // This method can be triggered by site updates, and those can come from other tabs than the one being displayed
+    // (for example, Tradingview updates the title of the page with the current price, which happens very often)
+    // in that case (tabId !== tab.id) so the check is skipped
     if (!tab || !tab.url || tabId !== tab.id) {
       return;
     }
@@ -109,6 +119,7 @@ class Background {
         isPhishing = true;
         reason = "Phishing detected by Metamask";
       } else if (url.startsWith("chrome://")) {
+        // whitelist the new tab page
         if (url === "chrome://newtab/") {
           isTrusted = true;
         }
@@ -162,6 +173,7 @@ class Background {
     }
   }
 
+  // method that fetches the protocols listed on DefiLlama, then puts them in the Dexie DB
   async updateProtocolsDb() {
     if (this.updateProtocolsDbRunning) {
       return;
@@ -169,7 +181,6 @@ class Background {
     this.updateProtocolsDbRunning = true;
     try {
       const raw = await fetch(PROTOCOLS_API).then((res) => res.json());
-      console.log(raw);
       const updateId = crypto.randomUUID();
       const protocols = (raw["protocols"]?.map((x: any) => ({
         id: x.defillamaId,
@@ -192,6 +203,7 @@ class Background {
     this.updateProtocolsDbRunning = false;
   }
 
+  // method that fetches blocked/fuzzy/allowed domains lists from DefiLlama and Metamask, then puts them in the Dexie DB
   async updateDomainDbs() {
     if (this.updateDomainDbsRunning) {
       return;
@@ -208,7 +220,10 @@ class Background {
           category: x.category,
           tvl: x.tvl || 0,
         })) ?? []) as Protocol[]
-      ).filter((x) => x.tvl >= PROTOCOL_TVL_THRESHOLD);
+      )
+        // protocols with a TVL < to a certain threshold may have been added to DefiLlama,
+        // but could still be scams, so don't display them as safe yet
+        .filter((x) => x.tvl >= PROTOCOL_TVL_THRESHOLD);
       const protocolDomains = protocols
         .map((x) => {
           try {
@@ -292,6 +307,7 @@ class Background {
     this.updateDomainDbsRunning = false;
   }
 
+  // method that fetches whitelisted/blacklisted twitter handles lists
   async updateTwitterConfig() {
     if (this.updateTwitterConfigRunning) {
       return;
@@ -306,6 +322,8 @@ class Background {
     this.updateTwitterConfigRunning = false;
   }
 
+  // initializing method that programs the protocols DB update routine to run every x hours, and runs it once if the alarms wasn't set before
+  // clear the alarm if it existed before, so if the config changed (alarm interval) it gets set to the new interval
   setupUpdateProtocolsDb() {
     console.log("setupUpdateProtocolsDb");
     Browser.alarms.get("updateProtocolsDb").then((a) => {
@@ -320,6 +338,8 @@ class Background {
     });
   }
 
+  // initializing method that programs the domains DBs update routine to run every x hours, and runs it once if the alarms wasn't set before
+  // clear the alarm if it existed before, so if the config changed (alarm interval) it gets set to the new interval
   setupUpdateDomainDbs() {
     console.log("setupUpdateDomainDbs");
     Browser.alarms.get("updateDomainDbs").then((a) => {
@@ -334,6 +354,8 @@ class Background {
     });
   }
 
+  // initializing method that programs the twitter DB update routine to run every x hours, and runs it once if the alarms wasn't set before
+  // clear the alarm if it existed before, so if the config changed (alarm interval) it gets set to the new interval
   setupUpdateTwitterConfig() {
     console.log("setupUpdateTwitterConfig");
     Browser.alarms.get("updateTwitterConfig").then((a) => {
@@ -348,22 +370,19 @@ class Background {
     });
   }
 
+  // message listener, catches messages coming from new tab/content script/popup
   setupMessageListeners() {
     Browser.runtime.onMessage.addListener(async (message: Message) => {
-      console.log("got message");
-      console.log(message);
-      console.log(location.href);
-
+      // messages that request a run of the protocols query (from new tab page)
       if (message.type === MessageType.ProtocolsQuery) {
-        console.log("starting query");
         const res = await queryProtocolsDb(message.payload.query);
-        console.log("got query result");
 
         return res;
       }
     });
   }
 
+  // startup routine that sets up the databases and their alarms
   startupTasks() {
     console.log("startupTasks", "start");
     this.setupUpdateProtocolsDb();

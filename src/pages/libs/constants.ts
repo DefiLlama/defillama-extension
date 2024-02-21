@@ -86,8 +86,16 @@ export const DEFAULT_SETTINGS = {
   NEWTAB_PAGE: false,
 };
 
-export const DB_UPDATE_CHUNK_SIZE = 1000;
-export const DB_UPDATE_FREQUENCY = 60 * 2; //2 hours
+/**
+ * Dexie write operations are divided into chunks to avoid blocking the DB for too long,
+ * so that read operations (new tab protocol query, phising detection query,...) can go through during a DB update
+ * bigger chunks make write operations somewhat faster, but block read operations for a long time.
+ * really small chunks make write operations longer but let read operations go through faster
+ * 100 elements chunks are a decent tradeoff.
+ */
+export const DB_UPDATE_CHUNK_SIZE = 100;
+export const DB_UPDATE_FREQUENCY = 60 * 4; // 4 hours
+export const PROTOCOLS_QUERY_RESULTS_LIMIT = 10;
 
 export enum MessageType {
   ProtocolsQuery = "ProtocolsQuery",

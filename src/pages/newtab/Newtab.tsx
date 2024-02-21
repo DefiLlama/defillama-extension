@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
+  Spinner,
   Table,
   TableContainer,
   Tbody,
@@ -26,12 +27,16 @@ const Newtab = () => {
   const { colorMode } = useColorMode();
   const searchInput = useRef<HTMLInputElement>(null);
   const [selectedProtocol, setSelectedProtocol] = useState<number | null>(null);
-  const { query, setQuery, protocols } = useProtocolsQuery();
+  const { query, setQuery, protocols, loading } = useProtocolsQuery();
+
+  // if the new tab page is disabled, redirect to the default new tab page
   useEffect(() => {
     if (newTabPage === false) {
-      Browser.tabs.update({ url: "chrome-search://local-ntp/local-ntp.html" });
+      Browser.tabs.update({ url: "chrome://new-tab-page/" });
     }
   }, [newTabPage]);
+  // wait for the config to load before showing the page
+  // this avoids flashing the page before the default one appears in case it's disabled
   if (!newTabPage) {
     return null;
   }
@@ -42,6 +47,8 @@ const Newtab = () => {
     setSelectedProtocol(null);
   };
 
+  // this handles arrow navigation and "Enter" key press
+  // to select a protocol in the list
   const keyDownHandler = (e: React.KeyboardEvent<HTMLDivElement>): void => {
     if (!protocols || protocols.length === 0) {
       return;
@@ -101,7 +108,7 @@ const Newtab = () => {
                   <TableContainer width="100%">
                     <Table variant="simple">
                       <Tbody>
-                        {protocols && protocols.length > 0 ? (
+                        {!loading && protocols && protocols.length > 0 ? (
                           protocols.map((protocol, index) => (
                             <Tr
                               sx={{
@@ -149,7 +156,7 @@ const Newtab = () => {
                                 alignItems="center"
                                 justifyContent="center"
                               >
-                                <Text fontSize="md">No results found</Text>
+                                {!loading ? <Text fontSize="md">No results found</Text> : <Spinner size="md" />}
                               </Box>
                             </Td>
                           </Tr>
