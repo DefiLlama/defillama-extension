@@ -7,9 +7,10 @@ import {
   logImage,
 } from "@src/pages/libs/helpers";
 import gib from "@src/assets/img/memes/gib-128.png";
+import { DEFAULT_SETTINGS } from "@src/pages/libs/constants";
 
 export async function injectPrice() {
-  const priceInjector = await getStorage("local", "settings:priceInjector", true);
+  const priceInjector = await getStorage("local", "settings:priceInjector", DEFAULT_SETTINGS.PRICE_INJECTOR);
   if (!priceInjector) {
     return;
   }

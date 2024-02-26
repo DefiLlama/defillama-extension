@@ -1,19 +1,32 @@
 import cute from "@assets/img/memes/cute.gif";
 import cuteStatic from "@assets/img/memes/cute-128.png";
 import { Box, HStack, Icon, Image, Switch, Text, useColorModeValue, VStack, Link } from "@chakra-ui/react";
-import { useBrowserStorage } from "../libs/hooks";
+import { useBrowserStorage } from "@src/pages/libs/hooks";
+import { DEFAULT_SETTINGS } from "@src/pages/libs/constants";
 import { FaDiscord, FaGithub, FaTwitter } from "react-icons/fa";
 import Browser from "webextension-polyfill";
 import packageJson from "../../../public/manifest.json";
 
 const Popup = () => {
-  const [priceInjector, setPriceInjector] = useBrowserStorage("local", "settings:priceInjector", true);
-  const [tagsInjector, setTagsInjector] = useBrowserStorage("local", "settings:tagsInjector", true);
-  const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
+  const [priceInjector, setPriceInjector] = useBrowserStorage(
+    "local",
+    "settings:priceInjector",
+    DEFAULT_SETTINGS.PRICE_INJECTOR,
+  );
+  const [tagsInjector, setTagsInjector] = useBrowserStorage(
+    "local",
+    "settings:tagsInjector",
+    DEFAULT_SETTINGS.TAGS_INJECTOR,
+  );
+  const [phishingDetector, setPhishingDetector] = useBrowserStorage(
+    "local",
+    "settings:phishingDetector",
+    DEFAULT_SETTINGS.PHISHING_DETECTOR,
+  );
   const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
     "local",
     "settings:phishingHandleDetector",
-    false,
+    DEFAULT_SETTINGS.PHISHING_HANDLE_DETECTOR,
   );
 
   return (
