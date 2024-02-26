@@ -1,5 +1,6 @@
 import { getStorage } from "@src/pages/libs/helpers";
 import levenshtein from "fast-levenshtein";
+import { DEFAULT_SETTINGS } from "@src/pages/libs/constants";
 
 initPhishingHandleDetector();
 const debouncedVerifyHandle = debounce(verifyHandle, 200);
@@ -7,7 +8,11 @@ const debouncedVerifyHandle2 = debounce(verifyHandle, 2000); // maybe tweets tak
 const debouncedVerifyHandle3 = debounce(verifyHandle, 5000); // maybe tweets take some time to load if you scroll too fast
 
 async function initPhishingHandleDetector() {
-  const phishingHandleDetector = await getStorage("local", "settings:phishingHandleDetector", false);
+  const phishingHandleDetector = await getStorage(
+    "local",
+    "settings:phishingHandleDetector",
+    DEFAULT_SETTINGS.PHISHING_HANDLE_DETECTOR,
+  );
   if (!phishingHandleDetector) return;
 
   verifyHandle();
@@ -84,8 +89,9 @@ function getTweetInfo(tweet: any) {
     if (!element) return 0;
     return +element.getAttribute("aria-label").split(" ")[0];
   };
-  let element = tweet.querySelectorAll('a[role="link"]')
-  if (element[0].innerText.endsWith("retweeted") || element[0].innerText.endsWith("reposted")) element = Array.from(element).slice(1);
+  let element = tweet.querySelectorAll('a[role="link"]');
+  if (element[0].innerText.endsWith("retweeted") || element[0].innerText.endsWith("reposted"))
+    element = Array.from(element).slice(1);
   return {
     tweetHandle: (element[2] as any).innerText.replace("@", ""),
     displayName: (element[1] as any).innerText,

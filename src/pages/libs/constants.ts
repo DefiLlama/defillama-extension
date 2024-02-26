@@ -77,3 +77,18 @@ export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "gnosisscan.io": CHAIN_PREFIX.GNOSIS,
   "bobascan.com": CHAIN_PREFIX.BOBA,
 } as const;
+
+export const DEFAULT_SETTINGS = {
+  PRICE_INJECTOR: true,
+  TAGS_INJECTOR: true,
+  PHISHING_DETECTOR: true,
+  PHISHING_HANDLE_DETECTOR: false,
+};
+
+// Dexie write operations are divided into chunks to avoid blocking the DB for too long and/or make put operations too heavy.
+export const DB_UPDATE_CHUNK_SIZE = 1000;
+export const DB_UPDATE_FREQUENCY = 60 * 4; // 4 hours
+
+export enum MessageType {
+  ProtocolsQuery = "ProtocolsQuery",
+}

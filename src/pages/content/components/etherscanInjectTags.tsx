@@ -1,8 +1,9 @@
 import { getStorage, getImageUrl, getAccountTagsV2, getTagIconUrl } from "@src/pages/libs/helpers";
 import takeNote from "@src/assets/img/memes/take-note-128.png";
+import { DEFAULT_SETTINGS } from "@src/pages/libs/constants";
 
 export async function injectTags() {
-  const tagsInjector = await getStorage("local", "settings:tagsInjector", true);
+  const tagsInjector = await getStorage("local", "settings:tagsInjector", DEFAULT_SETTINGS.TAGS_INJECTOR);
   if (!tagsInjector) {
     return;
   }
