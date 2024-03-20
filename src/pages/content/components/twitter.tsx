@@ -28,7 +28,6 @@ async function verifyHandle() {
   
   tweets.forEach((tweet, index) => {
     const { tweetHandle, displayName, tweetText, isRepliedTo } = getTweetInfo(tweet);
-    console.log("dlex",  tweetHandle, displayName, tweetText, isRepliedTo )
     if (/^[0-9]+$/.test(tweetText)) {
       return handleSusTweet(tweet);
     }
