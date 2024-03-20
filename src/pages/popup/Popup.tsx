@@ -13,7 +13,7 @@ const Popup = () => {
   const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
     "local",
     "settings:phishingHandleDetector",
-    false,
+    true,
   );
 
   return (

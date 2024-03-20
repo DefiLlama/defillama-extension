@@ -7,7 +7,7 @@ const debouncedVerifyHandle2 = debounce(verifyHandle, 2000); // maybe tweets tak
 const debouncedVerifyHandle3 = debounce(verifyHandle, 5000); // maybe tweets take some time to load if you scroll too fast
 
 async function initPhishingHandleDetector() {
-  const phishingHandleDetector = await getStorage("local", "settings:phishingHandleDetector", false);
+  const phishingHandleDetector = await getStorage("local", "settings:phishingHandleDetector", true);
   if (!phishingHandleDetector) return;
 
   verifyHandle();
@@ -18,52 +18,49 @@ async function initPhishingHandleDetector() {
   });
 }
 
-const susHandles = new Set() as Set<string>;
-let lastSafeDisplayName: string;
-
+const handleToName = {}
 async function verifyHandle() {
-  const twitterConfig = await getStorage("local", "twitterConfig", { whitelist: [], blacklist: [] } as any);
-  twitterConfig.whitelistSet = new Set(twitterConfig.whitelist || []);
-  twitterConfig.blacklistSet = new Set(twitterConfig.blacklist || []);
-
   const isTweetPage = window.location.pathname.split("/")[2] === "status";
-  if (!isTweetPage) return handleHomePage(twitterConfig);
+  if (!isTweetPage) return
 
-  const safeHandle = window.location.pathname.split("/")[1];
-  let safeDisplayName = lastSafeDisplayName;
+  const safeHandle = window.location.pathname.split("/")[1].toLowerCase();
   const tweets = document.querySelectorAll('[data-testid="tweet"]');
-  for (const tweet of tweets) {
-    const { tweetHandle, displayName } = getTweetInfo(tweet);
+  
+  tweets.forEach((tweet, index) => {
+    const { tweetHandle, displayName, tweetText, isRepliedTo } = getTweetInfo(tweet);
+    console.log("dlex",  tweetHandle, displayName, tweetText, isRepliedTo )
+    if (/^[0-9]+$/.test(tweetText)) {
+      return handleSusTweet(tweet);
+    }
+    if (tweetHandle.toLowerCase() === safeHandle) {
+      handleToName[safeHandle] = displayName.toLowerCase();
+      return;
+    }
+    if (handleToName[safeHandle]) {
+      const distance = levenshtein.get(handleToName[safeHandle], displayName.toLowerCase());
+      if (distance <= 1) {
+        if(index === 0 && isRepliedTo){
+          tweets.forEach((tweet2) => {
+            if(getTweetInfo(tweet2).tweetHandle.toLowerCase() == safeHandle){
+              handleSusTweet(tweet2);
+            }
+          })
+        } else {
+          handleSusTweet(tweet);
+        }
+        return;
+      }
+    }
+  });
 
-    if (susHandles.has(tweetHandle) || twitterConfig.blacklistSet.has(tweetHandle))
-      // if handle is already in the blacklist, notify user of sus tweet
-      handleSusTweets(tweet, tweetHandle);
-    else if (tweetHandle === safeHandle) {
-      // if handle is the same as the current page handle, extract the display name as whitelisted username
-      lastSafeDisplayName = displayName;
-      safeDisplayName = displayName;
-    } else if (twitterConfig.whitelistSet.has(tweetHandle))
-      // if handle is in the whitelist, ignore
-      continue;
-    else if (safeDisplayName && areHandlesSimilar(safeDisplayName, displayName, 3))
-      // if display name is similar to the current main tweet's display name, treat as sus tweet
-      handleSusTweets(tweet, tweetHandle);
-    else if (
-      areHandlesSimilar(safeHandle, tweetHandle) ||
-      twitterConfig.whitelist.some((i) => areHandlesSimilar(i, tweetHandle, 3))
-    )
-      // if handle is similar to the current page handle or any of the whitelisted handles, treat as sus tweet
-      handleSusTweets(tweet, tweetHandle);
-  }
-
-  function handleSusTweets(tweet: any, handle: string) {
-    susHandles.add(handle);
+  function handleSusTweet(tweet: any) {
     (tweet as any).style.background = "#c0000069"; // set background as light red
   }
 }
 
 async function handleHomePage(twitterConfig) {
   return; // disable for now
+  /*
   const tweets = document.querySelectorAll('[data-testid="tweet"]');
   for (const tweet of tweets) {
     const { comments, likes, retweets, tweetHandle } = getTweetInfo(tweet);
@@ -76,6 +73,7 @@ async function handleHomePage(twitterConfig) {
   function handleSusTweets(tweet: any) {
     (tweet as any).style.background = "#ff000069"; // set background as light red
   }
+  */
 }
 
 function getTweetInfo(tweet: any) {
@@ -86,24 +84,14 @@ function getTweetInfo(tweet: any) {
   };
   let element = tweet.querySelectorAll('a[role="link"]')
   if (element[0].innerText.endsWith("retweeted") || element[0].innerText.endsWith("reposted")) element = Array.from(element).slice(1);
+  const tweetText = tweet.querySelectorAll('[data-testid="tweetText"]')[0].innerText
+  const isRepliedTo = tweet.querySelector('[data-testid="Tweet-User-Avatar"]')?.parentElement?.children?.length > 1
   return {
     tweetHandle: (element[2] as any).innerText.replace("@", ""),
     displayName: (element[1] as any).innerText,
-    comments: getNumber("reply"),
-    likes: getNumber("like"),
-    retweets: getNumber("retweet"),
+    tweetText,
+    isRepliedTo
   };
-}
-
-function areHandlesSimilar(handle1, handle2, threshold = 4) {
-  handle1 = handle1.toLowerCase();
-  handle2 = handle2.toLowerCase();
-  // if (handle1.length > handle2.length) handle1 = handle1.slice(0, handle2.length);
-  // if (handle2.length > handle1.length) handle2 = handle2.slice(0, handle1.length);
-
-  if (handle1 === handle2) return true;
-  const distance = levenshtein.get(handle1, handle2);
-  return distance <= threshold; // or whatever threshold you consider as "similar"
 }
 
 const debounceTimers = {} as any;
