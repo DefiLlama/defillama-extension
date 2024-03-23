@@ -181,12 +181,16 @@ export async function updateDomainDbs() {
   console.log("updateDomainDbs", "done");
 }
 
-Browser.tabs.onUpdated.addListener(async () => {
+Browser.tabs.onUpdated.addListener(async (tabId, onUpdatedInfo, tab) => {
   console.log("onUpdated");
+  if (onUpdatedInfo.status === "complete" && tab.active) {
+    Browser.tabs.sendMessage(tabId, { message: "TabUpdated" });
+  }
   await handlePhishingCheck();
 });
-Browser.tabs.onActivated.addListener(async () => {
+Browser.tabs.onActivated.addListener(async (onActivatedInfo) => {
   console.log("onActivated");
+  Browser.tabs.sendMessage(onActivatedInfo.tabId, { message: "TabActivated" });
   await handlePhishingCheck();
 });
 
@@ -211,7 +215,6 @@ function setupUpdateDomainDbs() {
     }
   });
 }
-
 
 function setupUpdateTwitterConfig() {
   console.log("setupUpdateTwitterConfig");

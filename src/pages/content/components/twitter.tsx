@@ -7,8 +7,23 @@ async function initPhishingHandleDetector() {
   const phishingHandleDetector = await getStorage("local", "settings:phishingHandleDetector", true);
   if (!phishingHandleDetector) return;
 
-  const handlePage = getHandlerForTwitterPageVariant();
+  let handlePage = getHandlerForTwitterPageVariant();
   handlePage(); // initial run on load
+
+  // listen for tab updates to detect when the user navigates to a new page and thus switch handlers
+  chrome.runtime.onMessage.addListener(async (request: { message: "TabUpdated" | "TabActivated" }) => {
+    if (request.message === "TabUpdated" || request.message === "TabActivated") {
+      // if the user navigates to a new page, switch handlers
+
+      const updatedHandlePage = getHandlerForTwitterPageVariant();
+
+      // only need to switch handlers if the new handler if page changed. run handler right away
+      // if (handlePage !== updatedHandlePage) {
+      handlePage = updatedHandlePage;
+      handlePage();
+      // }
+    }
+  });
 
   window.addEventListener("scroll", () => {
     debounce(handlePage, 200)();
@@ -18,23 +33,25 @@ async function initPhishingHandleDetector() {
   });
 }
 
-// type TwitterPageVariant = "home" | "status";
-
 //
 
 function getHandlerForTwitterPageVariant() {
   const pathname = window.location.pathname;
-  console.log("dl_dev", window.location.pathname, pathname.split("/")[2] === "status", pathname === "/home");
+  console.log("dl_dev_path", window.location.pathname);
 
-  if (pathname.split("/")[2] === "status") return verifyHandleOnTweetPage;
-  else if (pathname === "/home") handleHomePage;
+  if (pathname === "/home") return handleHomePage;
+  else if (pathname.split("/")[2] === "status") return handleTweetStatusPage;
+  else if (!!document.querySelectorAll<HTMLElement>('[data-testid="UserName"]').length) return handleUserTimelinePage;
 }
 
 const handleToName = {} as Record<string, string>;
-async function verifyHandleOnTweetPage() {
-  // check that the current page is a tweet page (not home/feed page)
+async function handleTweetStatusPage() {
+  // check that the current page is a tweet page (not home/feed page).
+  //! Keep checks in individual handlers (in addition to in getHandlerForTwitterPageVariant) to catch any edge cases from latency
   const isTweetPage = window.location.pathname.split("/")[2] === "status";
   if (!isTweetPage) return;
+
+  console.log("dl_dev_handler", "handleTweetStatusPage");
 
   // safe handle = original poster handle shown in the url
   const safeHandle = window.location.pathname.split("/")[1].toLowerCase();
@@ -105,9 +122,26 @@ function handleAdTweet(tweet: HTMLElement) {
   }
 }
 
+//
+
+async function handleUserTimelinePage() {
+  const isUserTimelinePage = !!document.querySelectorAll<HTMLElement>('[data-testid="UserName"]').length;
+  if (!isUserTimelinePage) return;
+
+  console.log("dl_dev_handler", "handleUserTimelinePage");
+
+  const tweets = Array.from(document.querySelectorAll<HTMLElement>('[data-testid="tweet"]'));
+
+  tweets.forEach((tweet, index) => {
+    handleAdTweet(tweet);
+  });
+}
+
 async function handleHomePage(/* twitterConfig */) {
-  const isHomePage = window.location.pathname.split("/")[2] === "status";
+  const isHomePage = window.location.pathname === "/home";
   if (!isHomePage) return;
+
+  console.log("dl_dev_handler", "handleHomePage");
 
   const tweets = Array.from(document.querySelectorAll<HTMLElement>('[data-testid="tweet"]'));
 
@@ -157,7 +191,7 @@ function getTweetInfo(tweet: HTMLElement) {
 //
 
 const debounceTimers = {} as Record<number, NodeJS.Timeout>;
-function debounce(func, delay) {
+function debounce(func: Function, delay: number) {
   return function () {
     const context = this;
     const args = arguments;
