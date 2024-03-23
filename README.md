@@ -18,7 +18,7 @@ The cute llama icon on your browser extension tool bar is an unintrusive indicat
 
 ## Privacy
 
-We do not track you in any way in the extension, and we only request access to Etherscan and similar blockchain explorers, in order to inject llama token prices and wallet tags.
+We do not track you in any way in the extension.
 
 The extension is completely open source, and we encourage curious users or auditors to unpack the `.crx` file you get from the Chrome Web Store (it's just a zip file!) to verify no tracking or malicious code is added during the build process.
 
