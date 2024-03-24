@@ -123,3 +123,13 @@ export const setStorage = async <T>(area: "local" | "sync", key: string, value: 
 };
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const debounceTimers = {} as Record<number, NodeJS.Timeout>;
+export function debounce(func: Function, delay: number) {
+  return function () {
+    const context = this;
+    const args = arguments;
+    clearTimeout(debounceTimers[delay]);
+    debounceTimers[delay] = setTimeout(() => func.apply(context, args), delay);
+  };
+}

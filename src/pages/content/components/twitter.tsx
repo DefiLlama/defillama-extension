@@ -254,13 +254,3 @@ function getTweetInfo(tweet: HTMLElement) {
 }
 
 //
-
-const debounceTimers = {} as Record<number, NodeJS.Timeout>;
-function debounce(func: Function, delay: number) {
-  return function () {
-    const context = this;
-    const args = arguments;
-    clearTimeout(debounceTimers[delay]);
-    debounceTimers[delay] = setTimeout(() => func.apply(context, args), delay);
-  };
-}
