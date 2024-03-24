@@ -121,3 +121,5 @@ export const getStorage = async <T>(area: "local" | "sync", key: string, default
 export const setStorage = async <T>(area: "local" | "sync", key: string, value: T): Promise<void> => {
   await Browser.storage[area].set({ [key]: value });
 };
+
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

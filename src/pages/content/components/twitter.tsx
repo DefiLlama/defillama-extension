@@ -1,4 +1,4 @@
-import { getStorage } from "@src/pages/libs/helpers";
+import { getStorage, sleep } from "@src/pages/libs/helpers";
 import levenshtein from "fast-levenshtein";
 
 initPhishingHandleDetector();
@@ -15,6 +15,7 @@ async function initPhishingHandleDetector() {
     if (request.message === "TabUpdated" || request.message === "TabActivated") {
       // if the user navigates to a new page, switch handlers
 
+      await sleep(100); //? potentially have debounce here for getting the handler as well
       const updatedHandlePage = getHandlerForTwitterPageVariant();
 
       // only need to switch handlers if the new handler if page changed. run handler right away
@@ -25,12 +26,36 @@ async function initPhishingHandleDetector() {
     }
   });
 
-  window.addEventListener("scroll", () => {
-    debounce(handlePage, 200)();
-    // consecutive debounces in case of tweets loading in slower on fast scrolling
-    debounce(handlePage, 2000)();
-    debounce(handlePage, 5000)();
+  // window.addEventListener("scroll", () => {
+  //   debounce(handlePage, 200)();
+  //   // consecutive debounces in case of tweets loading in slower on fast scrolling
+  //   debounce(handlePage, 2000)();
+  //   debounce(handlePage, 5000)();
+  // });
+
+  // Create a MutationObserver instance to monitor loading in of new tweets (created and initiated after other listeners)
+  // (for example on clicking on a tweet, thus navigating to the status page, but no scrolling is done yet)
+  const uiUpdateObserver = new MutationObserver((mutationsList, observer) => {
+    for (let mutation of mutationsList) {
+      if (mutation.type === "childList") {
+        // A child node has been added or removed
+        handlePage();
+      }
+    }
   });
+
+  //? use more specific node for observation, such as the tweet thread
+  // Start observing the tweet thread with the configured parameters
+  // const xpathDocumentToTweetThread = "/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div";
+  // const tweetThread = document.evaluate(
+  //   xpathDocumentToTweetThread,
+  //   document,
+  //   null,
+  //   XPathResult.FIRST_ORDERED_NODE_TYPE,
+  //   null,
+  // ).singleNodeValue;
+
+  uiUpdateObserver.observe(document, { childList: true, subtree: true });
 }
 
 //
