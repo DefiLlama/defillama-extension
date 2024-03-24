@@ -173,11 +173,11 @@ function getTweetInfo(tweet: HTMLElement) {
     return +element.getAttribute("aria-label").split(" ")[0];
   };
 
-  let element = Array.from(tweet.querySelectorAll<HTMLElement>('a[role="link"]')); //? better error handling: check for .innerText
+  let element = Array.from(tweet.querySelectorAll<HTMLElement>('a[role="link"]'));
   if (element[0].innerText.endsWith("retweeted") || element[0].innerText.endsWith("reposted"))
     element = Array.from(element).slice(1);
 
-  const tweetText = tweet.querySelectorAll<HTMLElement>('[data-testid="tweetText"]')[0].innerText;
+  const tweetText = tweet.querySelectorAll<HTMLElement>('[data-testid="tweetText"]')[0]?.innerText || null;
   const isRepliedTo = tweet.querySelector('[data-testid="Tweet-User-Avatar"]')?.parentElement?.children?.length > 1;
 
   return {
