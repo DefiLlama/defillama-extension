@@ -72,6 +72,7 @@ async function handleTweetStatusPage() {
     // if the tweet handle is the same as the page handle, then it's not a phishing handle (add to safe handle list)
     if (tweetHandle.toLowerCase() === safeHandle) {
       handleToName[safeHandle] = displayName.toLowerCase();
+      handleOpReply(tweet);
       return;
     }
 
@@ -120,6 +121,45 @@ function handleAdTweet(tweet: HTMLElement) {
   if (adIndicator.textContent === "Ad") {
     tweet.style.display = "none";
   }
+}
+
+/**
+ * Adds an "OP" tag next to the original poster's replies
+ */
+function handleOpReply(tweet: HTMLElement) {
+  // Check if the elements have already been inserted
+  if (tweet.getAttribute("data-op-reply")) {
+    return;
+  }
+
+  console.log("dl_dev_ui_mod", "handleOpReply");
+
+  // get user handle div element directly via xpath from tweet article element
+  const xpathArticleToUserHandleParentDiv = "div/div/div[2]/div[2]/div[1]/div/div[1]/div/div/div[2]/div";
+  const userHandleParentDiv = document.evaluate(
+    xpathArticleToUserHandleParentDiv,
+    tweet,
+    null,
+    XPathResult.FIRST_ORDERED_NODE_TYPE,
+    null,
+  ).singleNodeValue;
+
+  // "OP" tag. Hover reveals title
+  const opTag = document.createElement("div");
+  opTag.innerHTML = `
+    <div style="padding:2px 0px">
+      <span style="cursor:help; background-color:#0aba04; padding: 1px 5px; border-radius:10px; color:white; font-size:small;" title="Original Poster">OP</span>
+    </div>
+  `;
+  userHandleParentDiv.insertBefore(opTag.firstElementChild, userHandleParentDiv.childNodes[1]);
+
+  // divider dot. Copied exactly from ui (keep innerHTML as a single line. For some reason does not work otherwise)
+  const dividerDot = document.createElement("div");
+  dividerDot.innerHTML = `<div dir="ltr" aria-hidden="true" class="css-1rynq56 r-bcqeeo r-qvutc0 r-37j5jr r-a023e6 r-rjixqe r-16dba41 r-1q142lx r-s1qlax" style="text-overflow: unset; color: rgb(83, 100, 113);"><span class="css-1qaijid r-bcqeeo r-qvutc0 r-poiln3" style="text-overflow: unset;">·</span></div>`;
+  userHandleParentDiv.insertBefore(dividerDot.firstElementChild, userHandleParentDiv.childNodes[1]);
+
+  // add attribute to tweet article element to prevent duplicate insertions
+  tweet.setAttribute("data-op-reply", "true");
 }
 
 //
