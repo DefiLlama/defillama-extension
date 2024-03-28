@@ -61,7 +61,7 @@ const Popup = () => {
           />
         </HStack>
         <HStack justify="space-between" w="full">
-          <Text fontSize="sm">Twitter: Detect phishing handles</Text>
+          <Text fontSize="sm">Twitter: Mitigate phishing scams</Text>
           <Switch
             size="sm"
             isChecked={phishingHandleDetector}
