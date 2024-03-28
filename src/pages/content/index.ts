@@ -24,7 +24,7 @@ switch (new URL(document.baseURI).hostname) {
     break;
   case "twitter.com":
   case "x.com":
-    import("./components/twitter");
+    import("./components/twitter/init");
     break;
   default:
     break;
