@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DefiLlama",
-  "version": "0.0.4.1",
+  "version": "0.0.5",
   "description": "DefiLlama Extension",
   "background": {
     "service_worker": "src/pages/background/index.js",

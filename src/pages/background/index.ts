@@ -181,12 +181,19 @@ export async function updateDomainDbs() {
   console.log("updateDomainDbs", "done");
 }
 
-Browser.tabs.onUpdated.addListener(async () => {
-  console.log("onUpdated");
+// monitor updates to the tab, specifically when the user navigates to a new page (new url)
+Browser.tabs.onUpdated.addListener(async (tabId, onUpdatedInfo, tab) => {
+  // console.log("onUpdated", onUpdatedInfo.status, onUpdatedInfo.url);
+  if (onUpdatedInfo.status === "complete" && tab.active) {
+    Browser.tabs.sendMessage(tabId, { message: "TabUpdated" });
+  }
   await handlePhishingCheck();
 });
-Browser.tabs.onActivated.addListener(async () => {
-  console.log("onActivated");
+
+// monitor tab activations, when the user switches to a different tab that was already open but not active
+Browser.tabs.onActivated.addListener(async (onActivatedInfo) => {
+  // console.log("onActivated");
+  Browser.tabs.sendMessage(onActivatedInfo.tabId, { message: "TabActivated" });
   await handlePhishingCheck();
 });
 
@@ -211,7 +218,6 @@ function setupUpdateDomainDbs() {
     }
   });
 }
-
 
 function setupUpdateTwitterConfig() {
   console.log("setupUpdateTwitterConfig");
