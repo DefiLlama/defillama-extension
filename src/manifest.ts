@@ -18,9 +18,7 @@ const manifest: ManifestType = {
   },
   content_scripts: [
     {
-      matches: [
-        "<all_urls>",
-      ],
+      matches: ["<all_urls>"],
       js: ["src/pages/content/index.js"],
     },
   ],
