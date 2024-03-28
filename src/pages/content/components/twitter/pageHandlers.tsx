@@ -37,8 +37,9 @@ export async function handleTweetStatusPage() {
   const isTweetPage = pathname.split("/")[2] === "status";
   if (!isTweetPage) return;
 
-  // get all tweets present. Redundancy in querying all tweets in each batch to mitigate edge cases and to preemtively assess tweets when they are loaded but before they are visible in the viewport (smoother ux)
+  // get all tweets present. Redundancy in querying all tweets in each batch to mitigate edge cases and to preemptively assess tweets when they are loaded but before they are visible in the viewport (smoother ux)
   const tweetConversation = document.querySelector<HTMLElement>('[aria-label="Timeline: Conversation"]');
+  if (!tweetConversation) return;
   const tweets = Array.from(tweetConversation.querySelectorAll<HTMLElement>('[data-testid="tweet"]'));
   // dont analyze batches of zero tweets. covers outcomes in which the page is still loading or when there are no other posts/replies (no need for further analysis)
   if (!tweets.length) return;
