@@ -100,13 +100,15 @@ export async function handleTweetStatusPage() {
       if (!!tweetText) handleTweetWithAddress(tweet, tweetText, isLinkedTweet);
     }
 
-    // if the tweet handle is the same as the page handle, then it's sus. Add red background the tweet
-    // [can improve due to false negatives with homoglyphic attacks in the username that cant be detected by equality. maybe use levenshtein distance fuzzy matching on username as well]
-    if (displayName.toLowerCase() == tweetSafeInfoMemoryCache[pathname].displayName.toLowerCase()) {
+    // if safe tweet data for current path is saved, check levenshtein distance between display names for potential sus impersonation
+    if (!!tweetSafeInfoMemoryCache[pathname]) {
+      // get levenshtein distance between display names
       const distance = levenshtein.get(
         tweetSafeInfoMemoryCache[pathname].displayName.toLowerCase(),
         displayName.toLowerCase(),
       );
+
+      // sus if lev distance is within threshold
       if (distance <= 1) {
         if (index === 0 && isRepliedTo) {
           tweets.forEach((tweet2) => {
