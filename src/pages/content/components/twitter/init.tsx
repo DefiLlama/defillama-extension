@@ -40,7 +40,7 @@ async function initPhishingDetector() {
   const uiUpdateObserver = new MutationObserver((mutationsList, observer) => {
     // Iterate over each node mutation
     for (let mutation of mutationsList) {
-      [...mutation.addedNodes, ...mutation.removedNodes].forEach((node) => {
+      mutation.addedNodes.forEach((node) => {
         // filter for divs
         if (node instanceof HTMLElement && node.tagName.toLowerCase() === "div") {
           // filter for tweet cells
