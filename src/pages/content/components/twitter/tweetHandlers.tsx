@@ -191,13 +191,6 @@ export function insertTweetWarningMessage(tweet: HTMLElement, isLinkedTweet: boo
 //
 
 export function getTweetInfo(tweet: HTMLElement) {
-  // [code from previous version, potentially used for future implementation]
-  // const getNumber = (id: string) => {
-  //   const element = tweet.querySelector(`[data-testid="${id}"]`);
-  //   if (!element) return 0;
-  //   return +element.getAttribute("aria-label").split(" ")[0];
-  // };
-
   let element = Array.from(tweet.querySelectorAll<HTMLElement>('a[role="link"]'));
   if (element[0].innerText.endsWith("retweeted") || element[0].innerText.endsWith("reposted"))
     element = Array.from(element).slice(1);

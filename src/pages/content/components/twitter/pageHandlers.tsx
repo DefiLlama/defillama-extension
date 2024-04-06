@@ -160,15 +160,4 @@ export async function handleHomePage(/* twitterConfig */) {
   tweets.forEach((tweet, index) => {
     handleAdTweet(tweet);
   });
-
-  /* // [code from previous version, potentially used for future implementation]
-    const tweets = document.querySelectorAll('[data-testid="tweet"]');
-    for (const tweet of tweets) {
-      const { comments, likes, retweets, tweetHandle } = getTweetInfo(tweet);
-      // if (comments === 0 && (likes > 10 || retweets > 5)) handleSusTweets(tweet);
-      if (twitterConfig.blacklistSet.has(tweetHandle)) handleSusTweets(tweet);
-      else if (twitterConfig.whitelistSet.has(tweetHandle)) continue;
-      else if (twitterConfig.whitelist.some((i) => areHandlesSimilar(i, tweetHandle, 3))) handleSusTweets(tweet);
-    }
-  */
 }
