@@ -10,6 +10,7 @@ const Popup = () => {
   const [priceInjector, setPriceInjector] = useBrowserStorage("local", "settings:priceInjector", true);
   const [tagsInjector, setTagsInjector] = useBrowserStorage("local", "settings:tagsInjector", true);
   const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
+  const [blockBlacklisted, setBlockBlacklisted] = useBrowserStorage("local", "settings:blockBlacklisted", true);
   const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
     "local",
     "settings:phishingHandleDetector",
@@ -43,12 +44,24 @@ const Popup = () => {
             }}
           />
         </HStack>
+          <HStack justify="space-between" w="full">
+          <Text fontSize="sm">Block blacklisted websites</Text>
+          <Switch
+            size="sm"
+            isChecked={blockBlacklisted}
+            onChange={(e) => {
+              setBlockBlacklisted(e.target.checked);
+              if (!e.target.checked) {
+                Browser.action.setIcon({ path: cuteStatic });
+              }
+            }}
+          />
+        </HStack>
         <HStack w="full">
           <Text fontSize="l" fontWeight="bold">
             Twitter
           </Text>
         </HStack>
-
         <HStack justify="space-between" w="full" pl={7}>
           <Text fontSize="sm">Mitigate phishing scams</Text>
           <Switch

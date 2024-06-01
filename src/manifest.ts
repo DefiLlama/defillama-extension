@@ -27,6 +27,7 @@ const manifest: ManifestType = {
   web_accessible_resources: [
     {
       resources: [
+        "warning.html",
         "src/pages/content/index.js",
         "assets/js/*.js",
         "assets/css/*.css",
