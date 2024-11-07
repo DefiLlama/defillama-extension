@@ -113,7 +113,7 @@ export function handleTweetWithAddress(tweet: HTMLElement, tweetText: string, is
   if (hasSolAddress && !hasEvmAddress) {
     var numberOfFalsePositiveSolanaAddresses = 0;
     // count number of unique lowercase letters in each solana address
-    for (const solanaAddress of hasSolAddress) {
+    for (const solanaAddress of (hasSolAddress as any)) {
       const characters = solanaAddress.match(/[1-9A-HJ-NP-Za-km-z]/g);
       // remove duplicates from array
       const uniqueCharacters = [...new Set(characters)];
@@ -123,7 +123,7 @@ export function handleTweetWithAddress(tweet: HTMLElement, tweetText: string, is
       }
     }
     // if all solana addresses were identified as false positives, then don't display warning message
-    if (hasSolAddress.length == numberOfFalsePositiveSolanaAddresses) {
+    if ((hasSolAddress as any).length == numberOfFalsePositiveSolanaAddresses) {
       return;
     }
   }
