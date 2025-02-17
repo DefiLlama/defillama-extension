@@ -72,4 +72,5 @@ export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "basescan.org": "base",
   "era.zksync.network": "era",
   "kromascan.com": "kroma",
+  "berascan.com": "berachain",
 }
