@@ -52,7 +52,7 @@ export const DEFILLAMA_DIRECTORY_API = "https://raw.githubusercontent.com/DefiLl
 export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "etherscan.io": "ethereum",
   "bscscan.com": "bsc",
-  "snowtrace.io": "avax",
+  "snowscan.xyz": "avax",
   "ftmscan.com": "fantom",
   "arbiscan.io": "arbitrum",
   "polygonscan.com": "polygon",
