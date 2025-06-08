@@ -1,6 +1,7 @@
 import { EXPLORER_CHAIN_PREFIX_MAP } from "@src/pages/libs/constants";
 import { EtherscanAlikeExplorerConfig, injectPrice } from "../etherscanInjectPrice";
 import { injectTags } from "../etherscanInjectTags";
+import { hideSpamTxns } from "../etherscanHideScamTxn";
 
 export default function injectExplorerComponent() {
   let name = new URL(document.baseURI).hostname;
@@ -14,4 +15,5 @@ export default function injectExplorerComponent() {
 
   injectPrice(config);
   injectTags();
+  hideSpamTxns(config);
 }
