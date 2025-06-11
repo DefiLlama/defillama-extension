@@ -9,6 +9,7 @@ import packageJson from "../../../package.json";
 const Popup = () => {
   const [priceInjector, setPriceInjector] = useBrowserStorage("local", "settings:priceInjector", true);
   const [tagsInjector, setTagsInjector] = useBrowserStorage("local", "settings:tagsInjector", true);
+  const [explorerSpamHide, setExplorerSpamHide] = useBrowserStorage("local", "settings:explorerSpamHide", false);
   const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
   const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
     "local",
@@ -137,6 +138,16 @@ const Popup = () => {
             isChecked={priceInjector}
             onChange={(e) => {
               setPriceInjector(e.target.checked);
+            }}
+          />
+        </HStack>
+        <HStack justify="space-between" w="full" pl={7}>
+          <Text fontSize="sm">Enable hide scam transactions</Text>
+          <Switch
+            size="sm"
+            isChecked={explorerSpamHide}
+            onChange={(e) => {
+              setExplorerSpamHide(e.target.checked);
             }}
           />
         </HStack>

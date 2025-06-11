@@ -111,6 +111,9 @@ export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, 
     } else {
       handleAdTweet(tweet);
 
+
+/*    spammers stopped this method, so disabled for now   
+
       // if the tweet text content consists of only numbers, then it's sus. Add red background the tweet
       const onlyNumbers = tweetText.length > 1 && /^[0-9]+$/.test(tweetText) // exception make for '4' tweet
       // it is not number but probably gibberish word
@@ -119,14 +122,16 @@ export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, 
         handleSusTweet(tweet, isLinkedTweet, "onlyNumbers", "BG_RED");
         return;
       }
-
+ */
       // only hide addresses if not from the op
-      if (!!tweetText) handleTweetWithAddress(tweet, tweetText, isLinkedTweet);
+      // if (!!tweetText) handleTweetWithAddress(tweet, tweetText, isLinkedTweet);  // disabled for now, since it is not working properly
       if (twitterCashTags && tweetText) handleCashTag(tweet, tweetText, isLinkedTweet);
       if (twitterHashTags && tweetText) handleHashTag(tweet, tweetText, isLinkedTweet);
       if (twitterQT && tweetText) handleQT(tweet, tweetText, isLinkedTweet);
       if (twitterBotReplies && tweetText) handleBotReplies(tweet, tweetText, isLinkedTweet);
-      else handleSpamQT(tweet, isLinkedTweet);
+      else {
+        // handleSpamQT(tweet, isLinkedTweet);   // disabled for now, since it is not working properly
+      }
     }
 
     const handleDistance = levenshtein.get(safeHandle, tweetHandle);
