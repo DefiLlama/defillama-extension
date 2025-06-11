@@ -9,7 +9,7 @@ interface CheckDomainResult {
   extra?: string;
 }
 
-let domainCheckCache = new Map<string, Promise<CheckDomainResult>>();
+let domainCheckCache = new Map<string, CheckDomainResult>();
 let lastCacheClear = Date.now();
 
 export function clearDomainCheckCache() {
@@ -22,47 +22,39 @@ export function clearDomainCheckCache() {
 
 export async function checkDomain(domain: string): Promise<CheckDomainResult> {
   clearDomainCheckCache();
-  if (!domainCheckCache.has(domain))
+  if (!domainCheckCache.has(domain)) {
     domainCheckCache.set(domain, _checkDomain(domain));
+  }
+
   return domainCheckCache.get(domain);
 }
 
-async function _checkDomain(domain: string): Promise<CheckDomainResult> {
-  console.log("Checking domain", domain);
+function _checkDomain(domain: string): CheckDomainResult {
   const topLevelDomain = domain.split(".").slice(-2).join(".");
-  const isAllowed =
-    (await allowedDomainsDb.domains.get({ domain })) ||
-    (await allowedDomainsDb.domains.get({ domain: topLevelDomain }));
-  if (isAllowed) {
+  const isAllowed = allowedDomainsDb.data.has(domain) || allowedDomainsDb.data.has(topLevelDomain);
+  if (isAllowed)
     return { result: false, type: "allowed" };
-  }
 
-  const isBlocked =
-    (await blockedDomainsDb.domains.get({ domain })) ||
-    (await blockedDomainsDb.domains.get({ domain: topLevelDomain }));
-  if (isBlocked) {
+
+  const isBlocked = blockedDomainsDb.data.has(domain) || blockedDomainsDb.data.has(topLevelDomain);
+  if (isBlocked)
     return { result: true, type: "blocked" };
+
+
+  let fuzzyResult: CheckDomainResult
+
+  for (const fuzzyDomain of fuzzyDomainsDb.data) {
+    if (fuzzyResult) break;
+    const distance = levenshtein.get(fuzzyDomain, domain)
+    let distanceTop = distance
+    if (topLevelDomain !== domain)
+      distanceTop = levenshtein.get(fuzzyDomain, topLevelDomain)
+    const isMatched = distance <= DEFAULT_LEVENSHTEIN_TOLERANCE || distanceTop <= DEFAULT_LEVENSHTEIN_TOLERANCE
+    if (isMatched) {
+      console.log("fuzzy match", { domain, fuzzyDomain, distance })
+      fuzzyResult = { result: true, type: "fuzzy", extra: fuzzyDomain }
+    }
   }
 
-  const fuzzyDomains = fuzzyDomainsDb.domains.toCollection();
-  let fuzzyResult: CheckDomainResult;
-  await fuzzyDomains
-    .until((x) => {
-      const distance = levenshtein.get(x.domain, domain);
-      const distanceTop = levenshtein.get(x.domain, topLevelDomain);
-      const isMatched = distance <= DEFAULT_LEVENSHTEIN_TOLERANCE || distanceTop <= DEFAULT_LEVENSHTEIN_TOLERANCE;
-
-      if (isMatched) {
-        console.log("fuzzy match", { domain, fuzzyDomain: x.domain, distance });
-        fuzzyResult = { result: true, type: "fuzzy", extra: x.domain };
-        return true;
-      }
-    }, true)
-    .last();
-
-  if (fuzzyResult) {
-    return fuzzyResult;
-  }
-
-  return { result: false, type: "unknown" };
+  return fuzzyResult ?? { result: false, type: "unknown" };
 }

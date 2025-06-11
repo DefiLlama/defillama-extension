@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import { ChakraProvider, ColorModeScript, extendTheme } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Popup from "./Popup";
-import { protocolsDb } from "../libs/db";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +27,3 @@ ReactDOM.createRoot(rootElement).render(
     </QueryClientProvider>
   </React.StrictMode>,
 );
-
-//@ts-ignore
-window.protocols = protocolsDb;

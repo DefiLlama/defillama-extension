@@ -1,17 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { Protocol, protocolsDb } from "./db";
 import Browser from "webextension-polyfill";
-
-/**
- * Protocols data synced with IndexedDB and updated every 4 hours using Dexie.
- *
- * @returns {Protocol[]} protocols
- */
-export const useProtocols = (): Protocol[] =>
-  useLiveQuery(async () => {
-    return await protocolsDb.protocols.toArray();
-  });
 
 /**
  * State synced with local storage. Updates itself when local storage changes based on event listener.
