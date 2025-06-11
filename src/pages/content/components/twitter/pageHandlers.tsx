@@ -1,4 +1,7 @@
-import { getTweetInfo, handleAdTweet, handleOpTweet, handleSusTweet, handleTweetWithAddress, handleCashTag, handleHashTag, handleQT, } from "./tweetHandlers";
+import {
+  getTweetInfo, handleAdTweet, handleOpTweet, handleSusTweet, handleTweetWithAddress, handleCashTag, handleHashTag, handleQT, handleSpamQT,
+  handleBotReplies,
+} from "./tweetHandlers";
 import levenshtein from "fast-levenshtein";
 
 //
@@ -29,12 +32,13 @@ type TwitterConfig = {
   twitterCashTags: boolean;
   twitterHashTags: boolean;
   twitterQT: boolean;
+  twitterBotReplies: boolean;
 };
 
 /**
  * Analyze tweets (op and replies) on the linked status page
  */
-export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, twitterQT, }: TwitterConfig) {
+export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, twitterQT, twitterBotReplies, }: TwitterConfig) {
   const pathname = window.location.pathname;
 
   // check that the current page is a tweet page (not home/timeline page). Check done here in addition to in init page handler router to catch any edge cases
@@ -107,26 +111,34 @@ export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, 
     } else {
       handleAdTweet(tweet);
 
-      /* disabling this as scammers stopped using it
+
+/*    spammers stopped this method, so disabled for now   
+
       // if the tweet text content consists of only numbers, then it's sus. Add red background the tweet
-      const onlyNumbers = /^[0-9]+$/.test(tweetText)
+      const onlyNumbers = tweetText.length > 1 && /^[0-9]+$/.test(tweetText) // exception make for '4' tweet
       // it is not number but probably gibberish word
-      const gibberish = !onlyNumbers && tweetText.split(" ").length === 1 && /[0-9]/.test(tweetText)  && /[a-z]/.test(tweetText) && /[A-Z]/.test(tweetText) &&  /^[a-zA-Z0-9]+$/.test(tweetText)
+      const gibberish = !onlyNumbers && tweetText.split(" ").length === 1 && /[0-9]/.test(tweetText) && /[a-z]/.test(tweetText) && /[A-Z]/.test(tweetText) && /^[a-zA-Z0-9]+$/.test(tweetText)
       if (onlyNumbers || gibberish) {
         handleSusTweet(tweet, isLinkedTweet, "onlyNumbers", "BG_RED");
         return;
       }
-       */
-
+ */
       // only hide addresses if not from the op
-      if (!!tweetText) handleTweetWithAddress(tweet, tweetText, isLinkedTweet);
+      // if (!!tweetText) handleTweetWithAddress(tweet, tweetText, isLinkedTweet);  // disabled for now, since it is not working properly
       if (twitterCashTags && tweetText) handleCashTag(tweet, tweetText, isLinkedTweet);
       if (twitterHashTags && tweetText) handleHashTag(tweet, tweetText, isLinkedTweet);
       if (twitterQT && tweetText) handleQT(tweet, tweetText, isLinkedTweet);
+      if (twitterBotReplies && tweetText) handleBotReplies(tweet, tweetText, isLinkedTweet);
+      else {
+        // handleSpamQT(tweet, isLinkedTweet);   // disabled for now, since it is not working properly
+      }
     }
 
     const handleDistance = levenshtein.get(safeHandle, tweetHandle);
-    const nameDistance = levenshtein.get(safeName, displayName);
+    let nameDistance = levenshtein.get(safeName, displayName);
+
+    if (safeName.length < 4 || displayName.length < 4) 
+      nameDistance = 10; // if either of the name is too short, then ignore this check
 
     // if the tweet handle is the same as the page handle, then it's sus. Add red background the tweet
     // [can improve due to false negatives with homoglyphic attacks in the username that cant be detected by equality. maybe use levenshtein distance fuzzy matching on username as well]
