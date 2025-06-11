@@ -1,7 +1,7 @@
 {
   "name": "defillama-extension",
   "private": true,
-  "version": "0.0.8.2",
+  "version": "0.0.8.3",
   "type": "module",
   "description": "DefiLlama Extension",
   "displayName": "DefiLlama",
