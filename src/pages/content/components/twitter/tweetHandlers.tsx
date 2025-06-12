@@ -84,36 +84,25 @@ export function handleOpTweet(tweet: HTMLElement) {
   tweet.setAttribute("data-dl-tweet-check", "true");
 }
 
-
-function checkForSolAddress(tweetText: string) {
-  const regexUpper = /[A-Z]/;
-  const regexLower = /[a-z]/;
-  const regexNumber = /[0-9]/;
-
-  const solanaAddressRegex = /([1-9A-HJ-NP-Za-km-z]{39,44})/g;
-  const res = tweetText.match(solanaAddressRegex);
-  if (!res) return false;
-  return res.some((str) => regexUpper.test(str) && regexLower.test(str) && regexNumber.test(str));
-}
-
 /**
  * Adds a warning message to the tweet if it contains an ethereum/evm or solana address.
  */
 export function handleTweetWithAddress(tweet: HTMLElement, tweetText: string, isLinkedTweet: boolean) {
   // Regex for EVM and Solana addresses, respectively
   const evmAddressRegex = /(0x[a-fA-F0-9]{40})/g;
+  const solanaAddressRegex = /([1-9A-HJ-NP-Za-km-z]{39,44})/g;
 
   // Check if the tweet text contains an EVM or Solana address
-  const hasEvmAddress = tweetText.match(evmAddressRegex);
-  const hasSolAddress = checkForSolAddress(tweetText);
-  if (!hasEvmAddress && !hasSolAddress) return;
+  const evmAddressMatch = tweetText.match(evmAddressRegex);
+  const solAddressMatch = tweetText.match(solanaAddressRegex);
+  if (!evmAddressMatch && !solAddressMatch) return;
 
   // excption for strings of lowercase letters that are identified as solana addresses
   // only applies if there are no evm addresses
-  if (hasSolAddress && !hasEvmAddress) {
+  if (solAddressMatch && !evmAddressMatch) {
     var numberOfFalsePositiveSolanaAddresses = 0;
     // count number of unique lowercase letters in each solana address
-    for (const solanaAddress of hasSolAddress) {
+    for (const solanaAddress of solAddressMatch) {
       const characters = solanaAddress.match(/[1-9A-HJ-NP-Za-km-z]/g);
       // remove duplicates from array
       const uniqueCharacters = [...new Set(characters)];
@@ -123,13 +112,13 @@ export function handleTweetWithAddress(tweet: HTMLElement, tweetText: string, is
       }
     }
     // if all solana addresses were identified as false positives, then don't display warning message
-    if (hasSolAddress.length == numberOfFalsePositiveSolanaAddresses) {
+    if (solAddressMatch.length == numberOfFalsePositiveSolanaAddresses) {
       return;
     }
   }
 
   // display warning message on tweet
-  const dynamicWarningChainString = hasEvmAddress ? "An Ethereum/EVM" : "A Solana";
+  const dynamicWarningChainString = evmAddressMatch ? "An Ethereum/EVM" : "A Solana";
   const warningTextContent = `${dynamicWarningChainString} address was detected in this reply. Proceed with caution.`;
   insertTweetWarningMessage(tweet, isLinkedTweet, warningTextContent);
 }
