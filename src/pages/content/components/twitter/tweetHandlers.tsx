@@ -84,18 +84,6 @@ export function handleOpTweet(tweet: HTMLElement) {
   tweet.setAttribute("data-dl-tweet-check", "true");
 }
 
-
-function checkForSolAddress(tweetText: string) {
-  const regexUpper = /[A-Z]/;
-  const regexLower = /[a-z]/;
-  const regexNumber = /[0-9]/;
-
-  const solanaAddressRegex = /([1-9A-HJ-NP-Za-km-z]{39,44})/g;
-  const res = tweetText.match(solanaAddressRegex);
-  if (!res) return false;
-  return res.some((str) => regexUpper.test(str) && regexLower.test(str) && regexNumber.test(str));
-}
-
 /**
  * Adds a warning message to the tweet if it contains an ethereum/evm or solana address.
  */
@@ -103,34 +91,12 @@ export function handleTweetWithAddress(tweet: HTMLElement, tweetText: string, is
   // Regex for EVM and Solana addresses, respectively
   const evmAddressRegex = /(0x[a-fA-F0-9]{40})/g;
 
-  // Check if the tweet text contains an EVM or Solana address
+  // Check if the tweet text contains an EVM address
   const hasEvmAddress = tweetText.match(evmAddressRegex);
-  const hasSolAddress = checkForSolAddress(tweetText);
-  if (!hasEvmAddress && !hasSolAddress) return;
-
-  // excption for strings of lowercase letters that are identified as solana addresses
-  // only applies if there are no evm addresses
-  if (hasSolAddress && !hasEvmAddress) {
-    var numberOfFalsePositiveSolanaAddresses = 0;
-    // count number of unique lowercase letters in each solana address
-    for (const solanaAddress of hasSolAddress) {
-      const characters = solanaAddress.match(/[1-9A-HJ-NP-Za-km-z]/g);
-      // remove duplicates from array
-      const uniqueCharacters = [...new Set(characters)];
-      // if there are less than 6 unique characters, then it's almost certainly not a solana address
-      if (uniqueCharacters.length < 6) {
-        numberOfFalsePositiveSolanaAddresses++;
-      }
-    }
-    // if all solana addresses were identified as false positives, then don't display warning message
-    if (hasSolAddress.length == numberOfFalsePositiveSolanaAddresses) {
-      return;
-    }
-  }
+  if (!hasEvmAddress) return;
 
   // display warning message on tweet
-  const dynamicWarningChainString = hasEvmAddress ? "An Ethereum/EVM" : "A Solana";
-  const warningTextContent = `${dynamicWarningChainString} address was detected in this reply. Proceed with caution.`;
+  const warningTextContent = `An Ethereum/EVM address was detected in this reply. Proceed with caution.`;
   insertTweetWarningMessage(tweet, isLinkedTweet, warningTextContent);
 }
 
