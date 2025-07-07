@@ -111,7 +111,6 @@ async function updateDb() {
   fuzzyDomainsDb.data = fuzzyDomains
 }
 
-updateDb()
 // setInterval(updateDb, 1000 * 6 * 10) // run every 10 minutes
 Browser.alarms.create("updateDomainDbs", { periodInMinutes: 6 * 60 }); // update every 6 hours
 
