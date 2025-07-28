@@ -20,7 +20,11 @@ export function clearDomainCheckCache() {
   }
 }
 
+const defaultCheckResponse = { result: false, type: "unknown" } as CheckDomainResult;
+
 export async function checkDomain(domain: string): Promise<CheckDomainResult> {
+  if (!domain || !allowedDomainsDb.data.size)  return defaultCheckResponse;
+
   clearDomainCheckCache();
   if (!domainCheckCache.has(domain)) {
     domainCheckCache.set(domain, _checkDomain(domain));
@@ -28,6 +32,7 @@ export async function checkDomain(domain: string): Promise<CheckDomainResult> {
 
   return domainCheckCache.get(domain);
 }
+
 
 function _checkDomain(domain: string): CheckDomainResult {
   const topLevelDomain = domain.split(".").slice(-2).join(".");
@@ -56,5 +61,5 @@ function _checkDomain(domain: string): CheckDomainResult {
     }
   }
 
-  return fuzzyResult ?? { result: false, type: "unknown" };
+  return fuzzyResult ?? defaultCheckResponse
 }
