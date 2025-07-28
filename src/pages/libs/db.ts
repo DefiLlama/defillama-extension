@@ -80,7 +80,7 @@ async function getData() {
   console.log("blockedDomainsDb", blockedDomains.length);
 
   const fuzzyDomains = getUniqueItems(metamaskFuzzyDomains, protocolDomains, defillamaDomains, defillamaFuzzyDomains)
-  console.log("fuzzyDomainsDb", await fuzzyDomains.length);
+  console.log("fuzzyDomainsDb", fuzzyDomains.length);
 
   console.timeEnd(cacheKey)
   return {
@@ -97,15 +97,17 @@ function getUniqueItems(...arrays) {
 }
 
 async function updateDb() {
-  const {
-    allowedDomains = [],
-    blockedDomains = [],
-    fuzzyDomains = [],
-  } = await fetchData({
+  const res = await fetchData({
     key: cacheKey,
     updateFrequency: 60 * 60 * 4, // update every 4 hours
     getData,
   })
+  console.log("updateDomainDbs", "data fetched", res);
+  const {
+    allowedDomains = [],
+    blockedDomains = [],
+    fuzzyDomains = [],
+  } = res;
   allowedDomainsDb.data = new Set(allowedDomains)
   blockedDomainsDb.data = new Set(blockedDomains)
   fuzzyDomainsDb.data = fuzzyDomains

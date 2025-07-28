@@ -36,6 +36,7 @@ export async function fetchData({
 
   isUpdating[key] = true;
   currentData[key] = _fetchData()
+  await currentData[key] // wait for the fetchData to complete
   return currentData[key]
 
   async function _fetchData(): Promise<any> {
