@@ -35,7 +35,11 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
       return;
     }
     const url = tab.url;
-    if (url.startsWith("https://metamask.github.io/phishing-warning")) {
+    // https://metamask.github.io/phishing-warning/v${
+    // eslint-disable-next-line node/global-require
+    // require('@metamask/phishing-warning/package.json').version
+    // }/
+    if (url.startsWith("https://metamask.github.io/phishing-warning/v5.0.0")) {
       // already captured and redirected to metamask phishing warning page
       isPhishing = true;
       reason = "Phishing detected by Metamask";

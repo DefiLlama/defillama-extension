@@ -35,8 +35,7 @@ export async function fetchData({
   console.log("Updating storage data for", key)
 
   isUpdating[key] = true;
-  currentData[key] = _fetchData()
-  await currentData[key] // wait for the fetchData to complete
+  currentData[key] = await _fetchData();
   return currentData[key]
 
   async function _fetchData(): Promise<any> {
@@ -44,15 +43,17 @@ export async function fetchData({
     try {
       const cookieKey = 'llama.fi-' + key
 
-      let { lastUpdatedTime = 0, data } = getDataFromStorage(cookieKey);
-
-      if (timeNow - lastUpdatedTime > updateFrequency) {
+      let { lastUpdatedTime = 0, data } = await getDataFromStorage(cookieKey);
+     // Force fetch if data is null/empty or expired
+      if (!data || Object.keys(data).length === 0 || timeNow - lastUpdatedTime > updateFrequency) {
         console.log("Fetching data", key)
         data = await getData()
-        setDataToStorage(cookieKey, data)
+        await setDataToStorage(cookieKey, data)
         lastUpdated[key] = timeNow
         currentData[key] = data
       }
+      isUpdating[key] = false;
+      return data
     } catch (error) {
       console.error("Error updating storage data for", key, error);
     }
@@ -61,14 +62,14 @@ export async function fetchData({
     return data
   }
 
-  function getDataFromStorage(key) {
-    const res = Browser.storage.local.get([key])
+  async function getDataFromStorage(key) {
+    const res = await Browser.storage.local.get([key])
     const item = res[key]
-    return item ? JSON.parse(item) : { lastUpdatedTime: 0, }
+    return item ? JSON.parse(item) : { lastUpdatedTime: 0, data: {} }
   }
 
-  function setDataToStorage(key, data) {
+  async function setDataToStorage(key, data) {
     const value = JSON.stringify({ lastUpdatedTime: timeNow, data })
-    Browser.storage.local.set({[key]: value})
+    await Browser.storage.local.set({[key]: value})
   }
 }
