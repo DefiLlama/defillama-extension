@@ -18,6 +18,7 @@ async function getCurrentTab() {
 
 async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
   const phishingDetector = await getStorage("local", "settings:phishingDetector", true);
+  const blockBlacklisted = await getStorage("local", "settings:blockBlacklisted", true);
   if (!phishingDetector) {
     await Browser.action.setIcon({ path: cute });
     return;
@@ -25,6 +26,7 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
 
   let isPhishing = false;
   let isTrusted = false;
+  let isBlacklisted = false;
   let reason = "Unknown website";
   try {
     if (!tab)
@@ -66,12 +68,21 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
             reason = "Unknown website";
         }
       }
+
+      if (blockBlacklisted && res.type === "blocked") {
+        isBlacklisted = true;
+      }
     }
   } catch (error) {
     console.log("handlePhishingCheck error", error);
     isTrusted = false;
     isPhishing = false;
     reason = "Invalid URL";
+  }
+
+  if (isBlacklisted) {
+    Browser.tabs.update(tab.id, { url: Browser.runtime.getURL('warning.html?url=' + encodeURIComponent(tab.url)) });
+    return;
   }
 
   if (isTrusted) {
