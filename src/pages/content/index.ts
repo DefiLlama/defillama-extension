@@ -5,7 +5,16 @@ import genericEtherscanComponent from "./components/explorers/genericEtherscanCo
 import initPhishingDetector from "./components/twitter/init"
 import { injectWarningBanner } from "./components/WarningBanner"
 
-const hostname = new URL(document.baseURI).hostname;
+let hostname = 'unknown';
+try {
+  hostname = new URL(document.baseURI || window.location.href).hostname;
+} catch (error) {
+  try {
+    hostname = window.location.hostname;
+  } catch (e) {
+    hostname = 'unknown';
+  }
+}
 const parsed = psl.parse(hostname);
 const host = (parsed && 'domain' in parsed && parsed.domain) || hostname;
 

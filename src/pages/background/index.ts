@@ -54,9 +54,14 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
       return { isBlocked: false, isTrusted: false, reason: "Browser internal page", tab };
     }
 
-    const hostname = new URL(url).hostname;
-    if (!hostname) {
-      return { isBlocked: false, isTrusted: false, reason: "Invalid hostname", tab };
+    let hostname: string;
+    try {
+      hostname = new URL(url).hostname;
+      if (!hostname) {
+        return { isBlocked: false, isTrusted: false, reason: "Invalid hostname", tab };
+      }
+    } catch (error) {
+      return { isBlocked: false, isTrusted: false, reason: "Invalid URL format", tab };
     }
 
     const parsed = psl.parse(hostname);

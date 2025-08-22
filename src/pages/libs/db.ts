@@ -115,15 +115,8 @@ async function getData() {
   const defillamaBlockedDomains = rawDefillamaDirectory.blacklist ?? [];
   const defillamaFuzzyDomains = rawDefillamaDirectory.fuzzylist ?? [];
   const allowedDomains = getUniqueItems(metamaskAllowedDomains, protocolDomains, defillamaDomains, ['x.com'])
-  console.log("allowedDomainsDb", allowedDomains.length);
-
   const blockedDomains = getUniqueItems(metamaskBlockedDomains, defillamaBlockedDomains)
-  console.log("blockedDomainsDb", blockedDomains.length);
-
   const fuzzyDomains = getUniqueItems(metamaskFuzzyDomains, protocolDomains, defillamaDomains, defillamaFuzzyDomains)
-  console.log("fuzzyDomainsDb", fuzzyDomains.length);
-
-  console.timeEnd(cacheKey)
   return {
     allowedDomains,
     blockedDomains,
@@ -163,10 +156,8 @@ Browser.alarms.onAlarm.addListener(async (a) => {
 })
 
 async function startupTasks() {
-  console.time("startupTasks");
   await updateDb();
   Browser.action.setIcon({ path: cute });
-  console.timeEnd("startupTasks");
 }
 
 Browser.runtime.onInstalled.addListener(startupTasks)

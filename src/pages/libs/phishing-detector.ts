@@ -51,14 +51,14 @@ function checkDomainInLists(fullDomain: string, rootDomain: string): CheckDomain
   const isBlocked = blockedDomainsDb.data.has(fullDomain) || blockedDomainsDb.data.has(rootDomain);
   if (isBlocked) return { result: true, type: "blocked" };
 
-  let fuzzyResult: CheckDomainResult;
+  let fuzzyResult: CheckDomainResult | undefined;
   for (const fuzzyDomain of fuzzyDomainsDb.data) {
-    if (fuzzyResult) break;
     const fullDistance = levenshtein.get(fuzzyDomain, fullDomain);
     const rootDistance = levenshtein.get(fuzzyDomain, rootDomain);
     const minDistance = Math.min(fullDistance, rootDistance);
     if (minDistance <= DEFAULT_LEVENSHTEIN_TOLERANCE) {
       fuzzyResult = { result: false, type: "unknown", extra: fuzzyDomain };
+      break; // Found a match, exit early
     }
   }
   return fuzzyResult ?? defaultCheckResponse;
