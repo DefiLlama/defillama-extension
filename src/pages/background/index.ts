@@ -82,11 +82,10 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
   const domainResult = await handleDomainCheck(trigger, tab);
   const { isBlocked, isTrusted, reason } = domainResult;
   tab = domainResult.tab;
+  
   if (isBlocked) {
-    Browser.action.setIcon({ path: maxPain });
-    Browser.action.setTitle({ title: reason });
-
-        if (tab?.id) {
+    // Always send warning message for blocked sites, regardless of active status
+    if (tab?.id) {
       try {
         await Browser.tabs.sendMessage(tab.id, { 
           type: "DOMAIN_STATUS",
@@ -97,15 +96,24 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
         // Tab might be closed or content script not ready - fail silently
       }
     }
+    
+    // Only update icon if this is the active tab
+    if (tab?.active) {
+      Browser.action.setIcon({ path: maxPain });
+      Browser.action.setTitle({ title: reason });
+    }
     return;
   }
 
-  if (isTrusted) {
-    Browser.action.setIcon({ path: upOnly });
-    Browser.action.setTitle({ title: reason });
-  } else {
-    Browser.action.setIcon({ path: que });
-    Browser.action.setTitle({ title: reason });
+  // Only update icon for active tabs to prevent background tab updates affecting current icon
+  if (tab?.active) {
+    if (isTrusted) {
+      Browser.action.setIcon({ path: upOnly });
+      Browser.action.setTitle({ title: reason });
+    } else {
+      Browser.action.setIcon({ path: que });
+      Browser.action.setTitle({ title: reason });
+    }
   }
 }
 
