@@ -45,7 +45,7 @@ export async function checkAndLoadDataIfNeeded() {
 // Local hardcoded lists for custom blocking/allowing
 const LOCAL_BLOCKED_DOMAINS = [
   'llamaswap.org',
-  'lamaswap.org'
+  'lamaswap.org',
 ];
 
 const LOCAL_ALLOWED_DOMAINS = [];
@@ -77,7 +77,6 @@ export const protocolDirectoryDb: {
 const cacheKey = 'cache-v' + version
 
 async function getData() {
-  console.time(cacheKey)
   const rawProtocols = await fetch(PROTOCOLS_API).then((res) => res.json());
   const protocols = (
     (rawProtocols["protocols"]?.map((x: any) => ({
@@ -94,12 +93,10 @@ async function getData() {
         if (!x.url) return null;
         return new URL(x.url).hostname.replace("www.", "");
       } catch (error) {
-        console.log("updateDomainDbs", "error", error);
         return null;
       }
     })
     .filter((x) => x !== null)
-  console.log("updateDomainDbs", "protocolDomains", protocolDomains.length);
   const metamaskLists = (await fetch(METAMASK_LIST_CONFIG_API).then((res) => res.json())) as {
     fuzzylist: string[];
     whitelist: string[];
@@ -143,7 +140,7 @@ function getUniqueItems(...arrays) {
 export async function updateDb() {
   const res = await fetchData({
     key: cacheKey,
-    updateFrequency: 60 * 30, // update every 30 minutes
+    updateFrequency: 60 * 60, // update every 60 minutes
     getData,
   })
   const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], protocols = [] } = res;
@@ -154,8 +151,8 @@ export async function updateDb() {
   return { allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb, protocolDirectoryDb }
 }
 
-// Regular update every 15 minutes for main data
-Browser.alarms.create("updateDomainDbs", { periodInMinutes: 30 });
+// Regular update every 60 minutes for main data
+Browser.alarms.create("updateDomainDbs", { periodInMinutes: 60 });
 
 Browser.alarms.onAlarm.addListener(async (a) => {
   switch (a.name) {

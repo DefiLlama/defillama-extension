@@ -20,19 +20,17 @@ export async function fetchData({
   getData: any,
 }): Promise<any> {
 
-  // return current data while updating
+
   if (isUpdating[key])
     return currentData[key];
 
   const timeNow = Math.floor(Date.now() / 1000);
   const lastUpdatedTime = lastUpdated[key] ?? 0;
 
-  // return current data if it's not time to update
+
   if (timeNow - lastUpdatedTime < updateFrequency)
     return currentData[key]
 
-
-  console.log("Updating storage data for", key)
 
   isUpdating[key] = true;
   currentData[key] = await _fetchData();
@@ -43,19 +41,19 @@ export async function fetchData({
     try {
       const cookieKey = 'llama.fi-' + key
 
-      let { lastUpdatedTime = 0, data } = await getDataFromStorage(cookieKey);
-     // Force fetch if data is null/empty or expired
-      if (!data || Object.keys(data).length === 0 || timeNow - lastUpdatedTime > updateFrequency) {
-        console.log("Fetching data", key)
+      let { lastUpdatedTime = 0, data: storedData } = await getDataFromStorage(cookieKey);
+      if (!storedData || Object.keys(storedData).length === 0 || timeNow - lastUpdatedTime > updateFrequency) {
         data = await getData()
         await setDataToStorage(cookieKey, data)
         lastUpdated[key] = timeNow
         currentData[key] = data
+      } else {
+        data = storedData
       }
       isUpdating[key] = false;
       return data
     } catch (error) {
-      console.error("Error updating storage data for", key, error);
+
     }
 
     isUpdating[key] = false;

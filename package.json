@@ -20,6 +20,7 @@
     "@tanstack/react-query": "^4.8.0",
     "fast-levenshtein": "^3.0.0",
     "framer-motion": "^7.5.1",
+    "psl": "^1.15.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.4.0",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/chrome": "^0.0.197",
     "@types/fast-levenshtein": "^0.0.2",
+    "@types/psl": "^1.1.0",
     "@types/node": "^18.7.23",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
