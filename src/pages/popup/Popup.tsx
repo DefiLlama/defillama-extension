@@ -53,7 +53,7 @@ const Popup = () => {
   const [priceInjector, setPriceInjector] = useBrowserStorage("local", "settings:priceInjector", true);
   const [tagsInjector, setTagsInjector] = useBrowserStorage("local", "settings:tagsInjector", true);
   const [explorerSpamHide, setExplorerSpamHide] = useBrowserStorage("local", "settings:explorerSpamHide", false);
-  const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
+
   const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
     "local",
     "settings:phishingHandleDetector",
@@ -195,19 +195,6 @@ const Popup = () => {
         </Box>
 
       <VStack my="5" p="2" w="full" spacing="1.5" borderRadius="lg" bg={useColorModeValue("gray.100", "gray.900")}>
-        <HStack justify="space-between" w="full">
-          <Text fontSize="sm">Detect phishing websites</Text>
-          <Switch
-            size="sm"
-            isChecked={phishingDetector}
-            onChange={(e) => {
-              setPhishingDetector(e.target.checked);
-              if (!e.target.checked) {
-                Browser.action.setIcon({ path: cuteStatic });
-              }
-            }}
-          />
-        </HStack>
         <HStack w="full">
           <Text fontSize="l" fontWeight="bold">
             Twitter

@@ -50,11 +50,11 @@ const WarningBanner = ({ reason }: { reason: string }) => {
   return (
     <div style={bannerStyles.container} role="alert" aria-live="assertive">
       <div style={bannerStyles.header}>
-        <span style={bannerStyles.icon}>🚫</span>
-        <span>BLOCKED SITE</span>
+        <span style={bannerStyles.icon}>⚠️</span>
+        <span>DEFILLAMA BLOCKLIST WARNING</span>
       </div>
       <div style={bannerStyles.message}>
-        Do not interact with this site as it is blocklisted for various reasons including phishing, impersonation, and other security threats.
+        This site is on the DefiLlama blocklist due to phishing or other security concerns. We recommend avoiding this site. If this is incorrect, please report it in DefiLlama Discord.
       </div>
     </div>
   );
@@ -152,8 +152,8 @@ function createProtectedBanner(reason: string): HTMLElement {
         font-size: 18px;
         font-weight: 700;
       ">
-        <span style="font-size: 22px;">🚫</span>
-        <span>BLOCKED SITE</span>
+        <span style="font-size: 22px;">⚠️</span>
+        <span>DEFILLAMA BLOCKLIST WARNING</span>
       </div>
       <div style="
         font-size: 14px;
@@ -162,7 +162,7 @@ function createProtectedBanner(reason: string): HTMLElement {
         line-height: 1.4;
         opacity: 0.95;
       ">
-        Do not interact with this site as it is blocklisted for various reasons including phishing, impersonation, and other security threats.
+        This site is on the DefiLlama blocklist due to phishing or security concerns. We recommend avoiding this site. If this is incorrect, please report it in DefiLlama Discord.
       </div>
     </div>
   `;
@@ -410,8 +410,8 @@ const fallbackBannerHTML = `
       font-size: 18px !important;
       font-weight: 700 !important;
     ">
-      <span style="font-size: 22px;">🚫</span>
-      <span>BLOCKED SITE</span>
+      <span style="font-size: 22px;">⚠️</span>
+      <span>DEFILLAMA BLOCKLIST WARNING</span>
     </div>
     <div style="
       font-size: 14px !important;
@@ -420,7 +420,7 @@ const fallbackBannerHTML = `
       line-height: 1.4 !important;
       opacity: 0.95 !important;
     ">
-      Do not interact with this site as it is blocklisted for various reasons including phishing, impersonation, and other security threats.
+      This site is on the DefiLlama blocklist due to phishing or security concerns. We recommend avoiding this site. If this is incorrect, please report it in DefiLlama Discord.
     </div>
   </div>
 `;

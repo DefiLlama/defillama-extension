@@ -79,8 +79,6 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
 }
 
 async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
-  const phishingDetector = await getStorage("local", "settings:phishingDetector", true);
-
   const domainResult = await handleDomainCheck(trigger, tab);
   const { isBlocked, isTrusted, reason } = domainResult;
   tab = domainResult.tab;
@@ -99,12 +97,6 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
         // Tab might be closed or content script not ready - fail silently
       }
     }
-    return;
-  }
-
-
-  if (!phishingDetector) {
-    await Browser.action.setIcon({ path: cute });
     return;
   }
 

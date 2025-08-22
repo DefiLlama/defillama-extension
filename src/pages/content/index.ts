@@ -42,7 +42,7 @@ sendMessageWithRetry({
 Browser.runtime.onMessage.addListener((message, sender) => {
   try {
     if (message?.type === "DOMAIN_STATUS" && message?.status === "blocked") {
-      injectWarningBanner(message.reason || "Site blocked");
+      injectWarningBanner(message.reason || "DefiLlama blocklist warning");
     }
   } catch (error) {
   }
