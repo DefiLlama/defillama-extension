@@ -1,3 +1,4 @@
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 
 const bannerStyles = {
@@ -62,6 +63,8 @@ const WarningBanner = ({ reason }: { reason: string }) => {
 let shadowHost: HTMLElement | null = null;
 let mutationObserver: MutationObserver | null = null;
 let isInjected = false;
+let styleChecker: NodeJS.Timeout | null = null;
+let reinjectionChecker: NodeJS.Timeout | null = null;
 
 const containerStyles = `
   position: fixed !important;
@@ -175,48 +178,54 @@ function setupMutationObserver(reason: string) {
   }
   
   mutationObserver = new MutationObserver((mutations) => {
+    let needsReset = false;
+    
     mutations.forEach((mutation) => {
       if (mutation.type === 'childList') {
         mutation.removedNodes.forEach((node) => {
           if (node === shadowHost || (node as Element)?.contains?.(shadowHost)) {
-            setTimeout(() => injectWarningBanner(reason), 100);
+            setTimeout(() => {
+              isInjected = false;
+              injectWarningBanner(reason);
+            }, 100);
           }
         });
       }
       
-      // Monitor for style/attribute changes on our elements
-      if (mutation.type === 'attributes' && shadowHost) {
-        if (mutation.target === shadowHost || shadowHost.contains(mutation.target as Node)) {
-          // Check if our element is being hidden
-          const target = mutation.target as HTMLElement;
-          if (target && (
-            target.style.display === 'none' ||
-            target.style.visibility === 'hidden' ||
-            target.style.opacity === '0' ||
-            target.offsetParent === null
-          )) {
-            // Reset protective styles
-            resetElementStyles(target);
-          }
-        }
+      // Only monitor style changes on our specific element
+      if (mutation.type === 'attributes' && mutation.target === shadowHost) {
+        needsReset = true;
       }
     });
+    
+    // Batch style resets to avoid excessive calls
+    if (needsReset && shadowHost) {
+      resetElementStyles(shadowHost);
+    }
   });
   
-  mutationObserver.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['style', 'class']
-  });
+  // Only monitor our shadow host and immediate children, not entire document
+  if (shadowHost) {
+    mutationObserver.observe(shadowHost, {
+      attributes: true,
+      attributeFilter: ['style', 'class']
+    });
+    
+    // Also monitor document body for removal
+    mutationObserver.observe(document.body || document.documentElement, {
+      childList: true,
+      subtree: false // Only direct children, not entire subtree
+    });
+  }
 }
 
 function resetElementStyles(element: HTMLElement) {
   if (element === shadowHost) {
-    element.style.cssText = containerStyles;
-    element.style.display = 'block !important';
-    element.style.visibility = 'visible !important';
-    element.style.opacity = '1 !important';
+    // Only reset if actually hidden - avoid unnecessary DOM operations
+    const computed = window.getComputedStyle(element);
+    if (computed.display === 'none' || computed.visibility === 'hidden' || computed.opacity === '0') {
+      element.style.cssText = containerStyles;
+    }
   }
 }
 
@@ -247,15 +256,13 @@ function injectWithShadowDOM(reason: string): boolean {
       return false;
     }
     
-    // Set up continuous style monitoring for this specific element
-    const styleChecker = setInterval(() => {
-      if (host.offsetParent === null || 
-          window.getComputedStyle(host).display === 'none' ||
-          window.getComputedStyle(host).visibility === 'hidden' ||
-          window.getComputedStyle(host).opacity === '0') {
+    // Lightweight style monitoring - check less frequently
+    if (styleChecker) clearInterval(styleChecker);
+    styleChecker = setInterval(() => {
+      if (host.offsetParent === null) {
         resetElementStyles(host);
       }
-    }, 500);
+    }, 3000); // Reduced from 500ms to 3 seconds
     
     return true;
   } catch (error) {
@@ -314,24 +321,34 @@ export function injectWarningBanner(reason: string) {
     isInjected = true;
     setupMutationObserver(reason);
     
-    // Re-check and re-inject every 2 seconds as additional protection
-    setInterval(() => {
+    // Reduced frequency re-injection check
+    if (reinjectionChecker) clearInterval(reinjectionChecker);
+    reinjectionChecker = setInterval(() => {
       if (!document.body.contains(shadowHost) && !document.getElementById('defillama-warning-banner')) {
         isInjected = false;
         injectWarningBanner(reason);
       }
-    }, 2000);
+    }, 5000); // Reduced from 2s to 5s
     
-    // Add event protection to prevent tampering
+    // Minimal event protection - only prevent removal, don't block all interactions
     if (shadowHost) {
-      shadowHost.addEventListener('click', (e) => e.stopPropagation(), true);
-      shadowHost.addEventListener('mousedown', (e) => e.stopPropagation(), true);
-      shadowHost.addEventListener('keydown', (e) => e.stopPropagation(), true);
+      shadowHost.addEventListener('DOMNodeRemoved', (e) => e.preventDefault(), true);
     }
   }
 }
 
 export function cleanupWarningBanner() {
+  // Clear all timers
+  if (styleChecker) {
+    clearInterval(styleChecker);
+    styleChecker = null;
+  }
+  
+  if (reinjectionChecker) {
+    clearInterval(reinjectionChecker);
+    reinjectionChecker = null;
+  }
+  
   if (mutationObserver) {
     mutationObserver.disconnect();
     mutationObserver = null;
@@ -350,6 +367,11 @@ export function cleanupWarningBanner() {
   const simpleBanner = document.getElementById('defillama-simple-banner');
   if (simpleBanner) {
     simpleBanner.remove();
+  }
+  
+  const protectiveCSS = document.getElementById('defillama-protective-css');
+  if (protectiveCSS) {
+    protectiveCSS.remove();
   }
   
   isInjected = false;
