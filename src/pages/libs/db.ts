@@ -7,7 +7,6 @@ import {
   PROTOCOLS_API,
   METAMASK_LIST_CONFIG_API,
   DEFILLAMA_DIRECTORY_API,
-  PROTOCOL_TVL_THRESHOLD,
   tokenIconUrl,
 } from "./constants";
 
@@ -85,7 +84,7 @@ async function getData() {
       name: x.name,
       logo: tokenIconUrl(x.name),
     })) ?? []) as Protocol[]
-  ).filter((x) => (x.tvl >= PROTOCOL_TVL_THRESHOLD && x.name && x.url));
+  ).filter((x) => (x.name && x.url));
 
   const protocolDomains = protocols
     .map((x) => {

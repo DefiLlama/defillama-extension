@@ -12,7 +12,7 @@ export interface Prices {
 
 export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
 export const TWITTER_CONFIG_API = "https://defillama-datasets.llama.fi/extension/twitter-config.json";
-export const PROTOCOL_TVL_THRESHOLD = 5000000;
+export const PROTOCOL_TVL_THRESHOLD = 0;
 
 export const ACCOUNTS_API_V2 = "https://accounts.llama.fi/api/v2/address";
 export type TagsDataV2 = { [address: string]: DisplayTag[] };
