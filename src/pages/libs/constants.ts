@@ -91,4 +91,5 @@ export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "kromascan.com": "kroma",
   "berascan.com": "berachain",
   "solscan.io": "solana",
+  "hyperevmscan.io": "hyperliquid"
 }
