@@ -20,23 +20,20 @@ export async function fetchData({
   getData: any,
 }): Promise<any> {
 
-  // return current data while updating
+
   if (isUpdating[key])
     return currentData[key];
 
   const timeNow = Math.floor(Date.now() / 1000);
   const lastUpdatedTime = lastUpdated[key] ?? 0;
 
-  // return current data if it's not time to update
+
   if (timeNow - lastUpdatedTime < updateFrequency)
     return currentData[key]
 
 
-  console.log("Updating storage data for", key)
-
   isUpdating[key] = true;
-  currentData[key] = _fetchData()
-  await currentData[key] // wait for the fetchData to complete
+  currentData[key] = await _fetchData();
   return currentData[key]
 
   async function _fetchData(): Promise<any> {
@@ -44,31 +41,33 @@ export async function fetchData({
     try {
       const cookieKey = 'llama.fi-' + key
 
-      let { lastUpdatedTime = 0, data } = getDataFromStorage(cookieKey);
-
-      if (timeNow - lastUpdatedTime > updateFrequency) {
-        console.log("Fetching data", key)
+      let { lastUpdatedTime = 0, data: storedData } = await getDataFromStorage(cookieKey);
+      if (!storedData || Object.keys(storedData).length === 0 || timeNow - lastUpdatedTime > updateFrequency) {
         data = await getData()
-        setDataToStorage(cookieKey, data)
+        await setDataToStorage(cookieKey, data)
         lastUpdated[key] = timeNow
         currentData[key] = data
+      } else {
+        data = storedData
       }
+      isUpdating[key] = false;
+      return data
     } catch (error) {
-      console.error("Error updating storage data for", key, error);
+
     }
 
     isUpdating[key] = false;
     return data
   }
 
-  function getDataFromStorage(key) {
-    const res = Browser.storage.local.get([key])
+  async function getDataFromStorage(key) {
+    const res = await Browser.storage.local.get([key])
     const item = res[key]
-    return item ? JSON.parse(item) : { lastUpdatedTime: 0, }
+    return item ? JSON.parse(item) : { lastUpdatedTime: 0, data: {} }
   }
 
-  function setDataToStorage(key, data) {
+  async function setDataToStorage(key, data) {
     const value = JSON.stringify({ lastUpdatedTime: timeNow, data })
-    Browser.storage.local.set({[key]: value})
+    await Browser.storage.local.set({[key]: value})
   }
 }

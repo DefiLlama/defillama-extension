@@ -125,11 +125,10 @@ export const setStorage = async <T>(area: "local" | "sync", key: string, value: 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const debounceTimers = {} as Record<number, NodeJS.Timeout>;
-export function debounce(func: Function, delay: number) {
-  return function () {
-    const context = this;
-    const args = arguments;
-    clearTimeout(debounceTimers[delay]);
-    debounceTimers[delay] = setTimeout(() => func.apply(context, args), delay);
+export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
   };
 }

@@ -7,18 +7,52 @@ import {
   PROTOCOLS_API,
   METAMASK_LIST_CONFIG_API,
   DEFILLAMA_DIRECTORY_API,
-  PROTOCOL_TVL_THRESHOLD,
+  tokenIconUrl,
 } from "./constants";
 
 export interface Protocol {
   url: string;
   tvl?: number;
+  name: string;
+  logo: string;
 }
+
+export async function checkAndLoadDataIfNeeded() {
+  await fetchData({
+    key: cacheKey,
+    updateFrequency: 60 * 30, // update every 30 minutes
+    getData,
+  })
+  const storageKey = 'llama.fi-' + cacheKey;
+  const existingData = await Browser.storage.local.get([storageKey]);
+  if (!existingData[storageKey]) {
+    await updateDb();
+    return true;
+  }
+  // Even if data exists, we need to populate our in-memory DBs
+  const storedData = JSON.parse(existingData[storageKey]);
+  if (storedData.data) {
+    const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], protocols = [] } = storedData.data;
+    allowedDomainsDb.data = new Set([...allowedDomains, ...LOCAL_ALLOWED_DOMAINS]);
+    blockedDomainsDb.data = new Set([...blockedDomains, ...LOCAL_BLOCKED_DOMAINS]);
+    fuzzyDomainsDb.data = fuzzyDomains;
+    protocolDirectoryDb.data = protocols;
+  }
+  return false;
+}
+
+// Local hardcoded lists for custom blocking/allowing
+const LOCAL_BLOCKED_DOMAINS = [
+  'llamaswap.org',
+  'lamaswap.org',
+];
+
+const LOCAL_ALLOWED_DOMAINS = [];
 
 export const blockedDomainsDb: {
   data: Set<string>
 } = {
-  data: new Set()
+  data: new Set(LOCAL_BLOCKED_DOMAINS)
 }
 
 export const fuzzyDomainsDb: {
@@ -30,32 +64,38 @@ export const fuzzyDomainsDb: {
 export const allowedDomainsDb: {
   data: Set<string>
 } = {
-  data: new Set()
+  data: new Set(LOCAL_ALLOWED_DOMAINS)
+}
+
+export const protocolDirectoryDb: {
+  data: Array<Protocol>
+} = {
+  data: []
 }
 
 const cacheKey = 'cache-v' + version
 
 async function getData() {
-  console.time(cacheKey)
   const rawProtocols = await fetch(PROTOCOLS_API).then((res) => res.json());
   const protocols = (
     (rawProtocols["protocols"]?.map((x: any) => ({
       url: x.url,
       tvl: x.tvl || 0,
+      name: x.name,
+      logo: tokenIconUrl(x.name),
     })) ?? []) as Protocol[]
-  ).filter((x) => x.tvl >= PROTOCOL_TVL_THRESHOLD);
+  ).filter((x) => (x.name && x.url));
+
   const protocolDomains = protocols
     .map((x) => {
       try {
         if (!x.url) return null;
         return new URL(x.url).hostname.replace("www.", "");
       } catch (error) {
-        console.log("updateDomainDbs", "error", error);
         return null;
       }
     })
     .filter((x) => x !== null)
-  console.log("updateDomainDbs", "protocolDomains", protocolDomains.length);
   const metamaskLists = (await fetch(METAMASK_LIST_CONFIG_API).then((res) => res.json())) as {
     fuzzylist: string[];
     whitelist: string[];
@@ -74,47 +114,37 @@ async function getData() {
   const defillamaBlockedDomains = rawDefillamaDirectory.blacklist ?? [];
   const defillamaFuzzyDomains = rawDefillamaDirectory.fuzzylist ?? [];
   const allowedDomains = getUniqueItems(metamaskAllowedDomains, protocolDomains, defillamaDomains, ['x.com'])
-  console.log("allowedDomainsDb", allowedDomains.length);
-
   const blockedDomains = getUniqueItems(metamaskBlockedDomains, defillamaBlockedDomains)
-  console.log("blockedDomainsDb", blockedDomains.length);
-
   const fuzzyDomains = getUniqueItems(metamaskFuzzyDomains, protocolDomains, defillamaDomains, defillamaFuzzyDomains)
-  console.log("fuzzyDomainsDb", fuzzyDomains.length);
-
-  console.timeEnd(cacheKey)
   return {
     allowedDomains,
     blockedDomains,
     fuzzyDomains,
+    protocols,
   }
 }
 
 function getUniqueItems(...arrays) {
   const allItems = arrays.flat()
   return [...new Set(allItems)]
-
 }
 
-async function updateDb() {
+export async function updateDb() {
   const res = await fetchData({
     key: cacheKey,
-    updateFrequency: 60 * 60 * 4, // update every 4 hours
+    updateFrequency: 60 * 60, // update every 60 minutes
     getData,
   })
-  console.log("updateDomainDbs", "data fetched", res);
-  const {
-    allowedDomains = [],
-    blockedDomains = [],
-    fuzzyDomains = [],
-  } = res;
-  allowedDomainsDb.data = new Set(allowedDomains)
-  blockedDomainsDb.data = new Set(blockedDomains)
-  fuzzyDomainsDb.data = fuzzyDomains
+  const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], protocols = [] } = res;
+  allowedDomainsDb.data = new Set([...allowedDomains, ...LOCAL_ALLOWED_DOMAINS]);
+  blockedDomainsDb.data = new Set([...blockedDomains, ...LOCAL_BLOCKED_DOMAINS]);
+  fuzzyDomainsDb.data = fuzzyDomains;
+  protocolDirectoryDb.data = protocols;
+  return { allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb, protocolDirectoryDb }
 }
 
-// setInterval(updateDb, 1000 * 6 * 10) // run every 10 minutes
-Browser.alarms.create("updateDomainDbs", { periodInMinutes: 6 * 60 }); // update every 6 hours
+// Regular update every 60 minutes for main data
+Browser.alarms.create("updateDomainDbs", { periodInMinutes: 60 });
 
 Browser.alarms.onAlarm.addListener(async (a) => {
   switch (a.name) {
@@ -125,10 +155,8 @@ Browser.alarms.onAlarm.addListener(async (a) => {
 })
 
 async function startupTasks() {
-  console.time("startupTasks");
   await updateDb();
   Browser.action.setIcon({ path: cute });
-  console.timeEnd("startupTasks");
 }
 
 Browser.runtime.onInstalled.addListener(startupTasks)

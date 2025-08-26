@@ -12,7 +12,7 @@ export interface Prices {
 
 export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
 export const TWITTER_CONFIG_API = "https://defillama-datasets.llama.fi/extension/twitter-config.json";
-export const PROTOCOL_TVL_THRESHOLD = 5000000;
+export const PROTOCOL_TVL_THRESHOLD = 0;
 
 export const ACCOUNTS_API_V2 = "https://accounts.llama.fi/api/v2/address";
 export type TagsDataV2 = { [address: string]: DisplayTag[] };
@@ -49,6 +49,23 @@ export const METAMASK_LIST_CONFIG_API =
 export const DEFILLAMA_DIRECTORY_API = "https://raw.githubusercontent.com/DefiLlama/url-directory/master/domains.json";
 
 
+export const ICONS_CDN = "https://icons.llamao.fi/icons";
+
+export function tokenIconUrl(name: string) {
+  const x = name ?? ''
+  return `${ICONS_CDN}/protocols/${x
+    .trim()
+    .toLowerCase()
+    .split(' ')
+    .join('-')
+    .split('(')
+    .join('')
+    .split(')')
+    .join('')
+    .split("'")
+    .join('')}?w=48&h=48`
+}
+
 export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "etherscan.io": "ethereum",
   "bscscan.com": "bsc",
@@ -73,4 +90,6 @@ export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "era.zksync.network": "era",
   "kromascan.com": "kroma",
   "berascan.com": "berachain",
+  "solscan.io": "solana",
+  "hyperevmscan.io": "hyperliquid"
 }
