@@ -80,7 +80,7 @@ const Popup = () => {
         <Link href="https://defillama.com/" isExternal>
           <VStack>
             <Image 
-              src="https://defillama.com/favicon-32x32.png" 
+              src="https://defillama.com/icons/favicon-32x32.png" 
               alt="DefiLlama" 
               w="8" 
               h="8"
