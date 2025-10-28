@@ -24,11 +24,9 @@ initBackground();
 Browser.runtime.onMessage.addListener((message, sender) => {
   try {
     if (message?.type === "CHECK_CURRENT_DOMAIN" && sender?.tab) {
-      handlePhishingCheck('contentScriptRequest', sender.tab).catch(() => {
-      });
+      handlePhishingCheck("contentScriptRequest", sender.tab).catch(() => {});
     }
-  } catch (error) {
-  }
+  } catch (error) {}
 });
 
 async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
@@ -47,7 +45,7 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
         isBlocked: true,
         isTrusted: false,
         reason: "Phishing detected by Metamask",
-        tab
+        tab,
       };
     }
     if (url.startsWith("chrome://") || url.startsWith("moz-extension://") || url.startsWith("chrome-extension://")) {
@@ -65,7 +63,7 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
     }
 
     const parsed = psl.parse(hostname);
-    const domain = (parsed && 'domain' in parsed && parsed.domain) || hostname.replace("www.", "");
+    const domain = (parsed && "domain" in parsed && parsed.domain) || hostname.replace("www.", "");
 
     const res = await checkDomain(domain);
     if (res.result) {
@@ -77,7 +75,6 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
     const reason = isTrusted ? "Website is whitelisted" : "Unknown website";
 
     return { isBlocked: false, isTrusted, reason, tab };
-
   } catch (error) {
     return { isBlocked: false, isTrusted: false, reason: "Error checking domain", tab };
   }
@@ -87,21 +84,21 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
   const domainResult = await handleDomainCheck(trigger, tab);
   const { isBlocked, isTrusted, reason } = domainResult;
   tab = domainResult.tab;
-  
+
   if (isBlocked) {
     // Always send warning message for blocked sites, regardless of active status
     if (tab?.id) {
       try {
-        await Browser.tabs.sendMessage(tab.id, { 
+        await Browser.tabs.sendMessage(tab.id, {
           type: "DOMAIN_STATUS",
           status: "blocked",
-          reason: reason
+          reason: reason,
         });
       } catch (error) {
         // Tab might be closed or content script not ready - fail silently
       }
     }
-    
+
     // Only update icon if this is the active tab
     if (tab?.active) {
       Browser.action.setIcon({ path: maxPain });
@@ -124,7 +121,6 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
 
 let lastCheckKey = "";
 
-
 Browser.tabs.onUpdated.addListener(async (tabId, onUpdatedInfo, tab) => {
   try {
     if (onUpdatedInfo.status === "complete" && tab.active) {
@@ -137,19 +133,18 @@ Browser.tabs.onUpdated.addListener(async (tabId, onUpdatedInfo, tab) => {
 
     if (onUpdatedInfo.url || onUpdatedInfo.status === "complete") {
       if (!tab?.active) return;
-      
+
       const key = `${tab.id}-${tab.url}`;
       if (lastCheckKey === key) {
         return;
       }
       lastCheckKey = key;
-      await handlePhishingCheck('tabUpdate', tab);
+      await handlePhishingCheck("tabUpdate", tab);
     }
   } catch (error) {
     // Silently handle any tab update errors
   }
 });
-
 
 Browser.tabs.onActivated.addListener(async (onActivatedInfo) => {
   try {
@@ -158,14 +153,13 @@ Browser.tabs.onActivated.addListener(async (onActivatedInfo) => {
     } catch {
       // Content script might not be ready
     }
-    
+
     const tab = await Browser.tabs.get(onActivatedInfo.tabId);
-    await handlePhishingCheck('tabActivated', tab);
+    await handlePhishingCheck("tabActivated", tab);
   } catch (error) {
     // Silently handle tab activation errors
   }
 });
-
 
 Browser.windows.onFocusChanged.addListener(async (windowId) => {
   try {
@@ -177,18 +171,17 @@ Browser.windows.onFocusChanged.addListener(async (windowId) => {
       } catch {
         // Content script might not be ready
       }
-      await handlePhishingCheck('windowFocused', tab);
+      await handlePhishingCheck("windowFocused", tab);
     }
   } catch (error) {
     // Silently handle window focus errors
   }
 });
 
-
 Browser.tabs.onCreated.addListener(async (tab) => {
   try {
     if (tab.url && tab.active) {
-      await handlePhishingCheck('tabCreated', tab);
+      await handlePhishingCheck("tabCreated", tab);
     }
   } catch (error) {
     // Silently handle tab creation errors

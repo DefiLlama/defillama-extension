@@ -10,7 +10,7 @@ export default function injectExplorerComponent() {
 
   const config: EtherscanAlikeExplorerConfig = {
     name,
-    chainPrefix: prefix + ':',
+    chainPrefix: prefix + ":",
   };
 
   injectPrice(config);

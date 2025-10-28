@@ -33,10 +33,9 @@ export async function checkDomain(domain: string): Promise<CheckDomainResult> {
   return domainCheckCache.get(domain) || defaultCheckResponse;
 }
 
-
 function _checkDomain(domain: string): CheckDomainResult {
   const parsed = psl.parse(domain);
-  if (!parsed || !('domain' in parsed) || !parsed.domain) {
+  if (!parsed || !("domain" in parsed) || !parsed.domain) {
     const fallbackDomain = domain.split(".").slice(-2).join(".");
     return checkDomainInLists(domain, fallbackDomain);
   }

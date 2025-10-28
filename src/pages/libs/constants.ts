@@ -22,48 +22,47 @@ export interface DisplayTag {
   link?: string;
   tooltip?: string;
   bg?:
-  | "bg-primary"
-  | "bg-secondary"
-  | "bg-success"
-  | "bg-danger"
-  | "bg-warning"
-  | "bg-info"
-  | "bg-light"
-  | "bg-dark"
-  | "bg-white";
+    | "bg-primary"
+    | "bg-secondary"
+    | "bg-success"
+    | "bg-danger"
+    | "bg-warning"
+    | "bg-info"
+    | "bg-light"
+    | "bg-dark"
+    | "bg-white";
   textColor?:
-  | "text-primary"
-  | "text-secondary"
-  | "text-success"
-  | "text-danger"
-  | "text-warning"
-  | "text-info"
-  | "text-light"
-  | "text-dark"
-  | "text-muted"
-  | "text-white";
+    | "text-primary"
+    | "text-secondary"
+    | "text-success"
+    | "text-danger"
+    | "text-warning"
+    | "text-info"
+    | "text-light"
+    | "text-dark"
+    | "text-muted"
+    | "text-white";
 }
 
 export const METAMASK_LIST_CONFIG_API =
   "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/config.json";
 export const DEFILLAMA_DIRECTORY_API = "https://raw.githubusercontent.com/DefiLlama/url-directory/master/domains.json";
 
-
 export const ICONS_CDN = "https://icons.llamao.fi/icons";
 
 export function tokenIconUrl(name: string) {
-  const x = name ?? ''
+  const x = name ?? "";
   return `${ICONS_CDN}/protocols/${x
     .trim()
     .toLowerCase()
-    .split(' ')
-    .join('-')
-    .split('(')
-    .join('')
-    .split(')')
-    .join('')
+    .split(" ")
+    .join("-")
+    .split("(")
+    .join("")
+    .split(")")
+    .join("")
     .split("'")
-    .join('')}?w=48&h=48`
+    .join("")}?w=48&h=48`;
 }
 
 export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
@@ -91,5 +90,5 @@ export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "kromascan.com": "kroma",
   "berascan.com": "berachain",
   "solscan.io": "solana",
-  "hyperevmscan.io": "hyperliquid"
-}
+  "hyperevmscan.io": "hyperliquid",
+};

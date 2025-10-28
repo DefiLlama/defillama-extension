@@ -10,7 +10,8 @@
     "build": "tsc --noEmit && vite build",
     "build_firefox": "npm run build && node fixForFox.js",
     "zip": "web-ext build -s dist -a packed -n extension.zip -o",
-    "prep": "rm -f vite.config.ts.*.mjs && rm -rf dist packed && yarn build && yarn zip"
+    "prep": "rm -f vite.config.ts.*.mjs && rm -rf dist packed && yarn build && yarn zip",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.10",
@@ -29,14 +30,15 @@
   "devDependencies": {
     "@types/chrome": "^0.0.197",
     "@types/fast-levenshtein": "^0.0.2",
-    "@types/psl": "^1.1.0",
     "@types/node": "^18.7.23",
+    "@types/psl": "^1.1.0",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "@types/webextension-polyfill": "^0.9.1",
     "@vitejs/plugin-react": "^2.1.0",
     "fs-extra": "^10.1.0",
     "nodemon": "^2.0.20",
+    "prettier": "^3.6.2",
     "sass": "^1.55.0",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",

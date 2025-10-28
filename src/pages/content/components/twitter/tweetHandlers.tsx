@@ -134,7 +134,7 @@ export function handleHashTag(tweet: HTMLElement, tweetText: string, isLinkedTwe
  * Adds a warning message to the tweet if it contains a QT
  */
 export function handleQT(tweet: HTMLElement, tweetText: string, isLinkedTweet: boolean) {
-  const tweetLength = tweet.querySelectorAll('[data-testid="tweetText"]').length
+  const tweetLength = tweet.querySelectorAll('[data-testid="tweetText"]').length;
   if (tweetLength < 2) return;
 
   // display warning message on tweet
@@ -142,33 +142,30 @@ export function handleQT(tweet: HTMLElement, tweetText: string, isLinkedTweet: b
   insertTweetWarningMessage(tweet, isLinkedTweet, warningTextContent);
 }
 
-
 /**
  * Adds a warning message to the tweet is by a bot
  */
 export function handleBotReplies(tweet: HTMLElement, _tweetText: string, isLinkedTweet: boolean) {
   if (isLinkedTweet) return;
-  const tweetTextElement = tweet.querySelector('[data-testid="tweetText"]')
+  const tweetTextElement = tweet.querySelector('[data-testid="tweetText"]');
   if (!tweetTextElement) return;
-  const tweetText = tweetTextElement.textContent
-  const allText = tweet.textContent
-  const hasAutomatedTag = allText.split(tweetText)[0].includes("Automated")
+  const tweetText = tweetTextElement.textContent;
+  const allText = tweet.textContent;
+  const hasAutomatedTag = allText.split(tweetText)[0].includes("Automated");
   if (!hasAutomatedTag) return;
-
 
   // display warning message on tweet
   const warningTextContent = `This is a bot reply.`;
   insertTweetWarningMessage(tweet, isLinkedTweet, warningTextContent);
 }
 
-
 /**
  * Adds a warning message to spam messages
  */
 export function handleSpamQT(tweet: HTMLElement, isLinkedTweet: boolean) {
-  let [_, quotedTweet] = tweet.querySelectorAll('[data-testid="tweetText"]')
-  if (!quotedTweet) return;  // if there is no quoted tweet
-  quotedTweet = quotedTweet.parentElement.parentElement
+  let [_, quotedTweet] = tweet.querySelectorAll('[data-testid="tweetText"]');
+  if (!quotedTweet) return; // if there is no quoted tweet
+  quotedTweet = quotedTweet.parentElement.parentElement;
   if (!quotedTweet.textContent.includes("a new version of this post")) return; // if the quoted tweet is not the updated version of the tweet
   if (!quotedTweet.querySelectorAll('[data-testid="tweetPhoto"]').length) return; // if the quoted tweet does not have a photo
 
@@ -276,11 +273,11 @@ export function getTweetInfo(tweet: HTMLElement) {
   if (element[0]?.innerText.endsWith("retweeted") || element[0]?.innerText.endsWith("reposted"))
     element = Array.from(element).slice(1);
 
-  let userMetadata = tweet.querySelector<HTMLElement>('[data-testid="User-Name"]')
-  const userMetadataText = userMetadata?.innerText.split('\n') ?? []
-  const tweetText = tweet.querySelectorAll<HTMLElement>('[data-testid="tweetText"]')[0]?.innerText.trim() || '';
-  const tweetHandle = element[2]?.innerText.replace("@", "") ?? userMetadataText[1]?.replace("@", "").trim() ?? ''
-  const displayName = element[1]?.innerText ?? userMetadataText[0]?.trim() ?? ''
+  let userMetadata = tweet.querySelector<HTMLElement>('[data-testid="User-Name"]');
+  const userMetadataText = userMetadata?.innerText.split("\n") ?? [];
+  const tweetText = tweet.querySelectorAll<HTMLElement>('[data-testid="tweetText"]')[0]?.innerText.trim() || "";
+  const tweetHandle = element[2]?.innerText.replace("@", "") ?? userMetadataText[1]?.replace("@", "").trim() ?? "";
+  const displayName = element[1]?.innerText ?? userMetadataText[0]?.trim() ?? "";
   // determines if tweet has replies by seeing if the tweet has the vertical bar under the user avatar
   const isRepliedTo = tweet.querySelector('[data-testid="Tweet-User-Avatar"]')?.parentElement?.children?.length > 1;
 
@@ -290,5 +287,5 @@ export function getTweetInfo(tweet: HTMLElement) {
   //  non-linked: article/div/div/children.length === 2 (content is split vertically, located on right)
   const isLinkedTweet = tweet.firstElementChild.firstElementChild.children.length === 3;
 
-  return { tweetHandle, displayName, tweetText, isRepliedTo, isLinkedTweet, };
+  return { tweetHandle, displayName, tweetText, isRepliedTo, isLinkedTweet };
 }

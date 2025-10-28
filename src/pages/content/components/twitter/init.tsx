@@ -23,7 +23,7 @@ export default async function initPhishingDetector() {
   const twitterHashTags = await getStorage("local", "settings:twitterHashTags", false);
   const twitterQT = await getStorage("local", "settings:twitterQT", false);
   const twitterBotReplies = await getStorage("local", "settings:twitterBotReplies", false);
-  const twitterConfig = { twitterCashTags, twitterHashTags, twitterQT,  twitterBotReplies, };
+  const twitterConfig = { twitterCashTags, twitterHashTags, twitterQT, twitterBotReplies };
   if (!phishingHandleDetector) return;
 
   let handlePage = getHandlerForTwitterPageVariant();
@@ -78,5 +78,5 @@ function getHandlerForTwitterPageVariant() {
     tweetStatusPageInitialAnalysis.isSafeTweetDetermined = false;
     return handleTweetStatusPage;
   } else if (!!document.querySelectorAll<HTMLElement>('[data-testid="UserName"]').length) return handleUserTimelinePage;
-  else return () => { };
+  else return () => {};
 }
