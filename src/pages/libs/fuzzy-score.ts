@@ -54,114 +54,114 @@ const IS_SPACE_REGEXP = /[\s-]/
 const COUNT_SPACE_REGEXP = /[\s-]/g
 
 function fuzzyScoreInner(
-	text: string,
-	abbreviation: string,
-	lowerString: string,
-	lowerAbbreviation: string,
-	stringIndex: number,
-	abbreviationIndex: number,
-	memoizedResults: {
-		[key: string]: number
-	}
+  text: string,
+  abbreviation: string,
+  lowerString: string,
+  lowerAbbreviation: string,
+  stringIndex: number,
+  abbreviationIndex: number,
+  memoizedResults: {
+    [key: string]: number
+  },
 ) {
-	if (abbreviationIndex === abbreviation.length) {
-		if (stringIndex === text.length) {
-			return SCORE_CONTINUE_MATCH
-		}
-		return PENALTY_NOT_COMPLETE
-	}
+  if (abbreviationIndex === abbreviation.length) {
+    if (stringIndex === text.length) {
+      return SCORE_CONTINUE_MATCH
+    }
+    return PENALTY_NOT_COMPLETE
+  }
 
-	let memoizeKey = `${stringIndex},${abbreviationIndex}`
-	if (memoizedResults[memoizeKey] !== undefined) {
-		return memoizedResults[memoizeKey]
-	}
+  let memoizeKey = `${stringIndex},${abbreviationIndex}`
+  if (memoizedResults[memoizeKey] !== undefined) {
+    return memoizedResults[memoizeKey]
+  }
 
-	let abbreviationChar = lowerAbbreviation.charAt(abbreviationIndex)
-	let index = lowerString.indexOf(abbreviationChar, stringIndex)
-	let highScore = 0
+  let abbreviationChar = lowerAbbreviation.charAt(abbreviationIndex)
+  let index = lowerString.indexOf(abbreviationChar, stringIndex)
+  let highScore = 0
 
-	let score, transposedScore, wordBreaks, spaceBreaks
+  let score, transposedScore, wordBreaks, spaceBreaks
 
-	while (index >= 0) {
-		score = fuzzyScoreInner(
-			text,
-			abbreviation,
-			lowerString,
-			lowerAbbreviation,
-			index + 1,
-			abbreviationIndex + 1,
-			memoizedResults
-		)
-		if (score > highScore) {
-			if (index === stringIndex) {
-				score *= SCORE_CONTINUE_MATCH
-			} else if (IS_GAP_REGEXP.test(text.charAt(index - 1))) {
-				score *= SCORE_NON_SPACE_WORD_JUMP
-				wordBreaks = text.slice(stringIndex, index - 1).match(COUNT_GAPS_REGEXP)
-				if (wordBreaks && stringIndex > 0) {
-					score *= Math.pow(PENALTY_SKIPPED, wordBreaks.length)
-				}
-			} else if (IS_SPACE_REGEXP.test(text.charAt(index - 1))) {
-				score *= SCORE_SPACE_WORD_JUMP
-				spaceBreaks = text.slice(stringIndex, index - 1).match(COUNT_SPACE_REGEXP)
-				if (spaceBreaks && stringIndex > 0) {
-					score *= Math.pow(PENALTY_SKIPPED, spaceBreaks.length)
-				}
-			} else {
-				score *= SCORE_CHARACTER_JUMP
-				if (stringIndex > 0) {
-					score *= Math.pow(PENALTY_SKIPPED, index - stringIndex)
-				}
-			}
+  while (index >= 0) {
+    score = fuzzyScoreInner(
+      text,
+      abbreviation,
+      lowerString,
+      lowerAbbreviation,
+      index + 1,
+      abbreviationIndex + 1,
+      memoizedResults,
+    )
+    if (score > highScore) {
+      if (index === stringIndex) {
+        score *= SCORE_CONTINUE_MATCH
+      } else if (IS_GAP_REGEXP.test(text.charAt(index - 1))) {
+        score *= SCORE_NON_SPACE_WORD_JUMP
+        wordBreaks = text.slice(stringIndex, index - 1).match(COUNT_GAPS_REGEXP)
+        if (wordBreaks && stringIndex > 0) {
+          score *= Math.pow(PENALTY_SKIPPED, wordBreaks.length)
+        }
+      } else if (IS_SPACE_REGEXP.test(text.charAt(index - 1))) {
+        score *= SCORE_SPACE_WORD_JUMP
+        spaceBreaks = text.slice(stringIndex, index - 1).match(COUNT_SPACE_REGEXP)
+        if (spaceBreaks && stringIndex > 0) {
+          score *= Math.pow(PENALTY_SKIPPED, spaceBreaks.length)
+        }
+      } else {
+        score *= SCORE_CHARACTER_JUMP
+        if (stringIndex > 0) {
+          score *= Math.pow(PENALTY_SKIPPED, index - stringIndex)
+        }
+      }
 
-			if (text.charAt(index) !== abbreviation.charAt(abbreviationIndex)) {
-				score *= PENALTY_CASE_MISMATCH
-			}
-		}
+      if (text.charAt(index) !== abbreviation.charAt(abbreviationIndex)) {
+        score *= PENALTY_CASE_MISMATCH
+      }
+    }
 
-		if (
-			(score < SCORE_TRANSPOSITION &&
-				lowerString.charAt(index - 1) === lowerAbbreviation.charAt(abbreviationIndex + 1)) ||
-			(lowerAbbreviation.charAt(abbreviationIndex + 1) === lowerAbbreviation.charAt(abbreviationIndex) && // allow duplicate letters
-				lowerString.charAt(index - 1) !== lowerAbbreviation.charAt(abbreviationIndex))
-		) {
-			transposedScore = fuzzyScoreInner(
-				text,
-				abbreviation,
-				lowerString,
-				lowerAbbreviation,
-				index + 1,
-				abbreviationIndex + 2,
-				memoizedResults
-			)
+    if (
+      (score < SCORE_TRANSPOSITION &&
+        lowerString.charAt(index - 1) === lowerAbbreviation.charAt(abbreviationIndex + 1)) ||
+      (lowerAbbreviation.charAt(abbreviationIndex + 1) === lowerAbbreviation.charAt(abbreviationIndex) && // allow duplicate letters
+        lowerString.charAt(index - 1) !== lowerAbbreviation.charAt(abbreviationIndex))
+    ) {
+      transposedScore = fuzzyScoreInner(
+        text,
+        abbreviation,
+        lowerString,
+        lowerAbbreviation,
+        index + 1,
+        abbreviationIndex + 2,
+        memoizedResults,
+      )
 
-			if (transposedScore * SCORE_TRANSPOSITION > score) {
-				score = transposedScore * SCORE_TRANSPOSITION
-			}
-		}
+      if (transposedScore * SCORE_TRANSPOSITION > score) {
+        score = transposedScore * SCORE_TRANSPOSITION
+      }
+    }
 
-		if (score > highScore) {
-			highScore = score
-		}
+    if (score > highScore) {
+      highScore = score
+    }
 
-		index = lowerString.indexOf(abbreviationChar, index + 1)
-	}
+    index = lowerString.indexOf(abbreviationChar, index + 1)
+  }
 
-	memoizedResults[memoizeKey] = highScore
-	return highScore
+  memoizedResults[memoizeKey] = highScore
+  return highScore
 }
 
 function formatInput(text: string) {
-	// convert all valid space characters to space so they match each other
-	return text.toLowerCase().replace(COUNT_SPACE_REGEXP, ' ')
+  // convert all valid space characters to space so they match each other
+  return text.toLowerCase().replace(COUNT_SPACE_REGEXP, ' ')
 }
 
 function fuzzyScore(text: string, abbreviation: string) {
-	/* NOTE:
-	 * in the original, we used to do the lower-casing on each recursive call, but this meant that toLowerCase()
-	 * was the dominating cost in the algorithm, passing both is a little ugly, but considerably faster.
-	 */
-	return fuzzyScoreInner(text, abbreviation, formatInput(text), formatInput(abbreviation), 0, 0, {})
+  /* NOTE:
+   * in the original, we used to do the lower-casing on each recursive call, but this meant that toLowerCase()
+   * was the dominating cost in the algorithm, passing both is a little ugly, but considerably faster.
+   */
+  return fuzzyScoreInner(text, abbreviation, formatInput(text), formatInput(abbreviation), 0, 0, {})
 }
 
 export default fuzzyScore

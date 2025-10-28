@@ -4,16 +4,16 @@ import { injectTags } from '../etherscanInjectTags'
 import { hideSpamTxns } from '../etherscanHideScamTxn'
 
 export default function injectExplorerComponent() {
-	let name = new URL(document.baseURI).hostname
-	let prefix = EXPLORER_CHAIN_PREFIX_MAP[name]
-	if (!prefix) return
+  let name = new URL(document.baseURI).hostname
+  let prefix = EXPLORER_CHAIN_PREFIX_MAP[name]
+  if (!prefix) return
 
-	const config: EtherscanAlikeExplorerConfig = {
-		name,
-		chainPrefix: prefix + ':'
-	}
+  const config: EtherscanAlikeExplorerConfig = {
+    name,
+    chainPrefix: prefix + ':',
+  }
 
-	injectPrice(config)
-	injectTags()
-	hideSpamTxns(config)
+  injectPrice(config)
+  injectTags()
+  hideSpamTxns(config)
 }

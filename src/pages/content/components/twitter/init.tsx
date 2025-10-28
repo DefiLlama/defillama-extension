@@ -1,9 +1,9 @@
 import { getStorage, sleep } from '@src/pages/libs/helpers'
 import {
-	handleHomePage,
-	handleTweetStatusPage,
-	handleUserTimelinePage,
-	tweetStatusPageInitialAnalysis
+  handleHomePage,
+  handleTweetStatusPage,
+  handleUserTimelinePage,
+  tweetStatusPageInitialAnalysis,
 } from './pageHandlers'
 
 //
@@ -17,66 +17,66 @@ import {
  * and a content mutation observer (here in content script) for ui updates.
  */
 export default async function initPhishingDetector() {
-	// get phishing local storage config as set in the extension popup [local storage name left as "phishingHandleDetector" for now]
-	const phishingHandleDetector = await getStorage('local', 'settings:phishingHandleDetector', true)
-	const twitterCashTags = await getStorage('local', 'settings:twitterCashTags', false)
-	const twitterHashTags = await getStorage('local', 'settings:twitterHashTags', false)
-	const twitterQT = await getStorage('local', 'settings:twitterQT', false)
-	const twitterBotReplies = await getStorage('local', 'settings:twitterBotReplies', false)
-	const twitterConfig = { twitterCashTags, twitterHashTags, twitterQT, twitterBotReplies }
-	if (!phishingHandleDetector) return
+  // get phishing local storage config as set in the extension popup [local storage name left as "phishingHandleDetector" for now]
+  const phishingHandleDetector = await getStorage('local', 'settings:phishingHandleDetector', true)
+  const twitterCashTags = await getStorage('local', 'settings:twitterCashTags', false)
+  const twitterHashTags = await getStorage('local', 'settings:twitterHashTags', false)
+  const twitterQT = await getStorage('local', 'settings:twitterQT', false)
+  const twitterBotReplies = await getStorage('local', 'settings:twitterBotReplies', false)
+  const twitterConfig = { twitterCashTags, twitterHashTags, twitterQT, twitterBotReplies }
+  if (!phishingHandleDetector) return
 
-	let handlePage = getHandlerForTwitterPageVariant()
-	handlePage(twitterConfig) // initial run on load [might not need]
+  let handlePage = getHandlerForTwitterPageVariant()
+  handlePage(twitterConfig) // initial run on load [might not need]
 
-	// listen for tab ui updates or activations from the background script (more details explained there on event emitters)
-	chrome.runtime.onMessage.addListener(async (request: { message: 'TabUpdated' | 'TabActivated' }) => {
-		// new navigation detected
-		if (request.message === 'TabUpdated' || request.message === 'TabActivated') {
-			// update handlers. works best with slight delay [might not need]
-			await sleep(100)
-			const updatedHandlePage = getHandlerForTwitterPageVariant()
-			handlePage = updatedHandlePage
-			handlePage(twitterConfig)
-		}
-	})
+  // listen for tab ui updates or activations from the background script (more details explained there on event emitters)
+  chrome.runtime.onMessage.addListener(async (request: { message: 'TabUpdated' | 'TabActivated' }) => {
+    // new navigation detected
+    if (request.message === 'TabUpdated' || request.message === 'TabActivated') {
+      // update handlers. works best with slight delay [might not need]
+      await sleep(100)
+      const updatedHandlePage = getHandlerForTwitterPageVariant()
+      handlePage = updatedHandlePage
+      handlePage(twitterConfig)
+    }
+  })
 
-	// create mutation observer to montior changes to ui (created and initiated after other listeners). changes are then filtered to only find new tweets that are mounted
-	const uiUpdateObserver = new MutationObserver((mutationsList, observer) => {
-		// Iterate over each node mutation
-		for (let mutation of mutationsList) {
-			;[...mutation.addedNodes, ...mutation.removedNodes].forEach((node) => {
-				// filter for divs
-				if (node instanceof HTMLElement && node.tagName.toLowerCase() === 'div') {
-					// filter for tweet cells
-					if (node.getAttribute('data-testid') === 'cellInnerDiv') {
-						// see if desired tweet article element is present
-						const tweet = node.querySelector<HTMLElement>('[data-testid="tweet"]')
-						if (!tweet) return
+  // create mutation observer to montior changes to ui (created and initiated after other listeners). changes are then filtered to only find new tweets that are mounted
+  const uiUpdateObserver = new MutationObserver((mutationsList, observer) => {
+    // Iterate over each node mutation
+    for (let mutation of mutationsList) {
+      ;[...mutation.addedNodes, ...mutation.removedNodes].forEach((node) => {
+        // filter for divs
+        if (node instanceof HTMLElement && node.tagName.toLowerCase() === 'div') {
+          // filter for tweet cells
+          if (node.getAttribute('data-testid') === 'cellInnerDiv') {
+            // see if desired tweet article element is present
+            const tweet = node.querySelector<HTMLElement>('[data-testid="tweet"]')
+            if (!tweet) return
 
-						handlePage(twitterConfig)
-					}
-				}
-			})
-		}
-	})
-	// monitor document for ui changes
-	uiUpdateObserver.observe(document, { childList: true, subtree: true })
+            handlePage(twitterConfig)
+          }
+        }
+      })
+    }
+  })
+  // monitor document for ui changes
+  uiUpdateObserver.observe(document, { childList: true, subtree: true })
 }
 
 /**
  * "Router" for determining which handler to use based on the current twitter page. Returns the handler function. If no handler is found, returns an empty function (no action taken)
  */
 function getHandlerForTwitterPageVariant() {
-	const pathname = window.location.pathname
+  const pathname = window.location.pathname
 
-	if (pathname === '/home') return handleHomePage
-	else if (pathname.split('/')[2] === 'status') {
-		// Reset global var for determining safe tweet/handle
-		tweetStatusPageInitialAnalysis.linkedTweet = null
-		tweetStatusPageInitialAnalysis.batchNumberCounter = 0
-		tweetStatusPageInitialAnalysis.isSafeTweetDetermined = false
-		return handleTweetStatusPage
-	} else if (!!document.querySelectorAll<HTMLElement>('[data-testid="UserName"]').length) return handleUserTimelinePage
-	else return () => {}
+  if (pathname === '/home') return handleHomePage
+  else if (pathname.split('/')[2] === 'status') {
+    // Reset global var for determining safe tweet/handle
+    tweetStatusPageInitialAnalysis.linkedTweet = null
+    tweetStatusPageInitialAnalysis.batchNumberCounter = 0
+    tweetStatusPageInitialAnalysis.isSafeTweetDetermined = false
+    return handleTweetStatusPage
+  } else if (!!document.querySelectorAll<HTMLElement>('[data-testid="UserName"]').length) return handleUserTimelinePage
+  else return () => {}
 }

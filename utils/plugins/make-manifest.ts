@@ -9,18 +9,18 @@ const { resolve } = path
 const outDir = resolve(__dirname, '..', '..', 'public')
 
 export default function makeManifest(): PluginOption {
-	return {
-		name: 'make-manifest',
-		buildEnd() {
-			if (!fs.existsSync(outDir)) {
-				fs.mkdirSync(outDir)
-			}
+  return {
+    name: 'make-manifest',
+    buildEnd() {
+      if (!fs.existsSync(outDir)) {
+        fs.mkdirSync(outDir)
+      }
 
-			const manifestPath = resolve(outDir, 'manifest.json')
+      const manifestPath = resolve(outDir, 'manifest.json')
 
-			fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
+      fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
 
-			colorLog(`Manifest file copy complete: ${manifestPath}`, 'success')
-		}
-	}
+      colorLog(`Manifest file copy complete: ${manifestPath}`, 'success')
+    },
+  }
 }

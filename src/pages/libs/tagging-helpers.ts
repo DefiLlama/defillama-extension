@@ -10,14 +10,14 @@ import takeNote from '@src/assets/img/memes/take-note-128.png'
 import upOnly from '@src/assets/img/memes/up-only-128.png'
 
 export const ICONS = {
-	'@@cute': cute,
-	'@@gib': gib,
-	'@@idea': idea,
-	'@@institute': institute,
-	'@@llub': llub,
-	'@@max-pain': maxPain,
-	'@@que': que,
-	'@@smort': smort,
-	'@@take-note': takeNote,
-	'@@up-only': upOnly
+  '@@cute': cute,
+  '@@gib': gib,
+  '@@idea': idea,
+  '@@institute': institute,
+  '@@llub': llub,
+  '@@max-pain': maxPain,
+  '@@que': que,
+  '@@smort': smort,
+  '@@take-note': takeNote,
+  '@@up-only': upOnly,
 }

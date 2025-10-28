@@ -2,63 +2,63 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 
 const bannerStyles = {
-	container: {
-		position: 'fixed' as const,
-		top: 0,
-		left: 0,
-		right: 0,
-		backgroundColor: '#dc2626',
-		color: '#ffffff',
-		padding: '16px',
-		textAlign: 'center' as const,
-		zIndex: 2147483647,
-		fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-		fontSize: '16px',
-		fontWeight: 600,
-		display: 'flex',
-		flexDirection: 'column' as const,
-		justifyContent: 'center',
-		alignItems: 'center',
-		gap: '8px',
-		boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-		borderBottom: '2px solid #b91c1c',
-		margin: 0,
-		lineHeight: 1.5,
-		minHeight: '70px',
-		boxSizing: 'border-box' as const
-	},
-	header: {
-		display: 'flex',
-		alignItems: 'center',
-		gap: '10px',
-		fontSize: '18px',
-		fontWeight: 700
-	},
-	icon: {
-		fontSize: '22px'
-	},
-	message: {
-		fontSize: '14px',
-		fontWeight: 500,
-		maxWidth: '700px',
-		lineHeight: 1.4,
-		opacity: 0.95
-	}
+  container: {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#dc2626',
+    color: '#ffffff',
+    padding: '16px',
+    textAlign: 'center' as const,
+    zIndex: 2147483647,
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontSize: '16px',
+    fontWeight: 600,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '8px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+    borderBottom: '2px solid #b91c1c',
+    margin: 0,
+    lineHeight: 1.5,
+    minHeight: '70px',
+    boxSizing: 'border-box' as const,
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    fontSize: '18px',
+    fontWeight: 700,
+  },
+  icon: {
+    fontSize: '22px',
+  },
+  message: {
+    fontSize: '14px',
+    fontWeight: 500,
+    maxWidth: '700px',
+    lineHeight: 1.4,
+    opacity: 0.95,
+  },
 }
 
 const WarningBanner = ({ reason }: { reason: string }) => {
-	return (
-		<div style={bannerStyles.container} role="alert" aria-live="assertive">
-			<div style={bannerStyles.header}>
-				<span style={bannerStyles.icon}>⚠️</span>
-				<span>DEFILLAMA BLOCKLIST WARNING</span>
-			</div>
-			<div style={bannerStyles.message}>
-				This site is on the DefiLlama blocklist due to phishing or other security concerns. We recommend avoiding this
-				site. If this is incorrect, please report it in DefiLlama Discord.
-			</div>
-		</div>
-	)
+  return (
+    <div style={bannerStyles.container} role="alert" aria-live="assertive">
+      <div style={bannerStyles.header}>
+        <span style={bannerStyles.icon}>⚠️</span>
+        <span>DEFILLAMA BLOCKLIST WARNING</span>
+      </div>
+      <div style={bannerStyles.message}>
+        This site is on the DefiLlama blocklist due to phishing or other security concerns. We recommend avoiding this
+        site. If this is incorrect, please report it in DefiLlama Discord.
+      </div>
+    </div>
+  )
 }
 
 let shadowHost: HTMLElement | null = null
@@ -87,12 +87,12 @@ const containerStyles = `
 `
 
 function injectProtectiveCSS() {
-	const existingStyle = document.getElementById('defillama-protective-css')
-	if (existingStyle) return
+  const existingStyle = document.getElementById('defillama-protective-css')
+  if (existingStyle) return
 
-	const style = document.createElement('style')
-	style.id = 'defillama-protective-css'
-	style.textContent = `
+  const style = document.createElement('style')
+  style.id = 'defillama-protective-css'
+  style.textContent = `
     /* Prevent CSS attacks on our banner */
     div[style*="position: fixed"][style*="z-index: 2147483647"] {
       display: block !important;
@@ -110,16 +110,16 @@ function injectProtectiveCSS() {
     }
   `
 
-	// Inject in head or at start of document
-	if (document.head) {
-		document.head.prepend(style)
-	} else if (document.documentElement) {
-		document.documentElement.prepend(style)
-	}
+  // Inject in head or at start of document
+  if (document.head) {
+    document.head.prepend(style)
+  } else if (document.documentElement) {
+    document.documentElement.prepend(style)
+  }
 }
 
 function createProtectedBanner(reason: string): HTMLElement {
-	const bannerHTML = `
+  const bannerHTML = `
     <div style="
       position: fixed;
       top: 0;
@@ -168,213 +168,213 @@ function createProtectedBanner(reason: string): HTMLElement {
     </div>
   `
 
-	const tempDiv = document.createElement('div')
-	tempDiv.innerHTML = bannerHTML
-	return tempDiv.firstElementChild as HTMLElement
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = bannerHTML
+  return tempDiv.firstElementChild as HTMLElement
 }
 
 function setupMutationObserver(reason: string) {
-	if (mutationObserver) {
-		mutationObserver.disconnect()
-	}
+  if (mutationObserver) {
+    mutationObserver.disconnect()
+  }
 
-	mutationObserver = new MutationObserver((mutations) => {
-		let needsReset = false
+  mutationObserver = new MutationObserver((mutations) => {
+    let needsReset = false
 
-		mutations.forEach((mutation) => {
-			if (mutation.type === 'childList') {
-				mutation.removedNodes.forEach((node) => {
-					if (node === shadowHost || (node as Element)?.contains?.(shadowHost)) {
-						setTimeout(() => {
-							isInjected = false
-							injectWarningBanner(reason)
-						}, 100)
-					}
-				})
-			}
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        mutation.removedNodes.forEach((node) => {
+          if (node === shadowHost || (node as Element)?.contains?.(shadowHost)) {
+            setTimeout(() => {
+              isInjected = false
+              injectWarningBanner(reason)
+            }, 100)
+          }
+        })
+      }
 
-			// Only monitor style changes on our specific element
-			if (mutation.type === 'attributes' && mutation.target === shadowHost) {
-				needsReset = true
-			}
-		})
+      // Only monitor style changes on our specific element
+      if (mutation.type === 'attributes' && mutation.target === shadowHost) {
+        needsReset = true
+      }
+    })
 
-		// Batch style resets to avoid excessive calls
-		if (needsReset && shadowHost) {
-			resetElementStyles(shadowHost)
-		}
-	})
+    // Batch style resets to avoid excessive calls
+    if (needsReset && shadowHost) {
+      resetElementStyles(shadowHost)
+    }
+  })
 
-	// Only monitor our shadow host and immediate children, not entire document
-	if (shadowHost) {
-		mutationObserver.observe(shadowHost, {
-			attributes: true,
-			attributeFilter: ['style', 'class']
-		})
+  // Only monitor our shadow host and immediate children, not entire document
+  if (shadowHost) {
+    mutationObserver.observe(shadowHost, {
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+    })
 
-		// Also monitor document body for removal
-		mutationObserver.observe(document.body || document.documentElement, {
-			childList: true,
-			subtree: false // Only direct children, not entire subtree
-		})
-	}
+    // Also monitor document body for removal
+    mutationObserver.observe(document.body || document.documentElement, {
+      childList: true,
+      subtree: false, // Only direct children, not entire subtree
+    })
+  }
 }
 
 function resetElementStyles(element: HTMLElement) {
-	if (element === shadowHost) {
-		// Only reset if actually hidden - avoid unnecessary DOM operations
-		const computed = window.getComputedStyle(element)
-		if (computed.display === 'none' || computed.visibility === 'hidden' || computed.opacity === '0') {
-			element.style.cssText = containerStyles
-		}
-	}
+  if (element === shadowHost) {
+    // Only reset if actually hidden - avoid unnecessary DOM operations
+    const computed = window.getComputedStyle(element)
+    if (computed.display === 'none' || computed.visibility === 'hidden' || computed.opacity === '0') {
+      element.style.cssText = containerStyles
+    }
+  }
 }
 
 function injectWithShadowDOM(reason: string): boolean {
-	try {
-		const host = document.createElement('div')
-		host.style.cssText = containerStyles
+  try {
+    const host = document.createElement('div')
+    host.style.cssText = containerStyles
 
-		// Add multiple random classes to make targeting harder
-		const randomClasses = [
-			`dlm-${Math.random().toString(36).substr(2, 9)}`,
-			`warn-${Math.random().toString(36).substr(2, 9)}`,
-			`sec-${Math.random().toString(36).substr(2, 9)}`
-		]
-		host.className = randomClasses.join(' ')
+    // Add multiple random classes to make targeting harder
+    const randomClasses = [
+      `dlm-${Math.random().toString(36).substr(2, 9)}`,
+      `warn-${Math.random().toString(36).substr(2, 9)}`,
+      `sec-${Math.random().toString(36).substr(2, 9)}`,
+    ]
+    host.className = randomClasses.join(' ')
 
-		const shadowRoot = host.attachShadow({ mode: 'closed' })
-		const banner = createProtectedBanner(reason)
-		shadowRoot.appendChild(banner)
+    const shadowRoot = host.attachShadow({ mode: 'closed' })
+    const banner = createProtectedBanner(reason)
+    shadowRoot.appendChild(banner)
 
-		shadowHost = host
+    shadowHost = host
 
-		if (document.body) {
-			document.body.prepend(host)
-		} else if (document.documentElement) {
-			document.documentElement.prepend(host)
-		} else {
-			return false
-		}
+    if (document.body) {
+      document.body.prepend(host)
+    } else if (document.documentElement) {
+      document.documentElement.prepend(host)
+    } else {
+      return false
+    }
 
-		// Lightweight style monitoring - check less frequently
-		if (styleChecker) clearInterval(styleChecker)
-		styleChecker = setInterval(() => {
-			if (host.offsetParent === null) {
-				resetElementStyles(host)
-			}
-		}, 3000) // Reduced from 500ms to 3 seconds
+    // Lightweight style monitoring - check less frequently
+    if (styleChecker) clearInterval(styleChecker)
+    styleChecker = setInterval(() => {
+      if (host.offsetParent === null) {
+        resetElementStyles(host)
+      }
+    }, 3000) // Reduced from 500ms to 3 seconds
 
-		return true
-	} catch (error) {
-		return false
-	}
+    return true
+  } catch (error) {
+    return false
+  }
 }
 
 export function injectWarningBanner(reason: string) {
-	if (isInjected) return
+  if (isInjected) return
 
-	const existingBanner = document.getElementById('defillama-warning-banner')
-	if (existingBanner) {
-		existingBanner.remove()
-	}
+  const existingBanner = document.getElementById('defillama-warning-banner')
+  if (existingBanner) {
+    existingBanner.remove()
+  }
 
-	if (shadowHost) {
-		shadowHost.remove()
-		shadowHost = null
-	}
+  if (shadowHost) {
+    shadowHost.remove()
+    shadowHost = null
+  }
 
-	// Inject protective CSS first
-	injectProtectiveCSS()
+  // Inject protective CSS first
+  injectProtectiveCSS()
 
-	let success = false
+  let success = false
 
-	// Try Shadow DOM first (strongest protection)
-	if (injectWithShadowDOM(reason)) {
-		success = true
-	} else {
-		// Fallback to regular DOM injection
-		try {
-			const container = document.createElement('div')
-			container.id = 'defillama-warning-banner'
-			container.style.cssText = containerStyles
+  // Try Shadow DOM first (strongest protection)
+  if (injectWithShadowDOM(reason)) {
+    success = true
+  } else {
+    // Fallback to regular DOM injection
+    try {
+      const container = document.createElement('div')
+      container.id = 'defillama-warning-banner'
+      container.style.cssText = containerStyles
 
-			if (document.body) {
-				document.body.prepend(container)
-			} else if (document.documentElement) {
-				document.documentElement.prepend(container)
-			} else {
-				injectSimpleBanner(reason)
-				return
-			}
+      if (document.body) {
+        document.body.prepend(container)
+      } else if (document.documentElement) {
+        document.documentElement.prepend(container)
+      } else {
+        injectSimpleBanner(reason)
+        return
+      }
 
-			const root = createRoot(container)
-			root.render(<WarningBanner reason={reason} />)
-			success = true
-		} catch (error) {
-			injectSimpleBanner(reason)
-			success = true
-		}
-	}
+      const root = createRoot(container)
+      root.render(<WarningBanner reason={reason} />)
+      success = true
+    } catch (error) {
+      injectSimpleBanner(reason)
+      success = true
+    }
+  }
 
-	if (success) {
-		isInjected = true
-		setupMutationObserver(reason)
+  if (success) {
+    isInjected = true
+    setupMutationObserver(reason)
 
-		// Reduced frequency re-injection check
-		if (reinjectionChecker) clearInterval(reinjectionChecker)
-		reinjectionChecker = setInterval(() => {
-			if (!document.body.contains(shadowHost) && !document.getElementById('defillama-warning-banner')) {
-				isInjected = false
-				injectWarningBanner(reason)
-			}
-		}, 5000) // Reduced from 2s to 5s
+    // Reduced frequency re-injection check
+    if (reinjectionChecker) clearInterval(reinjectionChecker)
+    reinjectionChecker = setInterval(() => {
+      if (!document.body.contains(shadowHost) && !document.getElementById('defillama-warning-banner')) {
+        isInjected = false
+        injectWarningBanner(reason)
+      }
+    }, 5000) // Reduced from 2s to 5s
 
-		// Minimal event protection - only prevent removal, don't block all interactions
-		if (shadowHost) {
-			shadowHost.addEventListener('DOMNodeRemoved', (e) => e.preventDefault(), true)
-		}
-	}
+    // Minimal event protection - only prevent removal, don't block all interactions
+    if (shadowHost) {
+      shadowHost.addEventListener('DOMNodeRemoved', (e) => e.preventDefault(), true)
+    }
+  }
 }
 
 export function cleanupWarningBanner() {
-	// Clear all timers
-	if (styleChecker) {
-		clearInterval(styleChecker)
-		styleChecker = null
-	}
+  // Clear all timers
+  if (styleChecker) {
+    clearInterval(styleChecker)
+    styleChecker = null
+  }
 
-	if (reinjectionChecker) {
-		clearInterval(reinjectionChecker)
-		reinjectionChecker = null
-	}
+  if (reinjectionChecker) {
+    clearInterval(reinjectionChecker)
+    reinjectionChecker = null
+  }
 
-	if (mutationObserver) {
-		mutationObserver.disconnect()
-		mutationObserver = null
-	}
+  if (mutationObserver) {
+    mutationObserver.disconnect()
+    mutationObserver = null
+  }
 
-	if (shadowHost) {
-		shadowHost.remove()
-		shadowHost = null
-	}
+  if (shadowHost) {
+    shadowHost.remove()
+    shadowHost = null
+  }
 
-	const existingBanner = document.getElementById('defillama-warning-banner')
-	if (existingBanner) {
-		existingBanner.remove()
-	}
+  const existingBanner = document.getElementById('defillama-warning-banner')
+  if (existingBanner) {
+    existingBanner.remove()
+  }
 
-	const simpleBanner = document.getElementById('defillama-simple-banner')
-	if (simpleBanner) {
-		simpleBanner.remove()
-	}
+  const simpleBanner = document.getElementById('defillama-simple-banner')
+  if (simpleBanner) {
+    simpleBanner.remove()
+  }
 
-	const protectiveCSS = document.getElementById('defillama-protective-css')
-	if (protectiveCSS) {
-		protectiveCSS.remove()
-	}
+  const protectiveCSS = document.getElementById('defillama-protective-css')
+  if (protectiveCSS) {
+    protectiveCSS.remove()
+  }
 
-	isInjected = false
+  isInjected = false
 }
 
 const fallbackBannerHTML = `
@@ -426,13 +426,13 @@ const fallbackBannerHTML = `
 `
 
 function injectSimpleBanner(reason: string) {
-	const simpleBanner = document.createElement('div')
-	simpleBanner.id = 'defillama-simple-banner'
-	simpleBanner.innerHTML = fallbackBannerHTML
+  const simpleBanner = document.createElement('div')
+  simpleBanner.id = 'defillama-simple-banner'
+  simpleBanner.innerHTML = fallbackBannerHTML
 
-	if (document.body) {
-		document.body.prepend(simpleBanner)
-	} else if (document.documentElement) {
-		document.documentElement.prepend(simpleBanner)
-	}
+  if (document.body) {
+    document.body.prepend(simpleBanner)
+  } else if (document.documentElement) {
+    document.documentElement.prepend(simpleBanner)
+  }
 }
