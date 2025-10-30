@@ -36,7 +36,7 @@ const Popup = () => {
         setSearchResults([]);
         return;
       }
-      
+
       const results = protocolDirectory
         .filter(item => {
           const nameMatch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -44,7 +44,7 @@ const Popup = () => {
           return nameMatch || urlMatch;
         })
         .slice(0, 5); // Limit to 5 results
-      
+
       setSearchResults(results);
     }, 200),
     [searchTerm]
@@ -54,6 +54,7 @@ const Popup = () => {
   const [tagsInjector, setTagsInjector] = useBrowserStorage("local", "settings:tagsInjector", true);
   const [explorerSpamHide, setExplorerSpamHide] = useBrowserStorage("local", "settings:explorerSpamHide", false);
 
+  const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
   const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
     "local",
     "settings:phishingHandleDetector",
@@ -74,53 +75,53 @@ const Popup = () => {
           DefiLlama
         </Text>
       </VStack>
-      
+
       {/* Quick Links */}
       <HStack my="3" w="full" justify="space-around" spacing={2}>
         <Link href="https://defillama.com/" isExternal>
           <VStack>
-            <Image 
-              src="https://defillama.com/icons/favicon-32x32.png" 
-              alt="DefiLlama" 
-              w="8" 
+            <Image
+              src="https://defillama.com/icons/favicon-32x32.png"
+              alt="DefiLlama"
+              w="8"
               h="8"
-              borderRadius="full" 
+              borderRadius="full"
             />
             <Text fontSize="xs">DeFiLlama</Text>
           </VStack>
         </Link>
         <Link href="https://swap.defillama.com/" isExternal>
           <VStack>
-            <Image 
-              src="https://swap.defillama.com/_next/static/media/loader.268d236d.png" 
-              alt="LlamaSwap" 
-              w="8" 
+            <Image
+              src="https://swap.defillama.com/_next/static/media/loader.268d236d.png"
+              alt="LlamaSwap"
+              w="8"
               h="8"
-              borderRadius="full" 
+              borderRadius="full"
             />
             <Text fontSize="xs">LlamaSwap</Text>
           </VStack>
         </Link>
         <Link href="https://llamapay.io/dashboard" isExternal>
           <VStack>
-            <Image 
-              src="https://llamapay.io/favicon-32x32.png" 
-              alt="LlamaPay" 
-              w="8" 
+            <Image
+              src="https://llamapay.io/favicon-32x32.png"
+              alt="LlamaPay"
+              w="8"
               h="8"
-              borderRadius="full" 
+              borderRadius="full"
             />
             <Text fontSize="xs">LlamaPay</Text>
           </VStack>
         </Link>
         <Link href="https://llamafeed.io/" isExternal>
           <VStack>
-            <Image 
-              src="https://llamafeed.io/_next/image?url=%2Flogo.webp&w=96&q=75" 
-              alt="LlamaFeed" 
-              w="8" 
+            <Image
+              src="https://llamafeed.io/_next/image?url=%2Flogo.webp&w=96&q=75"
+              alt="LlamaFeed"
+              w="8"
               h="8"
-              borderRadius="full" 
+              borderRadius="full"
             />
             <Text fontSize="xs">LlamaFeed</Text>
           </VStack>
@@ -151,7 +152,7 @@ const Popup = () => {
               bg={useColorModeValue("white", "gray.700")}
             />
           </InputGroup>
-          
+
           {/* Search Results */}
           {searchResults.length > 0 && (
             <Box
@@ -196,7 +197,7 @@ const Popup = () => {
 
       <VStack my="5" p="2" w="full" spacing="1.5" borderRadius="lg" bg={useColorModeValue("gray.100", "gray.900")}>
         <HStack w="full">
-          <Text fontSize="l" fontWeight="bold">
+          <Text fontSize="xs" fontWeight="bold">
             Twitter
           </Text>
         </HStack>
@@ -267,7 +268,7 @@ const Popup = () => {
           />
         </HStack>
         <HStack w="full">
-          <Text fontSize="l" fontWeight="bold">
+          <Text fontSize="xs" fontWeight="bold">
             Explorer
           </Text>
         </HStack>
@@ -298,6 +299,24 @@ const Popup = () => {
             isChecked={explorerSpamHide}
             onChange={(e) => {
               setExplorerSpamHide(e.target.checked);
+            }}
+          />
+        </HStack>
+        <HStack w="full">
+          <Text fontSize="xs" fontWeight="bold">
+            Phishing Protection
+          </Text>
+        </HStack>
+        <HStack justify="space-between" w="full" pl={7}>
+          <Text fontSize="sm">Enable phishing detection</Text>
+          <Switch
+            size="sm"
+            isChecked={phishingDetector}
+            onChange={(e) => {
+              setPhishingDetector(e.target.checked);
+              if (!e.target.checked) {
+                Browser.action.setIcon({ path: cuteStatic });
+              }
             }}
           />
         </HStack>
