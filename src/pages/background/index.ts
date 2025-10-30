@@ -84,15 +84,29 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
 }
 
 async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
+  // Check if phishing detection is enabled
+  const phishingDetector = await getStorage("local", "settings:phishingDetector", true);
+  if (!phishingDetector) {
+    // Reset to default icon when phishing detection is disabled
+    if (!tab) {
+      tab = await getCurrentTab();
+    }
+    if (tab?.active) {
+      Browser.action.setIcon({ path: cute });
+      Browser.action.setTitle({ title: "DefiLlama" });
+    }
+    return;
+  }
+
   const domainResult = await handleDomainCheck(trigger, tab);
   const { isBlocked, isTrusted, reason } = domainResult;
   tab = domainResult.tab;
-  
+
   if (isBlocked) {
     // Always send warning message for blocked sites, regardless of active status
     if (tab?.id) {
       try {
-        await Browser.tabs.sendMessage(tab.id, { 
+        await Browser.tabs.sendMessage(tab.id, {
           type: "DOMAIN_STATUS",
           status: "blocked",
           reason: reason
@@ -101,7 +115,7 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
         // Tab might be closed or content script not ready - fail silently
       }
     }
-    
+
     // Only update icon if this is the active tab
     if (tab?.active) {
       Browser.action.setIcon({ path: maxPain });
@@ -137,7 +151,7 @@ Browser.tabs.onUpdated.addListener(async (tabId, onUpdatedInfo, tab) => {
 
     if (onUpdatedInfo.url || onUpdatedInfo.status === "complete") {
       if (!tab?.active) return;
-      
+
       const key = `${tab.id}-${tab.url}`;
       if (lastCheckKey === key) {
         return;
@@ -158,7 +172,7 @@ Browser.tabs.onActivated.addListener(async (onActivatedInfo) => {
     } catch {
       // Content script might not be ready
     }
-    
+
     const tab = await Browser.tabs.get(onActivatedInfo.tabId);
     await handlePhishingCheck('tabActivated', tab);
   } catch (error) {
