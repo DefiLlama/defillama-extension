@@ -55,6 +55,7 @@ const Popup = () => {
   const [explorerSpamHide, setExplorerSpamHide] = useBrowserStorage("local", "settings:explorerSpamHide", false);
 
   const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
+  const [phishingFuzzyMatch, setPhishingFuzzyMatch] = useBrowserStorage("local", "settings:phishingFuzzyMatch", false);
   const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
     "local",
     "settings:phishingHandleDetector",
@@ -317,6 +318,16 @@ const Popup = () => {
               if (!e.target.checked) {
                 Browser.action.setIcon({ path: cuteStatic });
               }
+            }}
+          />
+        </HStack>
+        <HStack justify="space-between" w="full" pl={7}>
+          <Text fontSize="sm">Enable fuzzy matching</Text>
+          <Switch
+            size="sm"
+            isChecked={phishingFuzzyMatch}
+            onChange={(e) => {
+              setPhishingFuzzyMatch(e.target.checked);
             }}
           />
         </HStack>
