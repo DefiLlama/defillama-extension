@@ -67,9 +67,22 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
     const parsed = psl.parse(hostname);
     const domain = (parsed && 'domain' in parsed && parsed.domain) || hostname.replace("www.", "");
 
-    const res = await checkDomain(domain);
+    // Get fuzzy matching setting
+    const phishingFuzzyMatch = await getStorage("local", "settings:phishingFuzzyMatch", false);
+    const res = await checkDomain(domain, phishingFuzzyMatch);
+
     if (res.result) {
-      const reason = res.type === "blocked" ? "Website is blacklisted" : "Suspicious website detected";
+      let reason: string;
+      switch (res.type) {
+        case "blocked":
+          reason = "Website is blacklisted";
+          break;
+        case "fuzzy":
+          reason = `Website impersonating ${res.extra}`;
+          break;
+        default:
+          reason = "Suspicious website detected";
+      }
       return { isBlocked: true, isTrusted: false, reason, tab };
     }
 
@@ -77,7 +90,6 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
     const reason = isTrusted ? "Website is whitelisted" : "Unknown website";
 
     return { isBlocked: false, isTrusted, reason, tab };
-
   } catch (error) {
     return { isBlocked: false, isTrusted: false, reason: "Error checking domain", tab };
   }
