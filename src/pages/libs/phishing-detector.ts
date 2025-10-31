@@ -23,7 +23,7 @@ export function clearDomainCheckCache() {
 
 const defaultCheckResponse = { result: false, type: "unknown" } as CheckDomainResult;
 
-export async function checkDomain(domain: string, enableFuzzyMatch = true): Promise<CheckDomainResult> {
+export async function checkDomain(domain: string, enableFuzzyMatch: boolean = true): Promise<CheckDomainResult> {
   if (!domain) return defaultCheckResponse;
 
   clearDomainCheckCache();
@@ -31,13 +31,12 @@ export async function checkDomain(domain: string, enableFuzzyMatch = true): Prom
   if (!domainCheckCache.has(cacheKey)) {
     domainCheckCache.set(cacheKey, _checkDomain(domain, enableFuzzyMatch));
   }
-  return domainCheckCache.get(domain) || defaultCheckResponse;
+  return domainCheckCache.get(cacheKey) || defaultCheckResponse;
 }
-
 
 function _checkDomain(domain: string, enableFuzzyMatch: boolean): CheckDomainResult {
   const parsed = psl.parse(domain);
-  if (!parsed || !('domain' in parsed) || !parsed.domain) {
+  if (!parsed || !("domain" in parsed) || !parsed.domain) {
     const fallbackDomain = domain.split(".").slice(-2).join(".");
     return checkDomainInLists(domain, fallbackDomain, enableFuzzyMatch);
   }
@@ -60,7 +59,7 @@ function checkDomainInLists(fullDomain: string, rootDomain: string, enableFuzzyM
       const rootDistance = levenshtein.get(fuzzyDomain, rootDomain);
       const minDistance = Math.min(fullDistance, rootDistance);
       if (minDistance <= DEFAULT_LEVENSHTEIN_TOLERANCE) {
-        fuzzyResult = { result: false, type: "unknown", extra: fuzzyDomain };
+        fuzzyResult = { result: true, type: "fuzzy", extra: fuzzyDomain };
         break; // Found a match, exit early
       }
     }

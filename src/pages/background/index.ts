@@ -24,8 +24,7 @@ initBackground();
 Browser.runtime.onMessage.addListener((message, sender) => {
   try {
     if (message?.type === "CHECK_CURRENT_DOMAIN" && sender?.tab) {
-      handlePhishingCheck('contentScriptRequest', sender.tab).catch(() => {
-      });
+      handlePhishingCheck("contentScriptRequest", sender.tab).catch(() => {});
     }
   } catch (error) {
   }
@@ -65,7 +64,7 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
     }
 
     const parsed = psl.parse(hostname);
-    const domain = (parsed && 'domain' in parsed && parsed.domain) || hostname.replace("www.", "");
+    const domain = (parsed && "domain" in parsed && parsed.domain) || hostname.replace("www.", "");
 
     // Get fuzzy matching setting
     const phishingFuzzyMatch = await getStorage("local", "settings:phishingFuzzyMatch", false);
@@ -121,7 +120,7 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
         await Browser.tabs.sendMessage(tab.id, {
           type: "DOMAIN_STATUS",
           status: "blocked",
-          reason: reason
+          reason
         });
       } catch (error) {
         // Tab might be closed or content script not ready - fail silently
@@ -150,7 +149,6 @@ async function handlePhishingCheck(trigger: string, tab?: Browser.Tabs.Tab) {
 
 let lastCheckKey = "";
 
-
 Browser.tabs.onUpdated.addListener(async (tabId, onUpdatedInfo, tab) => {
   try {
     if (onUpdatedInfo.status === "complete" && tab.active) {
@@ -169,13 +167,12 @@ Browser.tabs.onUpdated.addListener(async (tabId, onUpdatedInfo, tab) => {
         return;
       }
       lastCheckKey = key;
-      await handlePhishingCheck('tabUpdate', tab);
+      await handlePhishingCheck("tabUpdate", tab);
     }
   } catch (error) {
     // Silently handle any tab update errors
   }
 });
-
 
 Browser.tabs.onActivated.addListener(async (onActivatedInfo) => {
   try {
@@ -186,12 +183,11 @@ Browser.tabs.onActivated.addListener(async (onActivatedInfo) => {
     }
 
     const tab = await Browser.tabs.get(onActivatedInfo.tabId);
-    await handlePhishingCheck('tabActivated', tab);
+    await handlePhishingCheck("tabActivated", tab);
   } catch (error) {
     // Silently handle tab activation errors
   }
 });
-
 
 Browser.windows.onFocusChanged.addListener(async (windowId) => {
   try {
@@ -203,18 +199,17 @@ Browser.windows.onFocusChanged.addListener(async (windowId) => {
       } catch {
         // Content script might not be ready
       }
-      await handlePhishingCheck('windowFocused', tab);
+      await handlePhishingCheck("windowFocused", tab);
     }
   } catch (error) {
     // Silently handle window focus errors
   }
 });
 
-
 Browser.tabs.onCreated.addListener(async (tab) => {
   try {
     if (tab.url && tab.active) {
-      await handlePhishingCheck('tabCreated', tab);
+      await handlePhishingCheck("tabCreated", tab);
     }
   } catch (error) {
     // Silently handle tab creation errors
