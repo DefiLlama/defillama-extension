@@ -1,10 +1,16 @@
 import {
-  getTweetInfo, handleAdTweet, handleOpTweet, handleSusTweet, handleTweetWithAddress, handleCashTag, handleHashTag, handleQT, handleSpamQT,
+  getTweetInfo,
+  handleAdTweet,
+  handleOpTweet,
+  handleSusTweet,
+  handleTweetWithAddress,
+  handleCashTag,
+  handleHashTag,
+  handleQT,
+  handleSpamQT,
   handleBotReplies,
 } from "./tweetHandlers";
 import levenshtein from "fast-levenshtein";
-
-//
 
 /**
  * In-memory cache for holding previously analyzed links to prevent redundant analysis and reduce time to render ui modifications.
@@ -38,7 +44,12 @@ type TwitterConfig = {
 /**
  * Analyze tweets (op and replies) on the linked status page
  */
-export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, twitterQT, twitterBotReplies, }: TwitterConfig) {
+export async function handleTweetStatusPage({
+  twitterCashTags,
+  twitterHashTags,
+  twitterQT,
+  twitterBotReplies,
+}: TwitterConfig) {
   const pathname = window.location.pathname;
 
   // check that the current page is a tweet page (not home/timeline page). Check done here in addition to in init page handler router to catch any edge cases
@@ -46,17 +57,33 @@ export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, 
   if (!isTweetPage) return;
 
   // get all tweets present. Redundancy in querying all tweets in each batch to mitigate edge cases and to preemptively assess tweets when they are loaded but before they are visible in the viewport (smoother ux)
-  const tweetConversation = document.querySelector<HTMLElement>('[aria-label="Timeline: Conversation"]');
-  if (!tweetConversation) return;
-  const tweets = Array.from(tweetConversation.querySelectorAll<HTMLElement>('[data-testid="tweet"]'));
+  // Try multiple selectors for different Twitter/X versions and localizations
+  let tweetConversation = document.querySelector<HTMLElement>('[aria-label="Timeline: Conversation"]');
+
+  // Fallback: try other common aria-labels (localized versions)
+  if (!tweetConversation) {
+    tweetConversation =
+      document.querySelector<HTMLElement>('[aria-label*="Timeline"]') ||
+      document.querySelector<HTMLElement>('[aria-label*="Conversa"]') || // Portuguese
+      document.querySelector<HTMLElement>('[aria-label*="会話"]'); // Japanese
+  }
+
+  // If still not found, just search the entire document for tweets
+  let tweets: HTMLElement[];
+  if (!tweetConversation) {
+    tweets = Array.from(document.querySelectorAll<HTMLElement>('[data-testid="tweet"]'));
+  } else {
+    tweets = Array.from(tweetConversation.querySelectorAll<HTMLElement>('[data-testid="tweet"]'));
+  }
+
   // add QT inside the tweet body (if it exists)
   tweets.forEach((tweet) => {
     const probableTweets = [...tweet.querySelectorAll<HTMLElement>('[tabindex="0"]')].filter((el) => {
       // check if it has a tweet handle
-      return el.querySelector('[data-testid="User-Name"]')
-    })
-    tweets.push(...probableTweets)
-  })
+      return el.querySelector('[data-testid="User-Name"]');
+    });
+    tweets.push(...probableTweets);
+  });
   // dont analyze batches of zero tweets. covers outcomes in which the page is still loading or when there are no other posts/replies (no need for further analysis)
   if (!tweets.length) return;
 
@@ -67,7 +94,7 @@ export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, 
 
   // analyze the tweet batch
   tweets.forEach((tweet, index) => {
-    /* 
+    /*
       Initial analysis: determine safe tweet if cache entry for current url not present
       - first batch will always include the linked tweet (first tweet in batch length of 1)
       - second batch will include the linked tweet and any surrounding tweets (either replies or the original post) (first tweet in batch length of > 1)
@@ -94,7 +121,7 @@ export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, 
 
     // once safe tweet is determined, then can proceed to do analysis and ui modifications
     if (!tweetSafeInfoMemoryCache[pathname]) return;
-    let { tweetHandle: safeHandle, displayName: safeName } = tweetSafeInfoMemoryCache[pathname]
+    let { tweetHandle: safeHandle, displayName: safeName } = tweetSafeInfoMemoryCache[pathname];
     safeHandle = safeHandle.toLowerCase();
     safeName = safeName.toLowerCase();
     // check if the tweet has already been analyzed
@@ -111,8 +138,7 @@ export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, 
     } else {
       handleAdTweet(tweet);
 
-
-/*    spammers stopped this method, so disabled for now   
+      /*    spammers stopped this method, so disabled for now
 
       // if the tweet text content consists of only numbers, then it's sus. Add red background the tweet
       const onlyNumbers = tweetText.length > 1 && /^[0-9]+$/.test(tweetText) // exception make for '4' tweet
@@ -137,19 +163,17 @@ export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, 
     const handleDistance = levenshtein.get(safeHandle, tweetHandle);
     let nameDistance = levenshtein.get(safeName, displayName);
 
-    if (safeName.length < 4 || displayName.length < 4) 
-      nameDistance = 10; // if either of the name is too short, then ignore this check
+    if (safeName.length < 4 || displayName.length < 4) nameDistance = 10; // if either of the name is too short, then ignore this check
 
     // if the tweet handle is the same as the page handle, then it's sus. Add red background the tweet
     // [can improve due to false negatives with homoglyphic attacks in the username that cant be detected by equality. maybe use levenshtein distance fuzzy matching on username as well]
     if (handleDistance <= 1 || nameDistance <= 1) {
       if (index === 0 && isRepliedTo) {
         tweets.forEach((tweet2) => {
-          if (
-            getTweetInfo(tweet2).tweetHandle.toLowerCase() ==
-            tweetSafeInfoMemoryCache[pathname].tweetHandle.toLowerCase()
-          ) {
-            handleSusTweet(tweet2, isLinkedTweet, "impersonation", "BG_RED");
+          const { tweetHandle: tweet2Handle } = getTweetInfo(tweet2);
+          // Flag tweets that match the IMPERSONATOR's handle, not the safe handle
+          if (tweet2Handle.toLowerCase() === tweetHandle.toLowerCase()) {
+            handleSusTweet(tweet2, getTweetInfo(tweet2).isLinkedTweet, "impersonation", "BG_RED");
           }
         });
       } else {
@@ -192,5 +216,4 @@ export async function handleHomePage(_twitterConfig: TwitterConfig) {
   tweets.forEach((tweet, index) => {
     handleAdTweet(tweet);
   });
-
 }
