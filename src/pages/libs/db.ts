@@ -135,7 +135,7 @@ export async function updateDb() {
     updateFrequency: 60 * 60, // update every 60 minutes
     getData,
   })
-  const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], protocols = [] } = res;
+  const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], protocols = [] } = res || {};
   allowedDomainsDb.data = new Set([...allowedDomains, ...LOCAL_ALLOWED_DOMAINS]);
   blockedDomainsDb.data = new Set([...blockedDomains, ...LOCAL_BLOCKED_DOMAINS]);
   fuzzyDomainsDb.data = fuzzyDomains;
