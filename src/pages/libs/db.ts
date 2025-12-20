@@ -79,7 +79,7 @@ async function getData() {
   const rawProtocols = await fetch(PROTOCOLS_API).then((res) => res.json());
   const protocols = (
     (rawProtocols["protocols"]?.map((x: any) => ({
-      url: x.url,
+      url: x.referralUrl || x.url,
       tvl: x.tvl || 0,
       name: x.name,
       logo: tokenIconUrl(x.name),
