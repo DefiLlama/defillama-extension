@@ -42,7 +42,7 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
     }
 
     const url = tab.url;
-    if (url.startsWith("https://metamask.github.io/phishing-warning/v5.0.0")) {
+    if (url.startsWith("https://metamask.github.io/phishing-warning")) {
       return {
         isBlocked: true,
         isTrusted: false,
