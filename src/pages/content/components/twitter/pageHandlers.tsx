@@ -1,13 +1,5 @@
 import {
-  getTweetInfo,
-  handleAdTweet,
-  handleOpTweet,
-  handleSusTweet,
-  handleTweetWithAddress,
-  handleCashTag,
-  handleHashTag,
-  handleQT,
-  handleSpamQT,
+  getTweetInfo, handleAdTweet, handleOpTweet, handleSusTweet, handleTweetWithAddress, handleCashTag, handleHashTag, handleQT, handleSpamQT,
   handleBotReplies,
 } from "./tweetHandlers";
 import levenshtein from "fast-levenshtein";
@@ -44,12 +36,7 @@ type TwitterConfig = {
 /**
  * Analyze tweets (op and replies) on the linked status page
  */
-export async function handleTweetStatusPage({
-  twitterCashTags,
-  twitterHashTags,
-  twitterQT,
-  twitterBotReplies,
-}: TwitterConfig) {
+export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, twitterQT, twitterBotReplies, }: TwitterConfig) {
   const pathname = window.location.pathname;
 
   // check that the current page is a tweet page (not home/timeline page). Check done here in addition to in init page handler router to catch any edge cases
@@ -57,15 +44,14 @@ export async function handleTweetStatusPage({
   if (!isTweetPage) return;
 
   // get all tweets present. Redundancy in querying all tweets in each batch to mitigate edge cases and to preemptively assess tweets when they are loaded but before they are visible in the viewport (smoother ux)
-  // Try multiple selectors for different Twitter/X versions and localizations
   let tweetConversation = document.querySelector<HTMLElement>('[aria-label="Timeline: Conversation"]');
 
   // Fallback: try other common aria-labels (localized versions)
   if (!tweetConversation) {
-    tweetConversation =
-      document.querySelector<HTMLElement>('[aria-label*="Timeline"]') ||
-      document.querySelector<HTMLElement>('[aria-label*="Conversa"]') || // Portuguese
-      document.querySelector<HTMLElement>('[aria-label*="会話"]'); // Japanese
+      document.querySelector<HTMLElement>('[aria-label="Timeline: Conversa"]') || // Portuguese
+      document.querySelector<HTMLElement>('[aria-label="Timeline: Conversación"]') || // Spanish
+      document.querySelector<HTMLElement>('[aria-label="Timeline: 会話"]') // Japanese
+      // Add more localized versions as needed...
   }
 
   // If still not found, just search the entire document for tweets
@@ -80,10 +66,10 @@ export async function handleTweetStatusPage({
   tweets.forEach((tweet) => {
     const probableTweets = [...tweet.querySelectorAll<HTMLElement>('[tabindex="0"]')].filter((el) => {
       // check if it has a tweet handle
-      return el.querySelector('[data-testid="User-Name"]');
-    });
-    tweets.push(...probableTweets);
-  });
+      return el.querySelector('[data-testid="User-Name"]')
+    })
+    tweets.push(...probableTweets)
+  })
   // dont analyze batches of zero tweets. covers outcomes in which the page is still loading or when there are no other posts/replies (no need for further analysis)
   if (!tweets.length) return;
 
@@ -121,7 +107,7 @@ export async function handleTweetStatusPage({
 
     // once safe tweet is determined, then can proceed to do analysis and ui modifications
     if (!tweetSafeInfoMemoryCache[pathname]) return;
-    let { tweetHandle: safeHandle, displayName: safeName } = tweetSafeInfoMemoryCache[pathname];
+    let { tweetHandle: safeHandle, displayName: safeName } = tweetSafeInfoMemoryCache[pathname]
     safeHandle = safeHandle.toLowerCase();
     safeName = safeName.toLowerCase();
     // check if the tweet has already been analyzed
@@ -163,7 +149,8 @@ export async function handleTweetStatusPage({
     const handleDistance = levenshtein.get(safeHandle, tweetHandle);
     let nameDistance = levenshtein.get(safeName, displayName);
 
-    if (safeName.length < 4 || displayName.length < 4) nameDistance = 10; // if either of the name is too short, then ignore this check
+    if (safeName.length < 4 || displayName.length < 4)
+      nameDistance = 10; // if either of the name is too short, then ignore this check
 
     // if the tweet handle is the same as the page handle, then it's sus. Add red background the tweet
     // [can improve due to false negatives with homoglyphic attacks in the username that cant be detected by equality. maybe use levenshtein distance fuzzy matching on username as well]
