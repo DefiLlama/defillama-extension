@@ -65,6 +65,7 @@ const Popup = () => {
   const [twitterHashTags, setTwitterHashTags] = useBrowserStorage("local", "settings:twitterHashTags", false,);
   const [twitterQT, setTwitterQT] = useBrowserStorage("local", "settings:twitterQT", false,);
   const [twitterBotReplies, setTwitterBotReplies] = useBrowserStorage("local", "settings:twitterBotReplies", false,);
+  const [twitterAddresses, setTwitterAddresses] = useBrowserStorage("local", "settings:twitterAddresses", false,);
 
   return (
     <Box w="xs" py="4" px="4" userSelect="none">
@@ -236,6 +237,19 @@ const Popup = () => {
             isChecked={twitterHashTags}
             onChange={(e) => {
               setTwitterHashTags(e.target.checked);
+              if (!e.target.checked) {
+                Browser.action.setIcon({ path: cuteStatic });
+              }
+            }}
+          />
+        </HStack>
+        <HStack justify="space-between" w="full" pl={7}>
+          <Text fontSize="sm">Hide addresses</Text>
+          <Switch
+            size="sm"
+            isChecked={twitterAddresses}
+            onChange={(e) => {
+              setTwitterAddresses(e.target.checked);
               if (!e.target.checked) {
                 Browser.action.setIcon({ path: cuteStatic });
               }
