@@ -23,7 +23,8 @@ export default async function initPhishingDetector() {
   const twitterHashTags = await getStorage("local", "settings:twitterHashTags", false);
   const twitterQT = await getStorage("local", "settings:twitterQT", false);
   const twitterBotReplies = await getStorage("local", "settings:twitterBotReplies", false);
-  const twitterConfig = { twitterCashTags, twitterHashTags, twitterQT,  twitterBotReplies, };
+  const twitterAddresses = await getStorage("local", "settings:twitterAddresses", false);
+  const twitterConfig = { twitterCashTags, twitterHashTags, twitterQT, twitterBotReplies, twitterAddresses, };
   if (!phishingHandleDetector) return;
 
   let handlePage = getHandlerForTwitterPageVariant();
