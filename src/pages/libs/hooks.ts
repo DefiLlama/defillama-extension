@@ -57,7 +57,7 @@ export const useBrowserStorage = <T>(
   key: string,
   initialValue?: T,
 ): [T | undefined, (value: T) => void, boolean, string | undefined] => {
-  const [state, setState] = useState();
+  const [state, setState] = useState<T | undefined>();
   const [isPersistent, setIsPersistent] = useState(true);
   const [error, setError] = useState<string>();
 
@@ -66,7 +66,7 @@ export const useBrowserStorage = <T>(
     Browser.storage[area]
       .get(keyObj)
       .then((res) => {
-        setState(res[key]);
+        setState(res[key] as T | undefined);
         setIsPersistent(true);
         setError(undefined);
       })

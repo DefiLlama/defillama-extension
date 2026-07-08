@@ -30,7 +30,7 @@ export async function checkAndLoadDataIfNeeded() {
     return true;
   }
   // Even if data exists, we need to populate our in-memory DBs
-  const storedData = JSON.parse(existingData[storageKey]);
+  const storedData = JSON.parse(existingData[storageKey] as string);
   if (storedData.data) {
     const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], protocols = [] } = storedData.data;
     allowedDomainsDb.data = new Set([...allowedDomains, ...LOCAL_ALLOWED_DOMAINS]);

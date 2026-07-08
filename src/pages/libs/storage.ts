@@ -63,11 +63,11 @@ export async function fetchData({
   async function getDataFromStorage(key) {
     const res = await Browser.storage.local.get([key])
     const item = res[key]
-    return item ? JSON.parse(item) : { lastUpdatedTime: 0, data: {} }
+    return item ? JSON.parse(item as string) : { lastUpdatedTime: 0, data: {} }
   }
 
   async function setDataToStorage(key, data) {
     const value = JSON.stringify({ lastUpdatedTime: timeNow, data })
-    await Browser.storage.local.set({[key]: value})
+    await Browser.storage.local.set({ [key]: value })
   }
 }
