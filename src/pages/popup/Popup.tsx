@@ -56,6 +56,7 @@ const Popup = () => {
 
   const [phishingDetector, setPhishingDetector] = useBrowserStorage("local", "settings:phishingDetector", true);
   const [phishingFuzzyMatch, setPhishingFuzzyMatch] = useBrowserStorage("local", "settings:phishingFuzzyMatch", false);
+  const [twitterEnabled, setTwitterEnabled] = useBrowserStorage("local", "settings:twitterEnabled", true);
   const [phishingHandleDetector, setPhishingHandleDetector] = useBrowserStorage(
     "local",
     "settings:phishingHandleDetector",
@@ -197,16 +198,27 @@ const Popup = () => {
         </Box>
 
       <VStack my="5" p="2" w="full" spacing="1.5" borderRadius="lg" bg={useColorModeValue("gray.100", "gray.900")}>
-        <HStack w="full">
+        <HStack justify="space-between" w="full">
           <Text fontSize="xs" fontWeight="bold">
             Twitter
           </Text>
+          <Switch
+            size="sm"
+            isChecked={twitterEnabled}
+            onChange={(e) => {
+              setTwitterEnabled(e.target.checked);
+              if (!e.target.checked) {
+                Browser.action.setIcon({ path: cuteStatic });
+              }
+            }}
+          />
         </HStack>
 
         <HStack justify="space-between" w="full" pl={7}>
           <Text fontSize="sm">Mitigate phishing scams</Text>
           <Switch
             size="sm"
+            isDisabled={!twitterEnabled}
             isChecked={phishingHandleDetector}
             onChange={(e) => {
               setPhishingHandleDetector(e.target.checked);
@@ -220,6 +232,7 @@ const Popup = () => {
           <Text fontSize="sm">Hide cash tags</Text>
           <Switch
             size="sm"
+            isDisabled={!twitterEnabled}
             isChecked={twitterCashTags}
             onChange={(e) => {
               setTwitterCashTags(e.target.checked);
@@ -233,6 +246,7 @@ const Popup = () => {
           <Text fontSize="sm">Hide hash tags</Text>
           <Switch
             size="sm"
+            isDisabled={!twitterEnabled}
             isChecked={twitterHashTags}
             onChange={(e) => {
               setTwitterHashTags(e.target.checked);
@@ -246,6 +260,7 @@ const Popup = () => {
           <Text fontSize="sm">Hide QT</Text>
           <Switch
             size="sm"
+            isDisabled={!twitterEnabled}
             isChecked={twitterQT}
             onChange={(e) => {
               setTwitterQT(e.target.checked);
@@ -259,6 +274,7 @@ const Popup = () => {
           <Text fontSize="sm">Hide Bot replies</Text>
           <Switch
             size="sm"
+            isDisabled={!twitterEnabled}
             isChecked={twitterBotReplies}
             onChange={(e) => {
               setTwitterBotReplies(e.target.checked);

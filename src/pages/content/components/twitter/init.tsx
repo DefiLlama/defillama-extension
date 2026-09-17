@@ -17,6 +17,10 @@ import {
  * and a content mutation observer (here in content script) for ui updates.
  */
 export default async function initPhishingDetector() {
+  // master switch: when off, the extension does not touch twitter/x pages at all
+  const twitterEnabled = await getStorage("local", "settings:twitterEnabled", true);
+  if (!twitterEnabled) return;
+
   // get phishing local storage config as set in the extension popup [local storage name left as "phishingHandleDetector" for now]
   const phishingHandleDetector = await getStorage("local", "settings:phishingHandleDetector", true);
   const twitterCashTags = await getStorage("local", "settings:twitterCashTags", false);
