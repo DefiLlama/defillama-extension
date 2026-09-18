@@ -1,6 +1,6 @@
 import levenshtein from "fast-levenshtein";
 import * as psl from "psl";
-import { fuzzyDomainsDb, allowedDomainsDb, blockedDomainsDb, dbVersion } from "./db";
+import { fuzzyDomainsDb, allowedDomainsDb, blockedDomainsDb, curatedDomainsDb, dbVersion } from "./db";
 
 const DEFAULT_LEVENSHTEIN_TOLERANCE = 3;
 
@@ -47,7 +47,12 @@ function _checkDomain(domain: string, enableFuzzyMatch: boolean): CheckDomainRes
 }
 
 function checkDomainInLists(fullDomain: string, rootDomain: string, enableFuzzyMatch: boolean): CheckDomainResult {
-  // blocklist takes precedence: a whitelisted domain that later lands on the blacklist must still warn
+  // precedence: curated url-directory whitelist > blocklists > derived allowlist (protocols, MetaMask) > fuzzy.
+  // The curated list is manually reviewed, so it can override a third-party blacklist false positive;
+  // the derived allowlist cannot, because a listed protocol's domain may itself get compromised.
+  const isCurated = curatedDomainsDb.data.has(fullDomain) || curatedDomainsDb.data.has(rootDomain);
+  if (isCurated) return { result: false, type: "allowed" };
+
   const isBlocked = blockedDomainsDb.data.has(fullDomain) || blockedDomainsDb.data.has(rootDomain);
   if (isBlocked) return { result: true, type: "blocked" };
 

@@ -1,5 +1,5 @@
 import Browser from "webextension-polyfill";
-import { checkAndLoadDataIfNeeded, allowedDomainsDb, blockedDomainsDb } from "../libs/db";
+import { checkAndLoadDataIfNeeded, allowedDomainsDb, blockedDomainsDb, curatedDomainsDb } from "../libs/db";
 
 import cute from "@assets/img/memes/cute-128.png";
 import maxPain from "@assets/img/memes/max-pain-128.png";
@@ -55,7 +55,8 @@ async function verifyUrls(urls: string[]): Promise<Record<string, boolean>> {
     try {
       const { protocol, hostname } = new URL(u);
       const host = hostname.replace(/^www\./, "");
-      out[u] = protocol === "https:" && allowedDomainsDb.data.has(host) && !blockedDomainsDb.data.has(host);
+      // same precedence as checkDomainInLists, but exact hostname only
+      out[u] = protocol === "https:" && (curatedDomainsDb.data.has(host) || (allowedDomainsDb.data.has(host) && !blockedDomainsDb.data.has(host)));
     } catch {
       out[u] = false;
     }

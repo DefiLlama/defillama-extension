@@ -26,9 +26,10 @@ export async function checkAndLoadDataIfNeeded() {
   // Even if data exists, we need to populate our in-memory DBs
   const storedData = JSON.parse(existingData[storageKey]);
   if (storedData.data) {
-    const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [] } = storedData.data;
+    const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], curatedDomains = [] } = storedData.data;
     allowedDomainsDb.data = new Set([...allowedDomains, ...LOCAL_ALLOWED_DOMAINS]);
     blockedDomainsDb.data = new Set([...blockedDomains, ...LOCAL_BLOCKED_DOMAINS]);
+    curatedDomainsDb.data = new Set(curatedDomains);
     fuzzyDomainsDb.data = fuzzyDomains;
     dbVersion.n++;
   }
@@ -59,6 +60,13 @@ export const allowedDomainsDb: {
   data: Set<string>
 } = {
   data: new Set(LOCAL_ALLOWED_DOMAINS)
+}
+
+// manually reviewed DefiLlama/url-directory whitelist; the only allow source that outranks the blocklists
+export const curatedDomainsDb: {
+  data: Set<string>
+} = {
+  data: new Set()
 }
 
 const cacheKey = 'cache-v' + version
@@ -108,6 +116,7 @@ async function getData() {
     allowedDomains,
     blockedDomains,
     fuzzyDomains,
+    curatedDomains: defillamaDomains,
   }
 }
 
@@ -124,9 +133,11 @@ export async function updateDb() {
   })
   // fetchData returns undefined/{} while another fetch is in flight or on error; keep what we have
   if (!res?.allowedDomains && !res?.blockedDomains) return { allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb }
-  const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [] } = res;
+  // ponytail: caches written before curatedDomains existed simply yield an empty curated set until the hourly refresh
+  const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], curatedDomains = [] } = res;
   allowedDomainsDb.data = new Set([...allowedDomains, ...LOCAL_ALLOWED_DOMAINS]);
   blockedDomainsDb.data = new Set([...blockedDomains, ...LOCAL_BLOCKED_DOMAINS]);
+  curatedDomainsDb.data = new Set(curatedDomains);
   fuzzyDomainsDb.data = fuzzyDomains;
   dbVersion.n++;
   return { allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb }
