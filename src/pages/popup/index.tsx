@@ -7,13 +7,20 @@ import Popup from "./Popup";
 const queryClient = new QueryClient();
 
 const config = {
-  // initialColorMode: "dark",
-  useSystemColorMode: true,
+  initialColorMode: "system",
+  useSystemColorMode: false, // follow the system until the user toggles; then remember the choice
   disableTransitionOnChange: false,
 };
 
 const theme = extendTheme({
   config,
+  styles: {
+    global: {
+      // the popup scrolls when settings expand; hide the scrollbar so its appearance doesn't shift the layout
+      html: { scrollbarWidth: "none" },
+      "html::-webkit-scrollbar": { display: "none" },
+    },
+  },
 });
 
 const rootElement = document.querySelector("body");

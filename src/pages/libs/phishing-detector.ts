@@ -1,6 +1,6 @@
 import levenshtein from "fast-levenshtein";
 import * as psl from "psl";
-import { fuzzyDomainsDb, allowedDomainsDb, blockedDomainsDb } from "./db";
+import { fuzzyDomainsDb, allowedDomainsDb, blockedDomainsDb, dbVersion } from "./db";
 
 const DEFAULT_LEVENSHTEIN_TOLERANCE = 3;
 
@@ -12,12 +12,14 @@ interface CheckDomainResult {
 
 let domainCheckCache = new Map<string, CheckDomainResult>();
 let lastCacheClear = Date.now();
+let cachedDbVersion = -1;
 
 export function clearDomainCheckCache() {
   const now = Date.now();
-  if (now - lastCacheClear > 1000 * 60 * 60) {
+  if (now - lastCacheClear > 1000 * 60 * 60 || cachedDbVersion !== dbVersion.n) {
     domainCheckCache = new Map();
     lastCacheClear = now;
+    cachedDbVersion = dbVersion.n;
   }
 }
 
@@ -45,11 +47,12 @@ function _checkDomain(domain: string, enableFuzzyMatch: boolean): CheckDomainRes
 }
 
 function checkDomainInLists(fullDomain: string, rootDomain: string, enableFuzzyMatch: boolean): CheckDomainResult {
-  const isAllowed = allowedDomainsDb.data.has(fullDomain) || allowedDomainsDb.data.has(rootDomain);
-  if (isAllowed) return { result: false, type: "allowed" };
-
+  // blocklist takes precedence: a whitelisted domain that later lands on the blacklist must still warn
   const isBlocked = blockedDomainsDb.data.has(fullDomain) || blockedDomainsDb.data.has(rootDomain);
   if (isBlocked) return { result: true, type: "blocked" };
+
+  const isAllowed = allowedDomainsDb.data.has(fullDomain) || allowedDomainsDb.data.has(rootDomain);
+  if (isAllowed) return { result: false, type: "allowed" };
 
   // Only check fuzzy matching if enabled
   if (enableFuzzyMatch) {

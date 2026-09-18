@@ -1,6 +1,5 @@
 import Browser from "webextension-polyfill";
-import * as psl from "psl";
-import { checkAndLoadDataIfNeeded } from "../libs/db";
+import { checkAndLoadDataIfNeeded, allowedDomainsDb, blockedDomainsDb } from "../libs/db";
 
 import cute from "@assets/img/memes/cute-128.png";
 import maxPain from "@assets/img/memes/max-pain-128.png";
@@ -20,18 +19,53 @@ async function initBackground() {
   await checkAndLoadDataIfNeeded();
 }
 
-initBackground();
+const ready = initBackground().catch(() => {});
 Browser.runtime.onMessage.addListener((message, sender) => {
   try {
     if (message?.type === "CHECK_CURRENT_DOMAIN" && sender?.tab) {
       handlePhishingCheck("contentScriptRequest", sender.tab).catch(() => {});
     }
+    if (message?.type === "GET_CURRENT_DOMAIN_STATUS") {
+      // popup asks for the active tab's verdict; returning a promise sends it as the response
+      return getCurrentDomainStatus();
+    }
+    if (message?.type === "VERIFY_URLS") {
+      return verifyUrls(Array.isArray(message.urls) ? message.urls : []);
+    }
   } catch (error) {
   }
 });
 
+async function getCurrentDomainStatus() {
+  const phishingDetector = await getStorage("local", "settings:phishingDetector", true);
+  const { isBlocked, isTrusted, reason, tab } = await handleDomainCheck("popup");
+  let hostname = "";
+  try {
+    hostname = new URL(tab?.url ?? "").hostname;
+  } catch {}
+  return { hostname, isBlocked, isTrusted, reason: phishingDetector ? reason : "Phishing detection disabled" };
+}
+
+// A saved quick link is only trusted if its exact hostname is on the DefiLlama allowlist and not on the blocklist.
+// Stored links are re-checked every popup open, so a tampered/look-alike entry can never render as clickable.
+async function verifyUrls(urls: string[]): Promise<Record<string, boolean>> {
+  await ready;
+  const out: Record<string, boolean> = {};
+  for (const u of urls) {
+    try {
+      const { protocol, hostname } = new URL(u);
+      const host = hostname.replace(/^www\./, "");
+      out[u] = protocol === "https:" && allowedDomainsDb.data.has(host) && !blockedDomainsDb.data.has(host);
+    } catch {
+      out[u] = false;
+    }
+  }
+  return out;
+}
+
 async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
   try {
+    await ready;
     if (!tab) {
       tab = await getCurrentTab();
     }
@@ -63,12 +97,14 @@ async function handleDomainCheck(trigger: string, tab?: Browser.Tabs.Tab) {
       return { isBlocked: false, isTrusted: false, reason: "Invalid URL format", tab };
     }
 
-    const parsed = psl.parse(hostname);
-    const domain = (parsed && "domain" in parsed && parsed.domain) || hostname.replace("www.", "");
-
-    // Get fuzzy matching setting
+    // checkDomain derives the root domain itself; passing the full hostname lets subdomain blocklist entries match
     const phishingFuzzyMatch = await getStorage("local", "settings:phishingFuzzyMatch", false);
-    const res = await checkDomain(domain, phishingFuzzyMatch);
+    const res = await checkDomain(hostname.replace(/^www\./, ""), phishingFuzzyMatch);
+
+    // lists still downloading (first install / reload): local blocklist hits above still warn, everything else says loading
+    if (!res.result && allowedDomainsDb.data.size === 0) {
+      return { isBlocked: false, isTrusted: false, reason: "Loading domain lists…", tab };
+    }
 
     if (res.result) {
       let reason: string;

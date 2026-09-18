@@ -11,6 +11,8 @@ export interface Prices {
 }
 
 export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
+export const SEARCH_API = "https://search-core.defillama.com/multi-search";
+export const SEARCH_API_KEY = "d803a13682d256255e7e57e436cc40818aa162fe297ed1b8cd559b7c711dc8ed";
 export const TWITTER_CONFIG_API = "https://defillama-datasets.llama.fi/extension/twitter-config.json";
 export const PROTOCOL_TVL_THRESHOLD = 0;
 
