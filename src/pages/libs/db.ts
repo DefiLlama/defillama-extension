@@ -8,6 +8,7 @@ import {
   PROTOCOLS_API,
   METAMASK_LIST_CONFIG_API,
   DEFILLAMA_DIRECTORY_API,
+  EXPLORER_CHAIN_PREFIX_MAP,
 } from "./constants";
 
 export async function checkAndLoadDataIfNeeded() {
@@ -98,7 +99,9 @@ async function getData() {
   const defillamaFuzzyDomains = rawDefillamaDirectory.fuzzylist ?? [];
   // protocols often list only a subdomain (app.hyperliquid.xyz); trust the registrable root too so hyperliquid.xyz isn't "unknown"
   const protocolRoots = protocolDomains.map((d) => psl.get(d)).filter((d): d is string => !!d)
-  const allowedDomains = getUniqueItems(metamaskAllowedDomains, protocolDomains, protocolRoots, defillamaDomains, ['x.com'])
+  // explorers we inject into are first-party by definition; whitelist them so they never show as unknown
+  const explorerDomains = Object.keys(EXPLORER_CHAIN_PREFIX_MAP)
+  const allowedDomains = getUniqueItems(metamaskAllowedDomains, protocolDomains, protocolRoots, defillamaDomains, explorerDomains, ['x.com'])
   const blockedDomains = getUniqueItems(metamaskBlockedDomains, defillamaBlockedDomains)
   const fuzzyDomains = getUniqueItems(metamaskFuzzyDomains, protocolDomains, defillamaDomains, defillamaFuzzyDomains)
   return {
