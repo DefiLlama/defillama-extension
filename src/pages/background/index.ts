@@ -230,7 +230,7 @@ Browser.windows.onFocusChanged.addListener(async (windowId) => {
   try {
     if (windowId === Browser.windows.WINDOW_ID_NONE) return;
     const tab = await getCurrentTab();
-    if (tab) {
+    if (tab?.id) {
       try {
         await Browser.tabs.sendMessage(tab.id, { message: "TabActivated" });
       } catch {
