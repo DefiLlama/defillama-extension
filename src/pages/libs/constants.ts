@@ -11,6 +11,8 @@ export interface Prices {
 }
 
 export const PROTOCOLS_API = "https://api.llama.fi/lite/protocols2";
+export const SEARCH_API = "https://search-core.defillama.com/multi-search";
+export const SEARCH_API_KEY = "d803a13682d256255e7e57e436cc40818aa162fe297ed1b8cd559b7c711dc8ed";
 export const TWITTER_CONFIG_API = "https://defillama-datasets.llama.fi/extension/twitter-config.json";
 export const PROTOCOL_TVL_THRESHOLD = 0;
 
@@ -82,7 +84,7 @@ export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "bobascan.com": "boba",
   "zkevm.polygonscan.com": "polygon_zkevm",
   "nova.arbiscan.io": "arbitrum_nova",
-  "celoscan.com": "celo",
+  "celoscan.io": "celo",
   "bttcscan.com": "bittorrent",
   "scrollscan.com": "scroll",
   "lineascan.build": "linea",
@@ -91,5 +93,25 @@ export const EXPLORER_CHAIN_PREFIX_MAP: { [domain: string]: string } = {
   "kromascan.com": "kroma",
   "berascan.com": "berachain",
   "solscan.io": "solana",
-  "hyperevmscan.io": "hyperliquid"
+  "hyperevmscan.io": "hyperliquid",
+  // Etherscan-family explorers per https://api.etherscan.io/v2/chainlist, slugs from DefiLlama-Adapters projects/helper/chains.json
+  "blastscan.io": "blast",
+  "fraxscan.com": "fraxtal",
+  "mantlescan.xyz": "mantle",
+  "opbnb.bscscan.com": "op_bnb",
+  "taikoscan.io": "taiko",
+  "xdcscan.com": "xdc",
+  "apescan.io": "apechain",
+  "worldscan.org": "wc",
+  "sonicscan.org": "sonic",
+  "uniscan.xyz": "unichain",
+  "abscan.org": "abstract",
+  "monadscan.com": "monad",
+  "katanascan.com": "katana",
+  "seiscan.io": "sei",
+  "stablescan.xyz": "stable",
+  "plasmascan.to": "plasma",
+  "mega.etherscan.io": "megaeth",
+  "robin.etherscan.io": "robinhood",
+  "arc.etherscan.io": "arc",
 }

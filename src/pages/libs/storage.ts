@@ -4,6 +4,11 @@ const isUpdating: {
   [key: string]: boolean
 } = {}
 
+// concurrent callers share the same in-flight request instead of getting undefined back
+const inFlight: {
+  [key: string]: Promise<any>
+} = {}
+
 const lastUpdated: {
   [key: string]: number
 } = {}
@@ -21,8 +26,8 @@ export async function fetchData({
 }): Promise<any> {
 
 
-  if (isUpdating[key])
-    return currentData[key];
+  if (isUpdating[key] && inFlight[key])
+    return inFlight[key];
 
   const timeNow = Math.floor(Date.now() / 1000);
   const lastUpdatedTime = lastUpdated[key] ?? 0;
@@ -33,7 +38,8 @@ export async function fetchData({
 
 
   isUpdating[key] = true;
-  currentData[key] = await _fetchData();
+  inFlight[key] = _fetchData().finally(() => { delete inFlight[key]; });
+  currentData[key] = await inFlight[key];
   return currentData[key]
 
   async function _fetchData(): Promise<any> {

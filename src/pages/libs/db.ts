@@ -1,21 +1,15 @@
 import { fetchData } from './storage'
 import { version } from '../../../package.json'
 import Browser from "webextension-polyfill";
+import * as psl from "psl";
 import cute from "@assets/img/memes/cute-128.png";
 
 import {
   PROTOCOLS_API,
   METAMASK_LIST_CONFIG_API,
   DEFILLAMA_DIRECTORY_API,
-  tokenIconUrl,
+  EXPLORER_CHAIN_PREFIX_MAP,
 } from "./constants";
-
-export interface Protocol {
-  url: string;
-  tvl?: number;
-  name: string;
-  logo: string;
-}
 
 export async function checkAndLoadDataIfNeeded() {
   await fetchData({
@@ -32,11 +26,12 @@ export async function checkAndLoadDataIfNeeded() {
   // Even if data exists, we need to populate our in-memory DBs
   const storedData = JSON.parse(existingData[storageKey]);
   if (storedData.data) {
-    const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], protocols = [] } = storedData.data;
+    const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], curatedDomains = [] } = storedData.data;
     allowedDomainsDb.data = new Set([...allowedDomains, ...LOCAL_ALLOWED_DOMAINS]);
     blockedDomainsDb.data = new Set([...blockedDomains, ...LOCAL_BLOCKED_DOMAINS]);
+    curatedDomainsDb.data = new Set(curatedDomains);
     fuzzyDomainsDb.data = fuzzyDomains;
-    protocolDirectoryDb.data = protocols;
+    dbVersion.n++;
   }
   return false;
 }
@@ -47,7 +42,7 @@ const LOCAL_BLOCKED_DOMAINS = [
   'lamaswap.org',
 ];
 
-const LOCAL_ALLOWED_DOMAINS = [];
+const LOCAL_ALLOWED_DOMAINS: string[] = [];
 
 export const blockedDomainsDb: {
   data: Set<string>
@@ -67,35 +62,32 @@ export const allowedDomainsDb: {
   data: new Set(LOCAL_ALLOWED_DOMAINS)
 }
 
-export const protocolDirectoryDb: {
-  data: Array<Protocol>
+// manually reviewed DefiLlama/url-directory whitelist; the only allow source that outranks the blocklists
+export const curatedDomainsDb: {
+  data: Set<string>
 } = {
-  data: []
+  data: new Set()
 }
 
 const cacheKey = 'cache-v' + version
 
-async function getData() {
-  const rawProtocols = await fetch(PROTOCOLS_API).then((res) => res.json());
-  const protocols = (
-    (rawProtocols["protocols"]?.map((x: any) => ({
-      url: x.referralUrl || x.url,
-      tvl: x.tvl || 0,
-      name: x.name,
-      logo: tokenIconUrl(x.name),
-    })) ?? []) as Protocol[]
-  ).filter((x) => (x.name && x.url));
+// bumped whenever the in-memory lists change so cached domain verdicts can be invalidated
+export const dbVersion = { n: 0 }
 
-  const protocolDomains = protocols
-    .map((x) => {
+async function getData() {
+  // ponytail: search moved to SEARCH_API; only protocol domains are kept for the allow/fuzzy lists
+  const rawProtocols = await fetch(PROTOCOLS_API).then((res) => res.json());
+  const protocolDomains: string[] = (rawProtocols["protocols"] ?? [])
+    .map((x: any) => {
       try {
-        if (!x.url) return null;
-        return new URL(x.url).hostname.replace("www.", "");
+        const url = x.referralUrl || x.url;
+        if (!url) return null;
+        return new URL(url).hostname.replace("www.", "");
       } catch (error) {
         return null;
       }
     })
-    .filter((x) => x !== null)
+    .filter((x: string | null): x is string => x !== null)
   const metamaskLists = (await fetch(METAMASK_LIST_CONFIG_API).then((res) => res.json())) as {
     fuzzylist: string[];
     whitelist: string[];
@@ -113,18 +105,22 @@ async function getData() {
   const defillamaDomains = rawDefillamaDirectory.whitelist;
   const defillamaBlockedDomains = rawDefillamaDirectory.blacklist ?? [];
   const defillamaFuzzyDomains = rawDefillamaDirectory.fuzzylist ?? [];
-  const allowedDomains = getUniqueItems(metamaskAllowedDomains, protocolDomains, defillamaDomains, ['x.com'])
+  // protocols often list only a subdomain (app.hyperliquid.xyz); trust the registrable root too so hyperliquid.xyz isn't "unknown"
+  const protocolRoots = protocolDomains.map((d) => psl.get(d)).filter((d): d is string => !!d)
+  // explorers we inject into are first-party by definition; whitelist them so they never show as unknown
+  const explorerDomains = Object.keys(EXPLORER_CHAIN_PREFIX_MAP)
+  const allowedDomains = getUniqueItems(metamaskAllowedDomains, protocolDomains, protocolRoots, defillamaDomains, explorerDomains, ['x.com'])
   const blockedDomains = getUniqueItems(metamaskBlockedDomains, defillamaBlockedDomains)
   const fuzzyDomains = getUniqueItems(metamaskFuzzyDomains, protocolDomains, defillamaDomains, defillamaFuzzyDomains)
   return {
     allowedDomains,
     blockedDomains,
     fuzzyDomains,
-    protocols,
+    curatedDomains: defillamaDomains,
   }
 }
 
-function getUniqueItems(...arrays) {
+function getUniqueItems(...arrays: string[][]): string[] {
   const allItems = arrays.flat()
   return [...new Set(allItems)]
 }
@@ -135,12 +131,16 @@ export async function updateDb() {
     updateFrequency: 60 * 60, // update every 60 minutes
     getData,
   })
-  const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], protocols = [] } = res || {};
+  // fetchData returns undefined/{} while another fetch is in flight or on error; keep what we have
+  if (!res?.allowedDomains && !res?.blockedDomains) return { allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb }
+  // ponytail: caches written before curatedDomains existed simply yield an empty curated set until the hourly refresh
+  const { allowedDomains = [], blockedDomains = [], fuzzyDomains = [], curatedDomains = [] } = res;
   allowedDomainsDb.data = new Set([...allowedDomains, ...LOCAL_ALLOWED_DOMAINS]);
   blockedDomainsDb.data = new Set([...blockedDomains, ...LOCAL_BLOCKED_DOMAINS]);
+  curatedDomainsDb.data = new Set(curatedDomains);
   fuzzyDomainsDb.data = fuzzyDomains;
-  protocolDirectoryDb.data = protocols;
-  return { allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb, protocolDirectoryDb }
+  dbVersion.n++;
+  return { allowedDomainsDb, blockedDomainsDb, fuzzyDomainsDb }
 }
 
 // Regular update every 60 minutes for main data
