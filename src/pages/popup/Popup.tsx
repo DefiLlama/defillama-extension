@@ -3,16 +3,22 @@ import cuteStatic from "@assets/img/memes/cute-128.png";
 import defillamaIcon from "@assets/img/links/defillama.png";
 import llamaswapIcon from "@assets/img/links/llamaswap.png";
 import llamapayIcon from "@assets/img/links/llamapay.png";
-import { Box, HStack, Icon, Image, Switch, Text, useColorModeValue, useColorMode, VStack, Link, Input, InputGroup, InputLeftElement, IconButton, Collapse, SimpleGrid, Avatar, Divider } from "@chakra-ui/react";
+import { Box, HStack, Icon, Image, Switch, Text, useColorModeValue, useColorMode, VStack, Link, Input, InputGroup, InputLeftElement, IconButton, Collapse, SimpleGrid, Avatar, Divider, createIcon } from "@chakra-ui/react";
 import { SearchIcon, ChevronDownIcon, ChevronUpIcon, SmallCloseIcon, StarIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { useState, useMemo, useEffect } from "react";
 import { SEARCH_API, SEARCH_API_KEY } from "../libs/constants";
 import { debounce } from "../libs/helpers";
 import { useBrowserStorage } from "../libs/hooks";
 import { FaDiscord, FaGithub } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
 import Browser from "webextension-polyfill";
 import packageJson from "../../../package.json";
+
+// X logo inline: the locked react-icons 4.4.0 predates the fa6 entry point that ships FaXTwitter
+const XIcon = createIcon({
+  displayName: "XIcon",
+  viewBox: "0 0 24 24",
+  path: <path fill="currentColor" d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />,
+});
 
 type QuickLink = { url: string; name: string; icon?: string };
 const MAX_LINKS = 9;
@@ -310,7 +316,7 @@ const Popup = () => {
       <HStack justify="space-between">
         <HStack spacing="3" color="gray.500">
           <Link href="https://discord.defillama.com" isExternal p="1" borderRadius="md" _hover={{ bg: hoverBg, color: "inherit" }}><Icon as={FaDiscord} w="5" h="5" display="block" /></Link>
-          <Link href="https://x.com/defillama" isExternal p="1" borderRadius="md" _hover={{ bg: hoverBg, color: "inherit" }}><Icon as={FaXTwitter} w="5" h="5" display="block" /></Link>
+          <Link href="https://x.com/defillama" isExternal p="1" borderRadius="md" _hover={{ bg: hoverBg, color: "inherit" }}><XIcon w="5" h="5" display="block" /></Link>
           <Link href="https://github.com/defillama/defillama-extension" isExternal p="1" borderRadius="md" _hover={{ bg: hoverBg, color: "inherit" }}><Icon as={FaGithub} w="5" h="5" display="block" /></Link>
         </HStack>
         <Link href="https://github.com/DefiLlama/url-directory" isExternal fontSize="xs" color="gray.500">
