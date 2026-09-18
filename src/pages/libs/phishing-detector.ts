@@ -47,14 +47,17 @@ function _checkDomain(domain: string, enableFuzzyMatch: boolean): CheckDomainRes
 }
 
 function checkDomainInLists(fullDomain: string, rootDomain: string, enableFuzzyMatch: boolean): CheckDomainResult {
-  // precedence: curated url-directory whitelist > blocklists > derived allowlist (protocols, MetaMask) > fuzzy.
-  // The curated list is manually reviewed, so it can override a third-party blacklist false positive;
-  // the derived allowlist cannot, because a listed protocol's domain may itself get compromised.
-  const isCurated = curatedDomainsDb.data.has(fullDomain) || curatedDomainsDb.data.has(rootDomain);
-  if (isCurated) return { result: false, type: "allowed" };
-
-  const isBlocked = blockedDomainsDb.data.has(fullDomain) || blockedDomainsDb.data.has(rootDomain);
-  if (isBlocked) return { result: true, type: "blocked" };
+  // Precedence, most specific first, so a curated root (medium.com) never clears an exact blocked
+  // subdomain (yearn-finance-gift.medium.com), while an exact curated entry still overrides a
+  // third-party blacklist false positive:
+  //   exact curated > exact blocked > curated root > blocked root > derived allowlist > fuzzy
+  // The curated list is manually reviewed; the derived allowlist (protocols, MetaMask) is not, so it
+  // can never outrank a block.
+  const curated = curatedDomainsDb.data, blocked = blockedDomainsDb.data;
+  if (curated.has(fullDomain)) return { result: false, type: "allowed" };
+  if (blocked.has(fullDomain)) return { result: true, type: "blocked" };
+  if (curated.has(rootDomain)) return { result: false, type: "allowed" };
+  if (blocked.has(rootDomain)) return { result: true, type: "blocked" };
 
   const isAllowed = allowedDomainsDb.data.has(fullDomain) || allowedDomainsDb.data.has(rootDomain);
   if (isAllowed) return { result: false, type: "allowed" };
