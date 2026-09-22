@@ -26,7 +26,7 @@ The extension merges several lists, refreshed hourly in the background:
 | --- | --- | --- |
 | [DefiLlama/url-directory `domains.json`](https://github.com/DefiLlama/url-directory) | curated whitelist, blacklist, fuzzy targets | DefiLlama, manually reviewed |
 | [MetaMask eth-phishing-detect](https://github.com/MetaMask/eth-phishing-detect) | whitelist, blacklist, fuzzy targets | MetaMask |
-| DefiLlama protocol list (`api.llama.fi/lite/protocols2`) | whitelist (each protocol's hostname and its registrable root), fuzzy targets | derived automatically |
+| DefiLlama protocol list (`api.llama.fi/protocols`), excluding protocols marked `deadFrom` or `deadUrl` | whitelist (each live protocol's hostname and its registrable root), fuzzy targets | derived automatically |
 | `EXPLORER_CHAIN_PREFIX_MAP` in `src/pages/libs/constants.ts` | whitelist | this repo |
 | `LOCAL_BLOCKED_DOMAINS` in `src/pages/libs/db.ts` | blacklist | this repo |
 
@@ -49,7 +49,7 @@ Consequences of that order:
 
 - To whitelist a legitimate site that is being flagged, or a high-value site with no DefiLlama metric (an explorer, a docs site), open a PR adding it to the `whitelist` array in [`domains.json`](https://github.com/DefiLlama/url-directory/blob/master/domains.json).
 - To blacklist a phishing site, add it to the `blacklist` array in the same file. Prefer the exact hostname over the root where the root is a shared platform.
-- Protocols listed on DefiLlama with a URL are whitelisted automatically. No extra step needed.
+- Protocols listed on DefiLlama with a URL are whitelisted automatically. No extra step needed. Protocols marked dead are excluded, since expired domains are often re-registered by scammers.
 - New Etherscan-family explorers go in `EXPLORER_CHAIN_PREFIX_MAP` in `src/pages/libs/constants.ts`, keyed by hostname with the DefiLlama chain slug as value. That both enables tag and price injection and whitelists the domain.
 
 Changes to `domains.json` reach users on the next hourly refresh. Changes to the repo constants ship with the next release.

@@ -76,8 +76,10 @@ export const dbVersion = { n: 0 }
 
 async function getData() {
   // ponytail: search moved to SEARCH_API; only protocol domains are kept for the allow/fuzzy lists
-  const rawProtocols = await fetch(PROTOCOLS_API).then((res) => res.json());
-  const protocolDomains: string[] = (rawProtocols["protocols"] ?? [])
+  const rawProtocols: any[] = await fetch(PROTOCOLS_API).then((res) => res.json());
+  const protocolDomains: string[] = (Array.isArray(rawProtocols) ? rawProtocols : [])
+    // dead protocols' domains expire and get picked up by scammers; never whitelist them
+    .filter((x: any) => !x.deadFrom && !x.deadUrl)
     .map((x: any) => {
       try {
         const url = x.referralUrl || x.url;
