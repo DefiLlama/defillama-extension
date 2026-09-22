@@ -31,12 +31,13 @@ type TwitterConfig = {
   twitterHashTags: boolean;
   twitterQT: boolean;
   twitterBotReplies: boolean;
+  twitterAddresses: boolean;
 };
 
 /**
  * Analyze tweets (op and replies) on the linked status page
  */
-export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, twitterQT, twitterBotReplies, }: TwitterConfig) {
+export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, twitterQT, twitterBotReplies, twitterAddresses, }: TwitterConfig) {
   const pathname = window.location.pathname;
 
   // check that the current page is a tweet page (not home/timeline page). Check done here in addition to in init page handler router to catch any edge cases
@@ -135,8 +136,8 @@ export async function handleTweetStatusPage({ twitterCashTags, twitterHashTags, 
         return;
       }
  */
-      // only hide addresses if not from the op
-      // if (!!tweetText) handleTweetWithAddress(tweet, tweetText, isLinkedTweet);  // disabled for now, since it is not working properly
+      // only hide addresses if not from the op (OP tweets return early above, so this is safe)
+      if (twitterAddresses && tweetText) handleTweetWithAddress(tweet, tweetText, isLinkedTweet);
       if (twitterCashTags && tweetText) handleCashTag(tweet, tweetText, isLinkedTweet);
       if (twitterHashTags && tweetText) handleHashTag(tweet, tweetText, isLinkedTweet);
       if (twitterQT && tweetText) handleQT(tweet, tweetText, isLinkedTweet);

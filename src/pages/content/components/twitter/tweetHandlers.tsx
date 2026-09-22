@@ -85,18 +85,76 @@ export function handleOpTweet(tweet: HTMLElement) {
 }
 
 /**
+ * Extracts the main tweet text, excluding quoted tweet text.
+ * When there are multiple tweetText elements, returns the first one (main tweet).
+ */
+function getMainTweetText(tweet: HTMLElement): string {
+  const allTweetTexts = tweet.querySelectorAll<HTMLElement>('[data-testid="tweetText"]');
+  if (allTweetTexts.length === 0) return '';
+  
+  // Get the first tweetText element (main tweet, not quoted tweet)
+  const mainTweetText = allTweetTexts[0]?.innerText.trim() || '';
+  return mainTweetText;
+}
+
+/**
+ * Checks if an address exists in link hrefs within the tweet.
+ * Returns the address if found, null otherwise.
+ */
+function findAddressInLinks(tweet: HTMLElement): string | null {
+  const links = tweet.querySelectorAll<HTMLAnchorElement>('a[href]');
+  for (const link of links) {
+    const href = link.href || '';
+    // Check for EVM addresses in href
+    const evmMatch = href.match(/0x[a-fA-F0-9]{40}/);
+    if (evmMatch) return evmMatch[0];
+    // Check for Solana addresses in href (base58, 32-44 chars, typically in solana explorer URLs)
+    // Solana addresses are base58 encoded, exclude 0, O, I, l to avoid confusion
+    const solanaMatch = href.match(/[1-9A-HJ-NP-Za-km-z]{32,44}/);
+    if (solanaMatch) {
+      const match = solanaMatch[0];
+      // Solana addresses are typically 32-44 characters, and often appear in explorer URLs
+      if (match.length >= 32 && match.length <= 44) {
+        return match;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Adds a warning message to the tweet if it contains an ethereum/evm or solana address.
+ * Only checks the main tweet text (not quoted tweets) and link hrefs.
  */
 export function handleTweetWithAddress(tweet: HTMLElement, tweetText: string, isLinkedTweet: boolean) {
-  // Regex for EVM and Solana addresses, respectively
-  const evmAddressRegex = /(0x[a-fA-F0-9]{40})/g;
-
-  // Check if the tweet text contains an EVM address
-  const hasEvmAddress = tweetText.match(evmAddressRegex);
-  if (!hasEvmAddress) return;
-
-  // display warning message on tweet
-  const warningTextContent = `An Ethereum/EVM address was detected in this reply. Proceed with caution.`;
+  // Get the main tweet text (first tweetText element, excluding quoted tweets)
+  const mainText = getMainTweetText(tweet);
+  
+  // Regex for EVM and Solana addresses
+  const evmAddressRegex = /\b0x[a-fA-F0-9]{40}\b/g; // Word boundaries to avoid partial matches
+  // Solana addresses are base58 encoded (32-44 chars), use word boundaries to avoid false positives
+  const solanaAddressRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g;
+  
+  // Check if the main tweet text contains an address
+  const hasEvmAddress = mainText.match(evmAddressRegex);
+  const hasSolanaAddress = mainText.match(solanaAddressRegex);
+  
+  // Also check link hrefs for addresses
+  const addressInLink = findAddressInLinks(tweet);
+  
+  // If no address found in text or links, return early
+  if (!hasEvmAddress && !hasSolanaAddress && !addressInLink) return;
+  
+  // Determine which type of address was found for the warning message
+  let addressType = 'blockchain';
+  if (hasEvmAddress || (addressInLink && addressInLink.startsWith('0x'))) {
+    addressType = 'Ethereum/EVM';
+  } else if (hasSolanaAddress || addressInLink) {
+    addressType = 'Solana';
+  }
+  
+  // Display warning message on tweet
+  const warningTextContent = `${addressType} address detected in this reply. Proceed with caution.`;
   insertTweetWarningMessage(tweet, isLinkedTweet, warningTextContent);
 }
 
