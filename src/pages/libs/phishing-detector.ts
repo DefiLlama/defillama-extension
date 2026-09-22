@@ -1,6 +1,6 @@
 import levenshtein from "fast-levenshtein";
 import * as psl from "psl";
-import { fuzzyDomainsDb, allowedDomainsDb, blockedDomainsDb } from "./db";
+import { fuzzyDomainsDb, allowedDomainsDb, blockedDomainsDb, curatedDomainsDb, dbVersion } from "./db";
 
 const DEFAULT_LEVENSHTEIN_TOLERANCE = 3;
 
@@ -12,12 +12,14 @@ interface CheckDomainResult {
 
 let domainCheckCache = new Map<string, CheckDomainResult>();
 let lastCacheClear = Date.now();
+let cachedDbVersion = -1;
 
 export function clearDomainCheckCache() {
   const now = Date.now();
-  if (now - lastCacheClear > 1000 * 60 * 60) {
+  if (now - lastCacheClear > 1000 * 60 * 60 || cachedDbVersion !== dbVersion.n) {
     domainCheckCache = new Map();
     lastCacheClear = now;
+    cachedDbVersion = dbVersion.n;
   }
 }
 
@@ -45,11 +47,20 @@ function _checkDomain(domain: string, enableFuzzyMatch: boolean): CheckDomainRes
 }
 
 function checkDomainInLists(fullDomain: string, rootDomain: string, enableFuzzyMatch: boolean): CheckDomainResult {
+  // Precedence, most specific first, so a curated root (medium.com) never clears an exact blocked
+  // subdomain (yearn-finance-gift.medium.com), while an exact curated entry still overrides a
+  // third-party blacklist false positive:
+  //   exact curated > exact blocked > curated root > blocked root > derived allowlist > fuzzy
+  // The curated list is manually reviewed; the derived allowlist (protocols, MetaMask) is not, so it
+  // can never outrank a block.
+  const curated = curatedDomainsDb.data, blocked = blockedDomainsDb.data;
+  if (curated.has(fullDomain)) return { result: false, type: "allowed" };
+  if (blocked.has(fullDomain)) return { result: true, type: "blocked" };
+  if (curated.has(rootDomain)) return { result: false, type: "allowed" };
+  if (blocked.has(rootDomain)) return { result: true, type: "blocked" };
+
   const isAllowed = allowedDomainsDb.data.has(fullDomain) || allowedDomainsDb.data.has(rootDomain);
   if (isAllowed) return { result: false, type: "allowed" };
-
-  const isBlocked = blockedDomainsDb.data.has(fullDomain) || blockedDomainsDb.data.has(rootDomain);
-  if (isBlocked) return { result: true, type: "blocked" };
 
   // Only check fuzzy matching if enabled
   if (enableFuzzyMatch) {
