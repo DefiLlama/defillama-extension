@@ -69,7 +69,10 @@ export const curatedDomainsDb: {
   data: new Set()
 }
 
-const cacheKey = 'cache-v' + version
+// bump LISTS_REVISION whenever the list-building logic changes so existing installs rebuild
+// instead of serving the previous shape for up to an hour (or until the next version bump)
+const LISTS_REVISION = 2
+const cacheKey = 'cache-v' + version + '-r' + LISTS_REVISION
 
 // bumped whenever the in-memory lists change so cached domain verdicts can be invalidated
 export const dbVersion = { n: 0 }
