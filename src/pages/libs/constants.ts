@@ -48,7 +48,7 @@ export interface DisplayTag {
 }
 
 export const METAMASK_LIST_CONFIG_API =
-  "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/config.json";
+  "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/main/src/config.json";
 export const DEFILLAMA_DIRECTORY_API = "https://raw.githubusercontent.com/DefiLlama/url-directory/master/domains.json";
 
 
